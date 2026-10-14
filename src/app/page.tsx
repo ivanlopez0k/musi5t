@@ -10,6 +10,11 @@ import { HeroPhotos } from "@/components/landing/HeroPhotos";
 import { Services } from "@/components/landing/Services";
 import { WorkCarousel } from "@/components/landing/WorkCarousel";
 import { FaqList } from "@/components/landing/FaqList";
+import {
+  StepCurateCollage,
+  StepConnectAnimation,
+  StepDiscussPost,
+} from "@/components/landing/HowItWorksVisuals";
 
 const PROCESS_STEPS = [
   {
@@ -361,14 +366,9 @@ export default function Home() {
                       </div>
 
                       <div className="col-span-6 sm:col-span-6 sm:col-start-7 mt-[4vw] sm:mt-0">
-                        <div className="w-full aspect-[16/10] rounded-[0.5vw] overflow-hidden drop-shadow-soft">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={step.image}
-                            alt={step.title}
-                            className="w-full h-full object-cover select-none"
-                          />
-                        </div>
+                        {step.number === 1 && <StepCurateCollage />}
+                        {step.number === 2 && <StepConnectAnimation />}
+                        {step.number === 3 && <StepDiscussPost />}
                       </div>
                     </div>
                   ))}
