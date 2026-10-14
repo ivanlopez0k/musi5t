@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  /* Default theme: lima */
+  --bg-primary: #F4F7E8;
+  --text-secondary: #1B1F10;
+  --accent-color: #B6E02E;
+
+  /* Sidejob motion curves */
+  --ease-editorial: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-layout: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="coral"] {
+  --bg-primary: #FFF1EC;
+  --text-secondary: #2A1511;
+  --accent-color: #FF5A3C;
+}
+
+[data-theme="cobalto"] {
+  --bg-primary: #EEF3FF;
+  --text-secondary: #0F1A33;
+  --accent-color: #2F5BFF;
+}
+
+[data-theme="violeta"] {
+  --bg-primary: #F5EEFF;
+  --text-secondary: #1D1230;
+  --accent-color: #8A4DFF;
+}
+
+[data-theme="mandarina"] {
+  --bg-primary: #FFF6E5;
+  --text-secondary: #2B1D08;
+  --accent-color: #FF9F1C;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: background-color 0.4s var(--ease-editorial), color 0.4s var(--ease-editorial);
+  min-height: 100dvh;
+}
