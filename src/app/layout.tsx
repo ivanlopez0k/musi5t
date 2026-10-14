@@ -1,20 +1,28 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const khTeka = localFont({
+  src: [
+    {
+      path: "../../public/fonts/KHTeka-Regular.otf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/KHTeka-Medium.otf",
+      weight: "500",
+      style: "normal",
+    },
+  ],
+  variable: "--font-kh-teka",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "musi5t — Social platform for album lovers",
-  description: "Share your top albums and songs. Connect through musical taste.",
+  title: "Sidejob | Creative Production Agency in Oslo",
+  description:
+    "Sidejob is an independent creative production agency in Oslo, building specialist teams for campaigns, film, photography, content and experiences.",
 };
 
 export default function RootLayout({
@@ -23,8 +31,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" data-theme="lima">
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={khTeka.variable}>
+      <body className={`${khTeka.className} min-h-full flex flex-col font-sans`}>
+        {children}
+      </body>
     </html>
   );
 }
+
