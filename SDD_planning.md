@@ -164,19 +164,17 @@ flowchart LR
     FE -. imágenes .-> CAA
 ```
 
-### 6.2 Propuesta de stack _(a confirmar)_
+### 6.2 Stack confirmado
 
-| Capa | Opción recomendada | Alternativa | Justificación |
-|---|---|---|---|
-| Frontend | **Next.js (React) + TypeScript** | Angular | SSR/SEO para perfiles públicos y previews al compartir; ecosistema grande de UI/animaciones, útil para la estética visual. |
-| Estilos | **Tailwind CSS + variables CSS** | CSS Modules | Las paletas del perfil se implementan como variables CSS intercambiables. |
-| Backend | **ASP.NET Core Web API (C#)** | Node.js (NestJS) | Tipado fuerte, buen rendimiento, EF Core y herramientas maduras de autenticación. |
-| Base de datos | **PostgreSQL** | SQL Server | Relacional (las reglas de visibilidad son consultas con joins), gratuita y con buen soporte en hosting. |
-| Caché | Redis _(opcional al inicio)_ | Caché en memoria | Para respuestas de MusicBrainz y feeds. |
-| Autenticación | JWT de acceso + refresh token en cookie `httpOnly` | Sesiones con cookie | Estándar y simple de implementar. |
-| Despliegue | Docker + un PaaS (Railway, Render, Fly.io) | VPS | Barato y simple para empezar. |
+| Capa | Tecnología elegida | Justificación |
+|---|---|---|
+| Frontend & Backend | **Next.js (App Router) + TypeScript** | Tipado end-to-end, SSR/SEO para perfiles y previsualizaciones, API routes para el backend unificado sin overhead de múltiples repositorios. |
+| Estilos | **Tailwind CSS + Variables CSS** | Permite aplicar el sistema de tokens y paletas de color dinámicas (`lima`, `coral`, etc.) y reproducir la estética de *Sidejob*. |
+| Base de datos | **PostgreSQL** | Motor relacional robusto para las consultas de visibilidad, índices y restricciones de integridad. |
+| ORM | **Drizzle ORM** | Type-safe SQL, cero sobrecarga, ideal para consultas complejas con `EXISTS` y `JOINs` sin la magia pesada de otros ORMs. |
+| Autenticación | JWT / Sesiones seguras en cookies `httpOnly` | Simple, estándar y compatible con Server Components. |
+| Caché | Caché local en BD + memoria | Para respuestas de MusicBrainz / CAA y feeds. |
 
-> Alternativa de equipo chico: **todo en TypeScript** (Next.js + Prisma + PostgreSQL) para unificar el lenguaje. La decisión final depende de qué stack domine el equipo.
 
 ### 6.3 Componentes del backend
 - **Auth:** registro, login, refresh, recuperación de contraseña.
