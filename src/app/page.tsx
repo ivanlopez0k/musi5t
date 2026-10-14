@@ -402,23 +402,17 @@ export default function Home() {
                   <div className="w-full layout-grid">
                     <div className="col-span-full border-t border-secondary/10 mb-[4vw]" />
 
-                    {/* Left Column: Any Questions Badge + FAQ Image */}
+                    {/* Left Column: Any Questions Badge */}
                     <div className="col-span-full sm:col-span-4 self-stretch flex flex-col">
-                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw] mb-[3vw]">
+                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw] mb-[2vw]">
                         <div className="drop-shadow rounded-[0.25vw]">
                           <div className="w-[5vw] h-[5vw] sm:w-[1.8vw] sm:h-[1.8vw] rounded-[0.5vw] sm:rounded-[0.2vw] bg-yellow" />
                         </div>
                         <h2 className="mediumText">any questions?</h2>
                       </div>
-
-                      <div className="w-full sm:w-[24vw] h-[50vw] sm:h-[16vw] rounded-[0.5vw] sm:rounded-[0.25vw] overflow-hidden drop-shadow mb-[6vw] sm:mb-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src="/images/musi5t/faq_cassette.webp"
-                          alt="Music cassette artwork"
-                          className="w-full h-full object-cover select-none"
-                        />
-                      </div>
+                      <p className="extraSmallText text-secondary/50 leading-relaxed pr-[3vw] hidden sm:block">
+                        Everything you need to know about how musi5t connects listeners through albums, Top 5 curation, and record-targeted posts.
+                      </p>
                     </div>
 
                     {/* Right Column: Accordion */}
