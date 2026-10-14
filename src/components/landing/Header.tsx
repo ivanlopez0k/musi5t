@@ -27,7 +27,7 @@ export function Header({ onOpenPlayer }: HeaderProps) {
             onClick={() => scrollTo("#hero")}
             className="nav-btn cursor-pointer text-left"
           >
-            sidejob
+            musi5t
           </button>
         </div>
 
@@ -43,24 +43,24 @@ export function Header({ onOpenPlayer }: HeaderProps) {
             </button>
             <button
               type="button"
-              onClick={() => scrollTo("#services")}
+              onClick={() => scrollTo("#features")}
               className="nav-btn cursor-pointer"
             >
-              Services,
+              Features,
             </button>
             <button
               type="button"
-              onClick={() => scrollTo("#work")}
+              onClick={() => scrollTo("#records")}
               className="nav-btn cursor-pointer"
             >
-              Work,
+              Records,
             </button>
             <button
               type="button"
-              onClick={() => scrollTo("#process")}
+              onClick={() => scrollTo("#how-it-works")}
               className="nav-btn cursor-pointer"
             >
-              Process
+              How it works
             </button>
           </span>
         </div>
@@ -68,13 +68,13 @@ export function Header({ onOpenPlayer }: HeaderProps) {
         {/* CTA Button */}
         <div className="col-span-3 flex justify-end items-center">
           <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
-            <a href="#about" className="main-btn smallText">
+            <a href="#cta" className="main-btn smallText">
               <span className="main-btn__icon" aria-hidden="true" />
               <span className="main-btn__label">
                 <span className="main-btn__clip">
-                  <span className="main-btn__from">Talk to us</span>
+                  <span className="main-btn__from">Join musi5t</span>
                   <span className="main-btn__to" aria-hidden="true">
-                    Talk to us
+                    Join musi5t
                   </span>
                 </span>
               </span>

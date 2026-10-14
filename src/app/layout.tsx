@@ -20,9 +20,9 @@ const khTeka = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Sidejob | Creative Production Agency in Oslo",
+  title: "musi5t — Social platform for album lovers",
   description:
-    "Sidejob is an independent creative production agency in Oslo, building specialist teams for campaigns, film, photography, content and experiences.",
+    "Share your Top 5 albums and songs. Connect with listeners through shared taste and album-centric discussion.",
 };
 
 export default function RootLayout({

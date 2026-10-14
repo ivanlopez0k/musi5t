@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "@/lib/gsap";
 
-interface ServiceCategory {
+interface FeatureCategory {
   title: string;
   images: {
     left: string;
@@ -11,47 +11,47 @@ interface ServiceCategory {
   };
 }
 
-const CATEGORIES: ServiceCategory[] = [
+const FEATURES: FeatureCategory[] = [
   {
-    title: "film",
+    title: "top 5 albums",
     images: {
-      left: "/images/services/film1.webp",
-      right: "/images/services/film2.webp",
+      left: "/images/musi5t/feature_top5_1.webp",
+      right: "/images/musi5t/feature_top5_2.webp",
     },
   },
   {
-    title: "campaigns",
+    title: "album feeds",
     images: {
-      left: "/images/services/campaign1.webp",
-      right: "/images/services/campaign2.webp",
+      left: "/images/musi5t/feature_feed_1.webp",
+      right: "/images/musi5t/feature_feed_2.webp",
     },
   },
   {
-    title: "photography",
+    title: "curated editions",
     images: {
-      left: "/images/services/photography1.webp",
-      right: "/images/services/photography2.webp",
+      left: "/images/musi5t/feature_vinyl_1.webp",
+      right: "/images/musi5t/feature_vinyl_2.webp",
     },
   },
   {
-    title: "producing",
+    title: "shared taste",
     images: {
-      left: "/images/services/producing1.webp",
-      right: "/images/services/producing2.webp",
+      left: "/images/musi5t/feature_taste_1.webp",
+      right: "/images/musi5t/feature_taste_2.webp",
     },
   },
   {
-    title: "strategy",
+    title: "track rankings",
     images: {
-      left: "/images/services/strategy1.webp",
-      right: "/images/services/strategy2.webp",
+      left: "/images/musi5t/feature_songs_1.webp",
+      right: "/images/musi5t/feature_songs_2.webp",
     },
   },
   {
-    title: "casting",
+    title: "community ratings",
     images: {
-      left: "/images/services/casting1.webp",
-      right: "/images/services/casting2.webp",
+      left: "/images/musi5t/feature_ratings_1.webp",
+      right: "/images/musi5t/feature_ratings_2.webp",
     },
   },
 ];
@@ -66,7 +66,7 @@ export function Services() {
   const leftPhotoRef = useRef<HTMLDivElement>(null);
   const rightPhotoRef = useRef<HTMLDivElement>(null);
 
-  const activeCategory = CATEGORIES[activeIndex];
+  const activeCategory = FEATURES[activeIndex];
 
   // Animate text states on activeIndex change
   useEffect(() => {
@@ -165,7 +165,7 @@ export function Services() {
   return (
     <div
       ref={containerRef}
-      id="services"
+      id="features"
       data-nav-color="secondary"
       className="w-full sm:h-fit sm:min-h-fit min-h-svh bg-primary text-secondary layout-grid relative pt-[6vw] sm:pt-[4vw] pb-[8vw] select-none"
     >
@@ -177,18 +177,18 @@ export function Services() {
               <div className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] bg-yellow" />
             </div>
             <div>
-              <span className="mediumText">how may we help?</span>
+              <span className="mediumText">how it connects</span>
             </div>
           </div>
         </div>
-        <h2 className="mediumText">services</h2>
+        <h2 className="mediumText">features</h2>
       </div>
 
-      {/* Services List with Hover Dock */}
+      {/* Features List with Hover Dock */}
       <div className="col-span-full sm:col-span-12 flex flex-col items-center justify-center mt-[10vw] mb-[7vw] sm:mb-[3vw] relative">
-        {CATEGORIES.map((cat, i) => (
+        {FEATURES.map((feat, i) => (
           <div
-            key={cat.title}
+            key={feat.title}
             ref={(el) => {
               rowRefs.current[i] = el;
             }}
@@ -204,13 +204,13 @@ export function Services() {
               ref={(el) => {
                 textRefs.current[i] = el;
               }}
-              className={`inline-block pointer-events-none text-[11vw] tracking-[-0.03em] will-change-transform transition-colors duration-300 ease-out font-medium ${
+              className={`inline-block pointer-events-none text-[10vw] tracking-[-0.03em] will-change-transform transition-colors duration-300 ease-out font-medium ${
                 i === activeIndex && isHovered
                   ? "text-yellow"
                   : "text-secondary hover:text-secondary/70"
               }`}
             >
-              {cat.title}
+              {feat.title}
             </span>
           </div>
         ))}
@@ -220,10 +220,10 @@ export function Services() {
           ref={dockRef}
           className="absolute left-0 w-full pointer-events-none -translate-y-1/2 flex justify-between px-[5vw] z-0"
         >
-          {/* Left Floating Image */}
+          {/* Left Floating Album Artwork */}
           <div
             ref={leftPhotoRef}
-            className="w-[20vw] h-[14vw] rounded-[0.4vw] overflow-hidden drop-shadow-soft opacity-0 will-change-transform rotate-[-10deg]"
+            className="w-[18vw] h-[18vw] rounded-[0.4vw] overflow-hidden drop-shadow-soft opacity-0 will-change-transform rotate-[-10deg] bg-secondary"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -233,10 +233,10 @@ export function Services() {
             />
           </div>
 
-          {/* Right Floating Image */}
+          {/* Right Floating Album Artwork */}
           <div
             ref={rightPhotoRef}
-            className="w-[22vw] h-[15vw] rounded-[0.4vw] overflow-hidden drop-shadow-soft opacity-0 will-change-transform rotate-[8deg]"
+            className="w-[19vw] h-[19vw] rounded-[0.4vw] overflow-hidden drop-shadow-soft opacity-0 will-change-transform rotate-[8deg] bg-secondary"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

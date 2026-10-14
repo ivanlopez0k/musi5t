@@ -14,24 +14,24 @@ import { FaqList } from "@/components/landing/FaqList";
 const PROCESS_STEPS = [
   {
     number: 1,
-    title: "Start with the job",
-    image: "/images/process1.webp",
+    title: "Curate your Top 5",
+    image: "/images/musi5t/process_curate.webp",
     description:
-      "Whether you're at the idea stage or already have a concept locked in, we get under the brief and work out what the job actually needs: the scope, the ambition, the timing, and what success looks like when it's done.",
+      "Search our MusicBrainz and Cover Art catalog. Pick your 5 essential albums and 5 all-time songs. Choose the exact vinyl edition, Japanese pressing, or original sleeve that defines your connection to each record.",
   },
   {
     number: 2,
-    title: "Build the crew",
-    image: "/images/process2.webp",
+    title: "Connect through records",
+    image: "/images/musi5t/process_connect.webp",
     description:
-      "No fixed team. Just the right one. We pull together photographers, filmmakers, stylists, designers, producers and whoever else the idea needs from our wider network, building a specialist crew around each project rather than forcing every brief through the same people.",
+      "Follow albums to tune your personal timeline. Whenever someone posts about an album in your Top 5 or a record you track, their insights appear directly in your 'For You' feed. Taste-matching made organic.",
   },
   {
     number: 3,
-    title: "Own the production",
-    image: "/images/process3.webp",
+    title: "Join the conversation",
+    image: "/images/musi5t/process_discuss.webp",
     description:
-      "We run it from call time to wrap. Creative direction, shoots, content, events, activations and everything in between. You get the work delivered and production handled properly, not a list of freelancers to coordinate yourself.",
+      "Publish thoughts targeted to specific albums (#album) or share globally. No noise, no algorithmic clickbait—just authentic discussion with people who cherish the exact same soundscapes.",
   },
 ];
 
@@ -192,7 +192,7 @@ export default function Home() {
                 >
                   {/* Giant 3D Hero Wordmark */}
                   <h1 className="inline-block whitespace-nowrap will-change-transform text-[30vw] md:text-[20vw] tracking-[-0.07em] absolute top-[26%] left-1/2 -translate-x-1/2 translate-y-[-30%] leading-none text-secondary select-none pointer-events-none [perspective:1400px]">
-                    {"sidejob".split("").map((char, i) => (
+                    {"musi5t".split("").map((char, i) => (
                       <span
                         key={i}
                         className="hero-char inline-block will-change-transform [transform-style:preserve-3d]"
@@ -208,13 +208,13 @@ export default function Home() {
 
                   {/* Bottom Grid Info */}
                   <div className="w-full h-fit layout-grid mb-[2vw] z-20 pointer-events-auto">
-                    <div className="z-0 sm:col-span-3 col-span-4 extraSmallTextBold mb-[10vw] sm:mb-0">
-                      A creative production agency bringing together the right
-                      people to make campaigns, content and experiences that get
-                      noticed.
+                    <div className="z-0 sm:col-span-4 col-span-4 extraSmallTextBold mb-[10vw] sm:mb-0 leading-relaxed">
+                      A social platform built around albums, not accounts. Share
+                      your Top 5 records, discover music through shared taste, and
+                      join discussions centered on albums.
                     </div>
-                    <div className="mb-[15vw] sm:mb-0 sm:col-span-4 col-span-6 sm:col-start-10 flex items-end md:justify-end space-x-2 whitespace-nowrap extraSmallTextBold">
-                      <div>Based in Oslo, Norway</div>
+                    <div className="mb-[15vw] sm:mb-0 sm:col-span-4 col-span-6 sm:col-start-9 flex items-end md:justify-end space-x-2 whitespace-nowrap extraSmallTextBold">
+                      <div>Built for true listeners</div>
                       <div className="w-[3vw] flex items-center justify-center">
                         |
                       </div>
@@ -238,10 +238,9 @@ export default function Home() {
                 >
                   <div className="layout-grid w-full">
                     <h2 className="z-0 col-span-full sm:col-span-6 mediumText font-light leading-snug">
-                      sidejob is an independent creative production agency
-                      building specialist teams for campaigns, content and
-                      experiences. No fixed team. Just the right one for each
-                      job.
+                      musi5t is an independent music platform built around albums,
+                      not accounts. Your Top 5 defines your identity; your posts
+                      reach the people who love the exact same records.
                     </h2>
                   </div>
 
@@ -254,15 +253,15 @@ export default function Home() {
                         <div className="drop-shadow rounded-[0.25vw]">
                           <div className="w-[1.8vw] h-[1.8vw] rounded-[0.2vw] bg-yellow" />
                         </div>
-                        <span className="mediumText">working with you</span>
+                        <span className="mediumText">album-first social</span>
                       </div>
 
                       <div className="relative w-full sm:flex-1 sm:min-h-[16vw]">
                         <div className="drop-shadow w-full bg-primary sm:w-[24vw] h-[50vw] sm:h-[16vw] overflow-hidden rounded-[0.5vw] sm:rounded-[0.25vw]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src="/images/hero1.webp"
-                            alt="Working with you"
+                            src="/images/musi5t/about_vinyl.webp"
+                            alt="Spinning vinyl"
                             className="w-full h-full object-cover bg-yellow opacity-90 select-none"
                           />
                         </div>
@@ -272,49 +271,43 @@ export default function Home() {
                     {/* Right Column: 3 Paragraphs */}
                     <div className="col-span-full sm:col-span-4 flex flex-col mt-[8vw] sm:mt-0 mb-[5vw]">
                       <div className="flex flex-col gap-[2.5vw] sm:gap-[1vw] mb-[10vw] sm:mb-[6vw]">
-                        <h3 className="smallText font-medium">Not an agency</h3>
+                        <h3 className="smallText font-medium">Not an algorithm</h3>
                         <p className="extraSmallText opacity-60 leading-relaxed">
-                          We&apos;re not a traditional agency, talent marketplace
-                          or freelancer collective. We keep a small production
-                          core and work with a wider network of independent
-                          creatives, building the right crew around each project
-                          and owning the delivery of the work.
+                          No opaque feeds or follower popularity contests. Your feed
+                          is curated strictly by the albums you care about and the
+                          people who share your taste. High-signal music culture.
                         </p>
                       </div>
 
                       <div className="flex flex-col gap-[2.5vw] sm:gap-[1vw] mb-[10vw] sm:mb-[6vw]">
-                        <h3 className="smallText font-medium">Crew per project</h3>
+                        <h3 className="smallText font-medium">Top 5 as identity</h3>
                         <p className="extraSmallText opacity-60 leading-relaxed">
-                          Every brief gets its own shape and its own people.
-                          Photographers, filmmakers, stylists, designers,
-                          producers, casting talent and editors are assembled
-                          around the idea, not pulled from a fixed roster or
-                          forced through the same in-house team every time.
+                          Every member curates their definitive Top 5 Albums and
+                          Top 5 Songs. Pick your preferred pressing, deluxe
+                          edition, and artwork version to showcase your musical DNA.
                         </p>
                       </div>
 
                       <div className="flex flex-col gap-[2.5vw] sm:gap-[1vw]">
-                        <h3 className="smallText font-medium">From concept to wrap</h3>
+                        <h3 className="smallText font-medium">Posts targeted to records</h3>
                         <p className="extraSmallText opacity-60 leading-relaxed">
-                          We can be involved from the very start or brought in
-                          once a concept already exists. Creative direction,
-                          strategy, casting, shoots, content, events and
-                          activations. However we get involved, we run production
-                          properly and get the work over the line.
+                          When you write, choose whether your thoughts belong to the
+                          global feed or to specific album communities (#album).
+                          Direct, authentic conversations around sound.
                         </p>
                       </div>
 
                       <div className="w-fit text-secondary mt-[4vw]">
                         <div className="drop-shadow rounded-[0.25vw]">
-                          <a href="#about" className="main-btn smallText">
+                          <a href="#cta" className="main-btn smallText">
                             <span className="main-btn__icon" aria-hidden="true" />
                             <span className="main-btn__label">
                               <span className="main-btn__clip">
                                 <span className="main-btn__from">
-                                  Talk to us
+                                  Join musi5t
                                 </span>
                                 <span className="main-btn__to" aria-hidden="true">
-                                  Talk to us
+                                  Join musi5t
                                 </span>
                               </span>
                             </span>
@@ -325,15 +318,15 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 3. SERVICES SECTION (Interactive with photo dock) */}
+                {/* 3. FEATURES SECTION (Interactive with artwork dock) */}
                 <Services />
 
-                {/* 4. WORK SECTION (3D Horizontal Carousel & Logos) */}
+                {/* 4. RECORDS SECTION (3D Horizontal Carousel & Labels) */}
                 <WorkCarousel />
 
-                {/* 5. PROCESS SECTION (Dark) */}
+                {/* 5. HOW IT WORKS SECTION (Dark) */}
                 <div
-                  id="process"
+                  id="how-it-works"
                   data-nav-color="primary"
                   className="w-full h-fit bg-secondary text-primary layout-grid py-[8vw] sm:py-[6vw] select-none"
                 >
@@ -342,9 +335,9 @@ export default function Home() {
                       <div className="drop-shadow rounded-[0.25vw]">
                         <div className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] bg-yellow" />
                       </div>
-                      <span className="mediumText">how we work</span>
+                      <span className="mediumText">how it works</span>
                     </div>
-                    <h2 className="mediumText">process</h2>
+                    <h2 className="mediumText">the loop</h2>
                   </div>
 
                   {PROCESS_STEPS.map((step, idx) => (
@@ -390,18 +383,18 @@ export default function Home() {
                 >
                   <div className="layout-grid text-secondary mb-[8vw] sm:mb-[6vw]">
                     <div className="col-span-full sm:col-span-3 flex flex-col gap-[1vw]">
-                      <span className="smallText font-medium">Unlimited team</span>
+                      <span className="smallText font-medium">True listeners</span>
                       <span className="extraSmallText text-secondary/50">
-                        build the right crew around each project, bringing
-                        together independent creatives.
+                        build your personal shrine of records and connect with
+                        listeners who hear what you hear.
                       </span>
                     </div>
 
                     <div className="col-span-full sm:col-span-6 sm:col-start-6">
                       <div className="largeText font-medium leading-none">
-                        no fixed team,
+                        no algorithmic noise,
                         <br />
-                        just the right one
+                        just pure records
                       </div>
                     </div>
                   </div>
@@ -421,8 +414,8 @@ export default function Home() {
                       <div className="w-full sm:w-[24vw] h-[50vw] sm:h-[16vw] rounded-[0.5vw] sm:rounded-[0.25vw] overflow-hidden drop-shadow mb-[6vw] sm:mb-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src="/images/faq.webp"
-                          alt="FAQ illustration"
+                          src="/images/musi5t/faq_cassette.webp"
+                          alt="Music cassette artwork"
                           className="w-full h-full object-cover select-none"
                         />
                       </div>
@@ -443,16 +436,16 @@ export default function Home() {
                 >
                   <div className="col-span-full flex flex-col items-center justify-center text-center gap-[3vw]">
                     <h2 className="largeText font-light">
-                      Got a project in mind?
+                      Ready to curate your Top 5?
                     </h2>
                     <div className="drop-shadow rounded-[0.25vw] scale-125 mt-[2vw]">
-                      <a href="mailto:hello@itsasidejob.com" className="main-btn smallText text-secondary">
+                      <a href="#hero" className="main-btn smallText text-secondary">
                         <span className="main-btn__icon" aria-hidden="true" />
                         <span className="main-btn__label">
                           <span className="main-btn__clip">
-                            <span className="main-btn__from">Talk to us</span>
+                            <span className="main-btn__from">Join musi5t</span>
                             <span className="main-btn__to" aria-hidden="true">
-                              Talk to us
+                              Join musi5t
                             </span>
                           </span>
                         </span>
@@ -470,16 +463,16 @@ export default function Home() {
                     </span>
                     <div className="flex flex-col gap-[0.5vw]">
                       <a
-                        href="mailto:hello@itsasidejob.com"
+                        href="mailto:hello@musi5t.com"
                         className="footer-link-clip w-fit mediumText hover:text-yellow transition-colors duration-300"
                       >
-                        hello@itsasidejob.com
+                        hello@musi5t.com
                       </a>
                       <a
-                        href="mailto:booking@itsasidejob.com"
+                        href="mailto:press@musi5t.com"
                         className="footer-link-clip w-fit mediumText hover:text-yellow transition-colors duration-300"
                       >
-                        booking@itsasidejob.com
+                        press@musi5t.com
                       </a>
                     </div>
                   </div>
@@ -507,7 +500,7 @@ export default function Home() {
                   {/* Copyright & Legal */}
                   <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[1vw]">
                     <span className="detailText text-primary/40">
-                      © 2026 sidejob. All rights reserved.
+                      © 2026 musi5t. The album-centric social network.
                     </span>
                     <div className="flex gap-[1vw] detailText text-primary/50">
                       <a href="#about" className="hover:text-primary transition-colors">

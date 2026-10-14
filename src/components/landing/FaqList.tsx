@@ -10,44 +10,44 @@ interface FaqItem {
 
 const FAQS: FaqItem[] = [
   {
-    question: "How do you choose the crew?",
+    question: "Why only 5 albums in the Top?",
     answer:
-      "No fixed roster forced onto every brief. We keep a small production core, then pull photographers, filmmakers, stylists, designers, producers, casting and editors from a wider network based on the idea, the location and the craft the job needs.",
+      "Constraints breed identity. Limiting your profile to 5 albums forces you to decide what truly defines your musical DNA, avoiding bloated endless lists and making taste comparisons between listeners instant and meaningful.",
   },
   {
-    question: "Can you take just one piece of the job?",
+    question: "How does post visibility work?",
     answer:
-      "Yes. Full campaign through to a single production lane. Same rule either way: we own that piece properly, with the right people on it, not a loose intro to someone else's calendar.",
+      "Posts can be tagged with up to 3 albums (#album) or marked as #public. When you talk about an album, your post reaches everyone who has that album in their Top 5 or follows it, connecting you directly to your musical tribe.",
   },
   {
-    question: "Can you pick up a job that's already creatived?",
+    question: "Can I choose my favorite edition and artwork?",
     answer:
-      "Yes. Bring us in at concept, or once the idea is locked. We'll build the right crew around what's already there and run it to wrap. You shouldn't have to coordinate the freelancers yourself.",
+      "Yes. If an album has multiple versions (original pressing, Japanese import, anniversary edition, or vinyl remaster), musi5t lets you pick the exact artwork and pressing that represents your connection to the record.",
   },
   {
-    question: "What should we send to get started?",
+    question: "Where do album artworks and metadata come from?",
     answer:
-      "Where you are (idea / locked concept), what you're making, when you need it, roughly what success looks like, and any must-haves (talent, locations, deliverables). Rough is fine. We'll come back with what the job needs and whether we're the right fit.",
+      "We sync with open music databases including MusicBrainz and the Cover Art Archive, with direct fallbacks to Apple Music for pristine, high-resolution covers and verified tracklists.",
   },
   {
-    question: "Do you only produce in Oslo?",
+    question: "Is there full music streaming on musi5t?",
     answer:
-      "We're based in Oslo and produce there often, but the crew and the job can travel. If the work needs another city, we build for that. Not everything has to run through Norway.",
+      "musi5t is a social and discussion space, not a subscription streaming platform. We offer audio preview snippets and direct links to Spotify, Apple Music, and vinyl retailers so you can listen anywhere.",
   },
   {
-    question: "Who do you work with?",
+    question: "Can I customize my profile palette?",
     answer:
-      "Brands directly, and agencies or in-house teams who need production owned properly. Fashion, sport, hospitality, food and drink, music, lifestyle and culture. If the brief needs a specialist crew and a clean delivery, we're in range.",
+      "Yes. Every member can select an accent palette for their public profile (/@username) from 5 curated options: Lima, Coral, Cobalto, Violeta, or Mandarina, making each listener's space distinctive.",
   },
   {
-    question: "How does pricing work?",
+    question: "How do ratings and reviews work?",
     answer:
-      "No packages. We scope the brief, build the crew, and price the work it actually takes: days, people, locations, talent, deliverables. You get a clear figure before anyone's booked. Tell us the ceiling and we'll be honest about what fits inside it.",
+      "You can rate any album from 1 to 10 and publish text reviews. Community averages surface collective consensus, while discussions remain rooted around the music itself.",
   },
   {
-    question: "How long does a job take?",
+    question: "Is musi5t free to join?",
     answer:
-      "Depends on the brief. A tight stills job can move in days; a full campaign or launch needs proper pre-production. In the first conversation we'll say what realistic looks like, not a fake turnaround.",
+      "Completely free. musi5t is built by and for album lovers who believe album culture and deep listening deserve their own dedicated home on the web.",
   },
 ];
 
@@ -59,15 +59,12 @@ export function FaqList() {
 
   const toggle = (idx: number) => {
     if (openIndex === idx) {
-      // Close currently open
       close(idx);
       setOpenIndex(null);
     } else {
-      // Close previous if any
       if (openIndex !== null) {
         close(openIndex);
       }
-      // Open new
       open(idx);
       setOpenIndex(idx);
     }
@@ -116,7 +113,6 @@ export function FaqList() {
     }
   };
 
-  // Initial set height: 0
   useEffect(() => {
     answerRefs.current.forEach((el, i) => {
       if (el) gsap.set(el, { height: 0 });

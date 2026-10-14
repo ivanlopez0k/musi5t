@@ -262,7 +262,7 @@ export function HeroPhotos() {
       ref={rootRef}
       className="w-fit h-fit z-10 absolute top-[calc(28%+10vw)] left-1/2 -translate-x-1/2 [perspective:1600px] pointer-events-none select-none"
     >
-      {/* Center Card */}
+      {/* Center Card — Tame Impala: Currents */}
       <div
         ref={centerScrollRef}
         className="will-change-transform [transform-style:preserve-3d]"
@@ -282,8 +282,8 @@ export function HeroPhotos() {
               <div className="drop-shadow-soft w-[38vw] h-[25vw] rounded-[0.5vw] overflow-hidden bg-yellow">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/images/hero0.webp"
-                  alt="Sidejob Hero"
+                  src="/images/musi5t/hero_center.webp"
+                  alt="Tame Impala - Currents"
                   className="w-full h-full object-cover select-none"
                 />
               </div>
@@ -292,7 +292,7 @@ export function HeroPhotos() {
         </div>
       </div>
 
-      {/* Left Card */}
+      {/* Left Card — Kendrick Lamar: GKMC */}
       <div className="w-[14vw] h-[9vw] absolute top-1/2 -left-1/3 -translate-x-1/3 -translate-y-1/2 [transform-style:preserve-3d]">
         <div
           ref={leftScrollRef}
@@ -313,8 +313,8 @@ export function HeroPhotos() {
                 <div className="drop-shadow-soft w-full h-full rounded-[0.2vw] overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/images/hero2.webp"
-                    alt="Sidejob Hero Left"
+                    src="/images/musi5t/hero_left.webp"
+                    alt="Kendrick Lamar - GKMC"
                     className="w-full h-full object-cover select-none"
                   />
                 </div>
@@ -324,7 +324,7 @@ export function HeroPhotos() {
         </div>
       </div>
 
-      {/* Right Card */}
+      {/* Right Card — Daft Punk: Random Access Memories */}
       <div className="w-[15vw] h-[10vw] absolute top-4/5 right-[-25%] translate-x-[25%] -translate-y-4/5 [transform-style:preserve-3d]">
         <div
           ref={rightScrollRef}
@@ -345,8 +345,8 @@ export function HeroPhotos() {
                 <div className="drop-shadow-soft w-full h-full rounded-[0.2vw] overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/images/hero3.webp"
-                    alt="Sidejob Hero Right"
+                    src="/images/musi5t/hero_right.webp"
+                    alt="Daft Punk - Random Access Memories"
                     className="w-full h-full object-cover select-none"
                   />
                 </div>
