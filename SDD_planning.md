@@ -1,7 +1,7 @@
 # SDD — Plataforma social de álbumes musicales
 
 > **Estado:** Borrador v0.1
-> **Nombre del proyecto:** _(provisorio, a definir)_
+> **Nombre del proyecto:** musi5t
 > **Tipo de documento:** Software Design Document (SDD)
 
 ---
