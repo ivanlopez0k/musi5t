@@ -1,44 +1,103 @@
 @import "tailwindcss";
 
 :root {
-  /* Default theme: lima */
-  --bg-primary: #F4F7E8;
-  --text-secondary: #1B1F10;
-  --accent-color: #B6E02E;
+  /* Sidejob Official Color Tokens */
+  --color-primary: #F7F7F7;
+  --color-secondary: #0E0E0E;
+  --color-yellow: #FFE600;
+  --color-surface: #EFEFEF;
 
-  /* Sidejob motion curves */
-  --ease-editorial: cubic-bezier(0.165, 0.84, 0.44, 1);
-  --ease-layout: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Layout & Side-Panel Motion */
+  --layout-offset: 0vw;
+  --layout-duration: 0.65s;
+  --layout-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --main-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-[data-theme="coral"] {
-  --bg-primary: #FFF1EC;
-  --text-secondary: #2A1511;
-  --accent-color: #FF5A3C;
+/* User Profile Palettes (Scoped to [data-profile-theme]) */
+[data-profile-theme="lima"] {
+  --profile-bg: #F4F7E8;
+  --profile-text: #1B1F10;
+  --profile-accent: #B6E02E;
 }
-
-[data-theme="cobalto"] {
-  --bg-primary: #EEF3FF;
-  --text-secondary: #0F1A33;
-  --accent-color: #2F5BFF;
+[data-profile-theme="coral"] {
+  --profile-bg: #FFF1EC;
+  --profile-text: #2A1511;
+  --profile-accent: #FF5A3C;
 }
-
-[data-theme="violeta"] {
-  --bg-primary: #F5EEFF;
-  --text-secondary: #1D1230;
-  --accent-color: #8A4DFF;
+[data-profile-theme="cobalto"] {
+  --profile-bg: #EEF3FF;
+  --profile-text: #0F1A33;
+  --profile-accent: #2F5BFF;
 }
-
-[data-theme="mandarina"] {
-  --bg-primary: #FFF6E5;
-  --text-secondary: #2B1D08;
-  --accent-color: #FF9F1C;
+[data-profile-theme="violeta"] {
+  --profile-bg: #F5EEFF;
+  --profile-text: #1D1230;
+  --profile-accent: #8A4DFF;
+}
+[data-profile-theme="mandarina"] {
+  --profile-bg: #FFF6E5;
+  --profile-text: #2B1D08;
+  --profile-accent: #FF9F1C;
 }
 
 body {
-  background-color: var(--bg-primary);
-  color: var(--text-secondary);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  transition: background-color 0.4s var(--ease-editorial), color 0.4s var(--ease-editorial);
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sidejob Frame & Layout Shift */
+.site-frame {
+  isolation: isolate;
+  overflow-x: clip;
   min-height: 100dvh;
+  position: relative;
+}
+
+.site-layout {
+  position: relative;
+  left: var(--layout-offset);
+  transition: left var(--layout-duration) var(--layout-ease);
+  min-height: 100dvh;
+  background-color: var(--color-primary);
+  z-index: 10;
+  box-shadow: 0 0 64px -12px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .site-layout {
+    left: 0 !important;
+  }
+}
+
+/* Sidejob Peer Hover Dimming */
+.hover-dim-group:has(.hover-dim-item:hover) .hover-dim-item {
+  opacity: 0.28;
+}
+.hover-dim-item {
+  transition: opacity 0.5s var(--main-ease), transform 0.5s var(--main-ease);
+}
+.hover-dim-item:hover {
+  opacity: 1 !important;
+  transform: translateY(-1px);
+}
+
+/* Sidejob Micro Typography */
+.micro-tag {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  opacity: 0.45;
+}
+
+/* Sidejob Scroll Indicator Animation */
+@keyframes floatDown {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+.animate-float {
+  animation: floatDown 2.2s infinite ease-in-out;
 }
