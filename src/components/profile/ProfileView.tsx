@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PaletteSelector, PROFILE_PALETTES } from "./PaletteSelector";
+import { AlbumSearchModal } from "./AlbumSearchModal";
+import { SongSearchModal } from "./SongSearchModal";
 
 export interface ProfileUser {
   id: string;
@@ -42,8 +44,8 @@ interface ProfileViewProps {
 export function ProfileView({
   user,
   isOwner,
-  topAlbums,
-  topSongs,
+  topAlbums: initialAlbums,
+  topSongs: initialSongs,
 }: ProfileViewProps) {
   const router = useRouter();
   const [currentThemeKey, setCurrentThemeKey] = useState(user.themeKey || "lima");
@@ -52,6 +54,10 @@ export function ProfileView({
   const [bio, setBio] = useState(user.bio || "");
   const [savingProfile, setSavingProfile] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Modals state
+  const [albumModalPos, setAlbumModalPos] = useState<number | null>(null);
+  const [songModalPos, setSongModalPos] = useState<number | null>(null);
 
   // Active palette
   const activePalette =
@@ -99,6 +105,70 @@ export function ProfileView({
     } catch (err) {
       console.error("Failed to logout:", err);
       setIsLoggingOut(false);
+    }
+  };
+
+  // Top 5 Album Actions
+  const handleSelectAlbum = async (
+    albumId: string,
+    coverUrl: string,
+    coverReleaseMbid: string | null
+  ) => {
+    if (!albumModalPos) return;
+    try {
+      const res = await fetch(`/api/v1/me/top/albums/${albumModalPos}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ albumId, coverUrl, coverReleaseMbid }),
+      });
+      if (res.ok) {
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Failed to update top album:", err);
+    }
+  };
+
+  const handleRemoveAlbum = async (pos: number) => {
+    try {
+      const res = await fetch(`/api/v1/me/top/albums/${pos}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Failed to remove album:", err);
+    }
+  };
+
+  // Top 5 Song Actions
+  const handleSelectSong = async (songId: string) => {
+    if (!songModalPos) return;
+    try {
+      const res = await fetch(`/api/v1/me/top/songs/${songModalPos}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ songId }),
+      });
+      if (res.ok) {
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Failed to set top song:", err);
+    }
+  };
+
+  const handleRemoveSong = async (pos: number) => {
+    try {
+      const res = await fetch(`/api/v1/me/top/songs/${pos}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Failed to remove song:", err);
     }
   };
 
@@ -192,10 +262,19 @@ export function ProfileView({
                 <div className="flex items-center gap-2 font-mono text-xs opacity-60 mb-3">
                   <span>@{user.username}</span>
                   <span>•</span>
-                  <span>Joined {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
+                  <span>
+                    Joined{" "}
+                    {new Date(user.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
                 </div>
                 <p className="text-sm sm:text-base max-w-xl opacity-80 leading-relaxed font-light">
-                  {bio || (isOwner ? "No bio yet. Click 'Edit Profile' to write something about your taste." : "No bio provided.")}
+                  {bio ||
+                    (isOwner
+                      ? "No bio yet. Click 'Edit Profile' to write something about your taste."
+                      : "No bio provided.")}
                 </p>
               </div>
             </div>
@@ -203,11 +282,11 @@ export function ProfileView({
             {/* Quick taste stats badge */}
             <div className="flex items-center gap-3 font-mono text-xs opacity-75">
               <div className="border border-black/10 rounded-lg px-3 py-2 bg-black/5">
-                <span className="block text-base font-bold">{topAlbums.length}/5</span>
+                <span className="block text-base font-bold">{initialAlbums.length}/5</span>
                 <span className="opacity-60 text-[10px] uppercase">Top Albums</span>
               </div>
               <div className="border border-black/10 rounded-lg px-3 py-2 bg-black/5">
-                <span className="block text-base font-bold">{topSongs.length}/5</span>
+                <span className="block text-base font-bold">{initialSongs.length}/5</span>
                 <span className="opacity-60 text-[10px] uppercase">Top Songs</span>
               </div>
             </div>
@@ -215,7 +294,10 @@ export function ProfileView({
 
           {/* Inline Edit Form */}
           {isEditing && (
-            <form onSubmit={handleSaveProfile} className="mt-8 pt-6 border-t border-black/10 max-w-lg space-y-4">
+            <form
+              onSubmit={handleSaveProfile}
+              className="mt-8 pt-6 border-t border-black/10 max-w-lg space-y-4"
+            >
               <div>
                 <label className="block text-xs font-mono uppercase tracking-wider opacity-60 mb-1">
                   Display Name
@@ -279,7 +361,7 @@ export function ProfileView({
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5].map((pos) => {
-              const album = topAlbums.find((a) => a.position === pos);
+              const album = initialAlbums.find((a) => a.position === pos);
 
               if (album) {
                 return (
@@ -296,6 +378,7 @@ export function ProfileView({
                       >
                         0{pos}
                       </span>
+
                       {/* Cover image */}
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -303,14 +386,39 @@ export function ProfileView({
                         alt={album.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
+
+                      {/* Owner hover actions */}
+                      {isOwner && (
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                          <button
+                            type="button"
+                            onClick={() => setAlbumModalPos(pos)}
+                            className="px-3 py-1 rounded-md text-[11px] font-mono font-medium bg-white text-black hover:scale-105 transition-transform cursor-pointer shadow"
+                          >
+                            Replace
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAlbum(pos)}
+                            className="px-3 py-1 rounded-md text-[11px] font-mono font-medium bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer shadow"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
                     </div>
+
                     {/* Album metadata */}
                     <div className="px-0.5">
                       <h3 className="font-medium text-sm truncate" title={album.title}>
                         {album.title}
                       </h3>
-                      <p className="text-xs opacity-70 truncate font-light" title={album.artistName}>
-                        {album.artistName} {album.releaseYear ? `• ${album.releaseYear}` : ""}
+                      <p
+                        className="text-xs opacity-70 truncate font-light"
+                        title={album.artistName}
+                      >
+                        {album.artistName}{" "}
+                        {album.releaseYear ? `• ${album.releaseYear}` : ""}
                       </p>
                     </div>
                   </div>
@@ -321,10 +429,15 @@ export function ProfileView({
               return (
                 <div
                   key={pos}
-                  className="aspect-square rounded-xl border border-dashed border-black/20 flex flex-col items-center justify-center p-4 text-center transition-all duration-300 hover:border-black/40 hover:bg-black/[0.02]"
+                  onClick={() => isOwner && setAlbumModalPos(pos)}
+                  className={`aspect-square rounded-xl border border-dashed border-black/20 flex flex-col items-center justify-center p-4 text-center transition-all duration-300 ${
+                    isOwner
+                      ? "hover:border-black/50 hover:bg-black/[0.04] cursor-pointer"
+                      : "opacity-40"
+                  }`}
                 >
                   <span className="font-mono text-xs opacity-40 mb-1">0{pos}</span>
-                  <span className="text-xs opacity-50 font-medium">
+                  <span className="text-xs opacity-60 font-medium">
                     {isOwner ? "+ Add Album" : "Empty Slot"}
                   </span>
                 </div>
@@ -352,13 +465,13 @@ export function ProfileView({
 
           <div className="border border-black/10 rounded-2xl divide-y divide-black/10 overflow-hidden bg-black/[0.02]">
             {[1, 2, 3, 4, 5].map((pos) => {
-              const song = topSongs.find((s) => s.position === pos);
+              const song = initialSongs.find((s) => s.position === pos);
 
               if (song) {
                 return (
                   <div
                     key={pos}
-                    className="flex items-center justify-between px-6 py-4 hover:bg-black/[0.03] transition-colors"
+                    className="group flex items-center justify-between px-6 py-4 hover:bg-black/[0.03] transition-colors"
                   >
                     <div className="flex items-center gap-4">
                       <span
@@ -367,12 +480,41 @@ export function ProfileView({
                       >
                         0{pos}
                       </span>
+                      {song.coverUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={song.coverUrl}
+                          alt={song.title}
+                          className="w-9 h-9 rounded object-cover shadow-sm hidden sm:block"
+                        />
+                      )}
                       <div>
                         <h4 className="font-medium text-sm">{song.title}</h4>
                         <p className="text-xs opacity-70">{song.artistName}</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono opacity-40">TRACK</span>
+
+                    <div className="flex items-center gap-3">
+                      {isOwner && (
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setSongModalPos(pos)}
+                            className="text-xs font-mono px-2.5 py-1 rounded bg-black/10 hover:bg-black/20 transition-colors"
+                          >
+                            Replace
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSong(pos)}
+                            className="text-xs font-mono px-2 py-1 rounded text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      )}
+                      <span className="text-xs font-mono opacity-40">TRACK</span>
+                    </div>
                   </div>
                 );
               }
@@ -380,7 +522,12 @@ export function ProfileView({
               return (
                 <div
                   key={pos}
-                  className="flex items-center justify-between px-6 py-4 opacity-40 hover:opacity-70 transition-opacity"
+                  onClick={() => isOwner && setSongModalPos(pos)}
+                  className={`flex items-center justify-between px-6 py-4 transition-colors ${
+                    isOwner
+                      ? "hover:bg-black/[0.03] cursor-pointer opacity-60 hover:opacity-100"
+                      : "opacity-40"
+                  }`}
                 >
                   <div className="flex items-center gap-4">
                     <span className="font-mono text-xs w-7 text-center">0{pos}</span>
@@ -395,6 +542,28 @@ export function ProfileView({
           </div>
         </section>
       </main>
+
+      {/* Album Search & Edition Modal */}
+      {albumModalPos && (
+        <AlbumSearchModal
+          isOpen={true}
+          position={albumModalPos}
+          onClose={() => setAlbumModalPos(null)}
+          onSelectAlbum={handleSelectAlbum}
+          accentColor={activePalette.accent}
+        />
+      )}
+
+      {/* Song Search Modal */}
+      {songModalPos && (
+        <SongSearchModal
+          isOpen={true}
+          position={songModalPos}
+          onClose={() => setSongModalPos(null)}
+          onSelectSong={handleSelectSong}
+          accentColor={activePalette.accent}
+        />
+      )}
     </div>
   );
 }
