@@ -2,8 +2,37 @@
 
 import { useEffect, useState } from "react";
 
-// STEP 1: Top 5 Albums Interactive Collage
+// Standard precision simulated OS cursor
+function SimulatedCursor({ isClicking }: { isClicking?: boolean }) {
+  return (
+    <div
+      className={`pointer-events-none transition-transform duration-150 ${
+        isClicking ? "scale-75" : "scale-100"
+      }`}
+    >
+      <svg
+        className="w-[1.3vw] min-w-[15px] h-[1.3vw] min-h-[15px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] filter"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M4 2L19 13.5L11.5 14.5L8 21.5L5 20.5L8 14.5L4 11V2Z"
+          fill="#FFFFFF"
+          stroke="#11110F"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
+// STEP 1: Top 5 Albums Collage with Simulated Cursor
 export function StepCurateCollage() {
+  const [activeCard, setActiveCard] = useState<number | null>(null);
+  const [cursorPos, setCursorPos] = useState({ x: 80, y: 75 });
+  const [isClicking, setIsClicking] = useState(false);
+
   const albums = [
     {
       rank: 1,
@@ -37,8 +66,62 @@ export function StepCurateCollage() {
     },
   ];
 
+  useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
+
+    const runCycle = () => {
+      // 1. Move to album 1
+      setCursorPos({ x: 18, y: 52 });
+      timeouts.push(
+        setTimeout(() => {
+          setIsClicking(true);
+          setActiveCard(1);
+          timeouts.push(setTimeout(() => setIsClicking(false), 200));
+        }, 1200)
+      );
+
+      // 2. Move to album 3
+      timeouts.push(
+        setTimeout(() => {
+          setCursorPos({ x: 52, y: 52 });
+          timeouts.push(
+            setTimeout(() => {
+              setIsClicking(true);
+              setActiveCard(3);
+              timeouts.push(setTimeout(() => setIsClicking(false), 200));
+            }, 1100)
+          );
+        }, 2200)
+      );
+
+      // 3. Move away and reset
+      timeouts.push(
+        setTimeout(() => {
+          setCursorPos({ x: 88, y: 80 });
+          setActiveCard(null);
+        }, 4800)
+      );
+    };
+
+    runCycle();
+    const interval = setInterval(runCycle, 6000);
+
+    return () => {
+      clearInterval(interval);
+      timeouts.forEach(clearTimeout);
+    };
+  }, []);
+
   return (
-    <div className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none group">
+    <div className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none">
+      {/* Simulated Animated Cursor */}
+      <div
+        className="absolute z-30 transition-all duration-700 ease-out"
+        style={{ left: `${cursorPos.x}%`, top: `${cursorPos.y}%` }}
+      >
+        <SimulatedCursor isClicking={isClicking} />
+      </div>
+
       {/* Header bar */}
       <div className="flex items-center justify-between z-10">
         <div className="flex items-center gap-[0.6vw]">
@@ -52,34 +135,47 @@ export function StepCurateCollage() {
         </span>
       </div>
 
-      {/* 5 Stacked Album Covers Fan/Grid */}
+      {/* 5 Album Covers (Hover disabled; triggered strictly by simulated cursor) */}
       <div className="grid grid-cols-5 gap-[0.8vw] my-auto items-center z-10 pt-[0.5vw]">
-        {albums.map((album, idx) => (
-          <div
-            key={album.rank}
-            className="flex flex-col items-center group/card transition-all duration-300 hover:-translate-y-2 cursor-pointer"
-          >
-            <div className="relative aspect-square w-full rounded-[0.3vw] overflow-hidden drop-shadow border border-white/10 bg-secondary">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={album.image}
-                alt={album.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105 select-none"
-              />
-              <span className="absolute top-[0.3vw] left-[0.3vw] bg-black/80 text-yellow text-[0.65vw] px-[0.3vw] py-[0.1vw] rounded-[0.15vw] font-mono font-bold">
-                0{album.rank}
-              </span>
+        {albums.map((album) => {
+          const isActive = activeCard === album.rank;
+          return (
+            <div
+              key={album.rank}
+              className={`flex flex-col items-center transition-all duration-300 ${
+                isActive ? "-translate-y-2 scale-105" : "translate-y-0 scale-100"
+              }`}
+            >
+              <div
+                className={`relative aspect-square w-full rounded-[0.3vw] overflow-hidden drop-shadow border transition-colors duration-300 bg-secondary ${
+                  isActive ? "border-yellow" : "border-white/10"
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={album.image}
+                  alt={album.title}
+                  className="w-full h-full object-cover select-none"
+                />
+                <span
+                  className={`absolute top-[0.3vw] left-[0.3vw] text-[0.65vw] px-[0.3vw] py-[0.1vw] rounded-[0.15vw] font-mono font-bold transition-colors ${
+                    isActive ? "bg-yellow text-secondary" : "bg-black/80 text-yellow"
+                  }`}
+                >
+                  0{album.rank}
+                </span>
+              </div>
+              <div className="mt-[0.5vw] text-center w-full overflow-hidden">
+                <span className="detailText font-medium text-primary block truncate">
+                  {album.title}
+                </span>
+                <span className="detailText text-primary/50 text-[0.65vw] block truncate">
+                  {album.artist}
+                </span>
+              </div>
             </div>
-            <div className="mt-[0.5vw] text-center w-full overflow-hidden">
-              <span className="detailText font-medium text-primary block truncate">
-                {album.title}
-              </span>
-              <span className="detailText text-primary/50 text-[0.65vw] block truncate">
-                {album.artist}
-              </span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Footer hint */}
@@ -95,21 +191,70 @@ export function StepCurateCollage() {
   );
 }
 
-// STEP 2: Follow & Music Taste Match Animation
+// STEP 2: Follow & Music Taste Match with Simulated Cursor
 export function StepConnectAnimation() {
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isFollowingAlbum, setIsFollowingAlbum] = useState(true);
+  const [isFollowingAlbum, setIsFollowingAlbum] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: 30, y: 80 });
+  const [isClicking, setIsClicking] = useState(false);
 
-  // Auto-pulse demonstration every 3 seconds
   useEffect(() => {
-    const timer = setInterval(() => {
-      setIsFollowing((prev) => !prev);
-    }, 3200);
-    return () => clearInterval(timer);
+    const timeouts: NodeJS.Timeout[] = [];
+
+    const runCycle = () => {
+      // 1. Move to "+ Follow" button
+      setCursorPos({ x: 86, y: 46 });
+      timeouts.push(
+        setTimeout(() => {
+          setIsClicking(true);
+          setIsFollowing(true);
+          timeouts.push(setTimeout(() => setIsClicking(false), 200));
+        }, 1300)
+      );
+
+      // 2. Move to "+ Track record" button
+      timeouts.push(
+        setTimeout(() => {
+          setCursorPos({ x: 82, y: 84 });
+          timeouts.push(
+            setTimeout(() => {
+              setIsClicking(true);
+              setIsFollowingAlbum(true);
+              timeouts.push(setTimeout(() => setIsClicking(false), 200));
+            }, 1100)
+          );
+        }, 2600)
+      );
+
+      // 3. Move away and reset
+      timeouts.push(
+        setTimeout(() => {
+          setCursorPos({ x: 25, y: 78 });
+          setIsFollowing(false);
+          setIsFollowingAlbum(false);
+        }, 5200)
+      );
+    };
+
+    runCycle();
+    const interval = setInterval(runCycle, 6200);
+
+    return () => {
+      clearInterval(interval);
+      timeouts.forEach(clearTimeout);
+    };
   }, []);
 
   return (
-    <div className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none">
+    <div className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none">
+      {/* Simulated Animated Cursor */}
+      <div
+        className="absolute z-30 transition-all duration-700 ease-out"
+        style={{ left: `${cursorPos.x}%`, top: `${cursorPos.y}%` }}
+      >
+        <SimulatedCursor isClicking={isClicking} />
+      </div>
+
       {/* Top Header */}
       <div className="flex items-center justify-between z-10">
         <div className="flex items-center gap-[0.6vw]">
@@ -144,14 +289,12 @@ export function StepConnectAnimation() {
           </div>
         </div>
 
-        {/* Animated Follow Button */}
-        <button
-          type="button"
-          onClick={() => setIsFollowing(!isFollowing)}
-          className={`px-[1.2vw] py-[0.4vw] rounded-[0.25vw] text-[0.85vw] font-medium transition-all duration-300 cursor-pointer flex items-center gap-[0.3vw] ${
+        {/* Animated Follow Button (driven by simulated cursor) */}
+        <div
+          className={`px-[1.2vw] py-[0.4vw] rounded-[0.25vw] text-[0.85vw] font-medium transition-all duration-300 flex items-center gap-[0.3vw] ${
             isFollowing
               ? "bg-yellow text-secondary scale-105 shadow-sm"
-              : "bg-white/10 text-primary hover:bg-white/20"
+              : "bg-white/10 text-primary"
           }`}
         >
           {isFollowing ? (
@@ -170,7 +313,7 @@ export function StepConnectAnimation() {
           ) : (
             <span>+ Follow</span>
           )}
-        </button>
+        </div>
       </div>
 
       {/* Album Follow Pill */}
@@ -194,42 +337,76 @@ export function StepConnectAnimation() {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setIsFollowingAlbum(!isFollowingAlbum)}
-          className="text-primary/70 hover:text-yellow text-[0.7vw] font-mono cursor-pointer"
+        <span
+          className={`text-[0.7vw] font-mono transition-colors duration-200 ${
+            isFollowingAlbum ? "text-yellow font-bold" : "text-primary/70"
+          }`}
         >
           {isFollowingAlbum ? "✓ Tracking record" : "+ Track record"}
-        </button>
+        </span>
       </div>
     </div>
   );
 }
 
-// STEP 3: Live Post & Liking Animation
+// STEP 3: Live Post & Liking with Simulated Cursor
 export function StepDiscussPost() {
   const [likes, setLikes] = useState(48);
   const [hasLiked, setHasLiked] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: 65, y: 85 });
+  const [isClicking, setIsClicking] = useState(false);
 
-  // Auto-pulse like counter to show live engagement
   useEffect(() => {
-    const timer = setInterval(() => {
-      setHasLiked((prev) => {
-        const next = !prev;
-        setLikes((l) => (next ? l + 1 : l - 1));
-        return next;
-      });
-    }, 2800);
-    return () => clearInterval(timer);
+    const timeouts: NodeJS.Timeout[] = [];
+
+    const runCycle = () => {
+      // 1. Glide to like heart button
+      setCursorPos({ x: 20, y: 72 });
+      timeouts.push(
+        setTimeout(() => {
+          setIsClicking(true);
+          setHasLiked(true);
+          setLikes(49);
+          timeouts.push(setTimeout(() => setIsClicking(false), 200));
+        }, 1200)
+      );
+
+      // 2. Glide over comments pill
+      timeouts.push(
+        setTimeout(() => {
+          setCursorPos({ x: 42, y: 72 });
+        }, 2600)
+      );
+
+      // 3. Move away and reset
+      timeouts.push(
+        setTimeout(() => {
+          setCursorPos({ x: 75, y: 88 });
+          setHasLiked(false);
+          setLikes(48);
+        }, 5000)
+      );
+    };
+
+    runCycle();
+    const interval = setInterval(runCycle, 5800);
+
+    return () => {
+      clearInterval(interval);
+      timeouts.forEach(clearTimeout);
+    };
   }, []);
 
-  const handleLike = () => {
-    setHasLiked((prev) => !prev);
-    setLikes((prev) => (hasLiked ? prev - 1 : prev + 1));
-  };
-
   return (
-    <div className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none">
+    <div className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none">
+      {/* Simulated Animated Cursor */}
+      <div
+        className="absolute z-30 transition-all duration-700 ease-out"
+        style={{ left: `${cursorPos.x}%`, top: `${cursorPos.y}%` }}
+      >
+        <SimulatedCursor isClicking={isClicking} />
+      </div>
+
       {/* Top Header */}
       <div className="flex items-center justify-between z-10">
         <div className="flex items-center gap-[0.6vw]">
@@ -272,11 +449,9 @@ export function StepDiscussPost() {
 
         {/* Actions bar (Like & Comments) */}
         <div className="flex items-center gap-[1.5vw] pt-[0.4vw] border-t border-white/5">
-          <button
-            type="button"
-            onClick={handleLike}
-            className={`flex items-center gap-[0.35vw] text-[0.8vw] font-mono cursor-pointer transition-all duration-200 ${
-              hasLiked ? "text-red-400 font-bold scale-105" : "text-primary/60 hover:text-red-400"
+          <div
+            className={`flex items-center gap-[0.35vw] text-[0.8vw] font-mono transition-all duration-200 ${
+              hasLiked ? "text-red-400 font-bold scale-105" : "text-primary/60"
             }`}
           >
             <svg
@@ -286,11 +461,12 @@ export function StepDiscussPost() {
               fill={hasLiked ? "currentColor" : "none"}
               stroke="currentColor"
               strokeWidth="2"
+              className={hasLiked ? "scale-125 transition-transform" : ""}
             >
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
             <span>{likes}</span>
-          </button>
+          </div>
 
           <div className="flex items-center gap-[0.35vw] text-primary/50 text-[0.8vw] font-mono">
             <svg
