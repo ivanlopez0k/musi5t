@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Standard precision simulated OS cursor
 function SimulatedCursor({ isClicking }: { isClicking?: boolean }) {
@@ -11,7 +11,7 @@ function SimulatedCursor({ isClicking }: { isClicking?: boolean }) {
       }`}
     >
       <svg
-        className="w-[1.3vw] min-w-[15px] h-[1.3vw] min-h-[15px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] filter"
+        className="w-[1.4vw] min-w-[16px] h-[1.4vw] min-h-[16px] drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] filter"
         viewBox="0 0 24 24"
         fill="none"
       >
@@ -29,6 +29,10 @@ function SimulatedCursor({ isClicking }: { isClicking?: boolean }) {
 
 // STEP 1: Top 5 Albums Collage with Simulated Cursor
 export function StepCurateCollage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const album1Ref = useRef<HTMLDivElement>(null);
+  const album3Ref = useRef<HTMLDivElement>(null);
+
   const [activeCard, setActiveCard] = useState<number | null>(null);
   const [cursorPos, setCursorPos] = useState({ x: 80, y: 75 });
   const [isClicking, setIsClicking] = useState(false);
@@ -70,27 +74,45 @@ export function StepCurateCollage() {
     const timeouts: NodeJS.Timeout[] = [];
 
     const runCycle = () => {
-      // 1. Move to album 1
-      setCursorPos({ x: 18, y: 52 });
-      timeouts.push(
-        setTimeout(() => {
-          setIsClicking(true);
-          setActiveCard(1);
-          timeouts.push(setTimeout(() => setIsClicking(false), 200));
-        }, 1200)
-      );
+      const container = containerRef.current;
+      const a1 = album1Ref.current;
+      const a3 = album3Ref.current;
 
-      // 2. Move to album 3
+      // 1. Move to album 1 with bounding rect calculation
+      if (container && a1) {
+        const cRect = container.getBoundingClientRect();
+        const aRect = a1.getBoundingClientRect();
+        const targetX = ((aRect.left + aRect.width * 0.4 - cRect.left) / cRect.width) * 100;
+        const targetY = ((aRect.top + aRect.height * 0.4 - cRect.top) / cRect.height) * 100;
+        setCursorPos({ x: targetX, y: targetY });
+
+        timeouts.push(
+          setTimeout(() => {
+            setIsClicking(true);
+            setActiveCard(1);
+            timeouts.push(setTimeout(() => setIsClicking(false), 200));
+          }, 1200)
+        );
+      }
+
+      // 2. Move to album 3 with bounding rect calculation
       timeouts.push(
         setTimeout(() => {
-          setCursorPos({ x: 52, y: 52 });
-          timeouts.push(
-            setTimeout(() => {
-              setIsClicking(true);
-              setActiveCard(3);
-              timeouts.push(setTimeout(() => setIsClicking(false), 200));
-            }, 1100)
-          );
+          if (container && a3) {
+            const cRect = container.getBoundingClientRect();
+            const aRect = a3.getBoundingClientRect();
+            const targetX = ((aRect.left + aRect.width * 0.4 - cRect.left) / cRect.width) * 100;
+            const targetY = ((aRect.top + aRect.height * 0.4 - cRect.top) / cRect.height) * 100;
+            setCursorPos({ x: targetX, y: targetY });
+
+            timeouts.push(
+              setTimeout(() => {
+                setIsClicking(true);
+                setActiveCard(3);
+                timeouts.push(setTimeout(() => setIsClicking(false), 200));
+              }, 1100)
+            );
+          }
         }, 2200)
       );
 
@@ -103,17 +125,22 @@ export function StepCurateCollage() {
       );
     };
 
-    runCycle();
+    // Small delay for initial render bounding rect
+    const initTimer = setTimeout(runCycle, 300);
     const interval = setInterval(runCycle, 6000);
 
     return () => {
+      clearTimeout(initTimer);
       clearInterval(interval);
       timeouts.forEach(clearTimeout);
     };
   }, []);
 
   return (
-    <div className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none">
+    <div
+      ref={containerRef}
+      className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
+    >
       {/* Simulated Animated Cursor */}
       <div
         className="absolute z-30 transition-all duration-700 ease-out"
@@ -135,13 +162,14 @@ export function StepCurateCollage() {
         </span>
       </div>
 
-      {/* 5 Album Covers (Hover disabled; triggered strictly by simulated cursor) */}
+      {/* 5 Album Covers */}
       <div className="grid grid-cols-5 gap-[0.8vw] my-auto items-center z-10 pt-[0.5vw]">
         {albums.map((album) => {
           const isActive = activeCard === album.rank;
           return (
             <div
               key={album.rank}
+              ref={album.rank === 1 ? album1Ref : album.rank === 3 ? album3Ref : undefined}
               className={`flex flex-col items-center transition-all duration-300 ${
                 isActive ? "-translate-y-2 scale-105" : "translate-y-0 scale-100"
               }`}
@@ -193,6 +221,10 @@ export function StepCurateCollage() {
 
 // STEP 2: Follow & Music Taste Match with Simulated Cursor
 export function StepConnectAnimation() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const followBtnRef = useRef<HTMLDivElement>(null);
+  const trackBtnRef = useRef<HTMLButtonElement>(null);
+
   const [isFollowing, setIsFollowing] = useState(false);
   const [isFollowingAlbum, setIsFollowingAlbum] = useState(false);
   const [cursorPos, setCursorPos] = useState({ x: 30, y: 80 });
@@ -202,27 +234,45 @@ export function StepConnectAnimation() {
     const timeouts: NodeJS.Timeout[] = [];
 
     const runCycle = () => {
-      // 1. Move to "+ Follow" button
-      setCursorPos({ x: 86, y: 46 });
-      timeouts.push(
-        setTimeout(() => {
-          setIsClicking(true);
-          setIsFollowing(true);
-          timeouts.push(setTimeout(() => setIsClicking(false), 200));
-        }, 1300)
-      );
+      const container = containerRef.current;
+      const followBtn = followBtnRef.current;
+      const trackBtn = trackBtnRef.current;
 
-      // 2. Move to "+ Track record" button
+      // 1. Move exactly to "+ Follow" button using getBoundingClientRect
+      if (container && followBtn) {
+        const cRect = container.getBoundingClientRect();
+        const fRect = followBtn.getBoundingClientRect();
+        const targetX = ((fRect.left + fRect.width * 0.4 - cRect.left) / cRect.width) * 100;
+        const targetY = ((fRect.top + fRect.height * 0.4 - cRect.top) / cRect.height) * 100;
+        setCursorPos({ x: targetX, y: targetY });
+
+        timeouts.push(
+          setTimeout(() => {
+            setIsClicking(true);
+            setIsFollowing(true);
+            timeouts.push(setTimeout(() => setIsClicking(false), 200));
+          }, 1300)
+        );
+      }
+
+      // 2. Move exactly to "+ Track record" button using getBoundingClientRect
       timeouts.push(
         setTimeout(() => {
-          setCursorPos({ x: 82, y: 84 });
-          timeouts.push(
-            setTimeout(() => {
-              setIsClicking(true);
-              setIsFollowingAlbum(true);
-              timeouts.push(setTimeout(() => setIsClicking(false), 200));
-            }, 1100)
-          );
+          if (container && trackBtn) {
+            const cRect = container.getBoundingClientRect();
+            const tRect = trackBtn.getBoundingClientRect();
+            const targetX = ((tRect.left + tRect.width * 0.5 - cRect.left) / cRect.width) * 100;
+            const targetY = ((tRect.top + tRect.height * 0.5 - cRect.top) / cRect.height) * 100;
+            setCursorPos({ x: targetX, y: targetY });
+
+            timeouts.push(
+              setTimeout(() => {
+                setIsClicking(true);
+                setIsFollowingAlbum(true);
+                timeouts.push(setTimeout(() => setIsClicking(false), 200));
+              }, 1100)
+            );
+          }
         }, 2600)
       );
 
@@ -236,17 +286,21 @@ export function StepConnectAnimation() {
       );
     };
 
-    runCycle();
+    const initTimer = setTimeout(runCycle, 300);
     const interval = setInterval(runCycle, 6200);
 
     return () => {
+      clearTimeout(initTimer);
       clearInterval(interval);
       timeouts.forEach(clearTimeout);
     };
   }, []);
 
   return (
-    <div className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none">
+    <div
+      ref={containerRef}
+      className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
+    >
       {/* Simulated Animated Cursor */}
       <div
         className="absolute z-30 transition-all duration-700 ease-out"
@@ -289,8 +343,9 @@ export function StepConnectAnimation() {
           </div>
         </div>
 
-        {/* Animated Follow Button (driven by simulated cursor) */}
+        {/* Animated Follow Button */}
         <div
+          ref={followBtnRef}
           className={`px-[1.2vw] py-[0.4vw] rounded-[0.25vw] text-[0.85vw] font-medium transition-all duration-300 flex items-center gap-[0.3vw] ${
             isFollowing
               ? "bg-yellow text-secondary scale-105 shadow-sm"
@@ -337,48 +392,72 @@ export function StepConnectAnimation() {
           </div>
         </div>
 
-        <span
+        <button
+          ref={trackBtnRef}
+          type="button"
           className={`text-[0.7vw] font-mono transition-colors duration-200 ${
             isFollowingAlbum ? "text-yellow font-bold" : "text-primary/70"
           }`}
         >
           {isFollowingAlbum ? "✓ Tracking record" : "+ Track record"}
-        </span>
+        </button>
       </div>
     </div>
   );
 }
 
-// STEP 3: Live Post & Liking with Simulated Cursor
+// STEP 3: Live Post & Liking with Exact Measured Cursor Position
 export function StepDiscussPost() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heartBtnRef = useRef<HTMLDivElement>(null);
+  const commentsBtnRef = useRef<HTMLDivElement>(null);
+
   const [likes, setLikes] = useState(48);
   const [hasLiked, setHasLiked] = useState(false);
-  const [cursorPos, setCursorPos] = useState({ x: 65, y: 85 });
+  const [cursorPos, setCursorPos] = useState({ x: 75, y: 88 });
   const [isClicking, setIsClicking] = useState(false);
 
   useEffect(() => {
     const timeouts: NodeJS.Timeout[] = [];
 
     const runCycle = () => {
-      // 1. Glide to like heart button
-      setCursorPos({ x: 20, y: 72 });
-      timeouts.push(
-        setTimeout(() => {
-          setIsClicking(true);
-          setHasLiked(true);
-          setLikes(49);
-          timeouts.push(setTimeout(() => setIsClicking(false), 200));
-        }, 1200)
-      );
+      const container = containerRef.current;
+      const heartBtn = heartBtnRef.current;
+      const commentsBtn = commentsBtnRef.current;
 
-      // 2. Glide over comments pill
+      // 1. Move directly to Like Heart icon using exact DOM coordinates
+      if (container && heartBtn) {
+        const cRect = container.getBoundingClientRect();
+        const hRect = heartBtn.getBoundingClientRect();
+        // Position cursor tip directly on the heart SVG
+        const targetX = ((hRect.left + 4 - cRect.left) / cRect.width) * 100;
+        const targetY = ((hRect.top + 4 - cRect.top) / cRect.height) * 100;
+        setCursorPos({ x: targetX, y: targetY });
+
+        timeouts.push(
+          setTimeout(() => {
+            setIsClicking(true);
+            setHasLiked(true);
+            setLikes(49);
+            timeouts.push(setTimeout(() => setIsClicking(false), 200));
+          }, 1200)
+        );
+      }
+
+      // 2. Move directly to Comments pill using exact DOM coordinates
       timeouts.push(
         setTimeout(() => {
-          setCursorPos({ x: 42, y: 72 });
+          if (container && commentsBtn) {
+            const cRect = container.getBoundingClientRect();
+            const comRect = commentsBtn.getBoundingClientRect();
+            const targetX = ((comRect.left + 4 - cRect.left) / cRect.width) * 100;
+            const targetY = ((comRect.top + 4 - cRect.top) / cRect.height) * 100;
+            setCursorPos({ x: targetX, y: targetY });
+          }
         }, 2600)
       );
 
-      // 3. Move away and reset
+      // 3. Move away to bottom right and reset state
       timeouts.push(
         setTimeout(() => {
           setCursorPos({ x: 75, y: 88 });
@@ -388,18 +467,22 @@ export function StepDiscussPost() {
       );
     };
 
-    runCycle();
+    const initTimer = setTimeout(runCycle, 300);
     const interval = setInterval(runCycle, 5800);
 
     return () => {
+      clearTimeout(initTimer);
       clearInterval(interval);
       timeouts.forEach(clearTimeout);
     };
   }, []);
 
   return (
-    <div className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none">
-      {/* Simulated Animated Cursor */}
+    <div
+      ref={containerRef}
+      className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
+    >
+      {/* Simulated Animated Cursor with exact bounding-box tracking */}
       <div
         className="absolute z-30 transition-all duration-700 ease-out"
         style={{ left: `${cursorPos.x}%`, top: `${cursorPos.y}%` }}
@@ -450,6 +533,7 @@ export function StepDiscussPost() {
         {/* Actions bar (Like & Comments) */}
         <div className="flex items-center gap-[1.5vw] pt-[0.4vw] border-t border-white/5">
           <div
+            ref={heartBtnRef}
             className={`flex items-center gap-[0.35vw] text-[0.8vw] font-mono transition-all duration-200 ${
               hasLiked ? "text-red-400 font-bold scale-105" : "text-primary/60"
             }`}
@@ -468,7 +552,10 @@ export function StepDiscussPost() {
             <span>{likes}</span>
           </div>
 
-          <div className="flex items-center gap-[0.35vw] text-primary/50 text-[0.8vw] font-mono">
+          <div
+            ref={commentsBtnRef}
+            className="flex items-center gap-[0.35vw] text-primary/50 text-[0.8vw] font-mono"
+          >
             <svg
               width="0.9vw"
               height="0.9vw"
