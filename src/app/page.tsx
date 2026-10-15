@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
@@ -304,7 +305,7 @@ export default function Home() {
 
                       <div className="w-fit text-secondary mt-[4vw]">
                         <div className="drop-shadow rounded-[0.25vw]">
-                          <a href="#cta" className="main-btn smallText">
+                          <Link href="/register" className="main-btn smallText">
                             <span className="main-btn__icon" aria-hidden="true" />
                             <span className="main-btn__label">
                               <span className="main-btn__clip">
@@ -316,7 +317,7 @@ export default function Home() {
                                 </span>
                               </span>
                             </span>
-                          </a>
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -433,7 +434,7 @@ export default function Home() {
                       Ready to curate your Top 5?
                     </h2>
                     <div className="drop-shadow rounded-[0.25vw] scale-125 mt-[2vw]">
-                      <a href="#hero" className="main-btn smallText text-secondary">
+                      <Link href="/register" className="main-btn smallText text-secondary">
                         <span className="main-btn__icon" aria-hidden="true" />
                         <span className="main-btn__label">
                           <span className="main-btn__clip">
@@ -443,7 +444,7 @@ export default function Home() {
                             </span>
                           </span>
                         </span>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>

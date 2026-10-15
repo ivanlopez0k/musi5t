@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { getLenis } from "@/lib/lenis-store";
 
 interface HeaderProps {
@@ -66,9 +67,15 @@ export function Header({ onOpenPlayer }: HeaderProps) {
         </div>
 
         {/* CTA Button */}
-        <div className="col-span-3 flex justify-end items-center">
+        <div className="col-span-3 flex justify-end items-center gap-4">
+          <Link
+            href="/login"
+            className="text-secondary/60 hover:text-secondary text-[1.1vw] sm:text-[0.85vw] font-medium transition-colors"
+          >
+            Sign in
+          </Link>
           <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
-            <a href="#cta" className="main-btn smallText">
+            <Link href="/register" className="main-btn smallText">
               <span className="main-btn__icon" aria-hidden="true" />
               <span className="main-btn__label">
                 <span className="main-btn__clip">
@@ -78,7 +85,7 @@ export function Header({ onOpenPlayer }: HeaderProps) {
                   </span>
                 </span>
               </span>
-            </a>
+            </Link>
           </div>
         </div>
 
