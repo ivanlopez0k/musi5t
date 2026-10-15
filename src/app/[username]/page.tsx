@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/db";
-import { users, albums, songs, userTopAlbums, userTopSongs } from "@/db/schema";
+import { users, albums, songs, userTopAlbums, userTopSongs, follows } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
-import { eq, sql, asc } from "drizzle-orm";
+import { eq, sql, asc, and } from "drizzle-orm";
 import { ProfileView } from "@/components/profile/ProfileView";
 
 export const instant = false;
@@ -93,10 +93,22 @@ export default async function UserProfilePage({ params }: PageProps) {
     .where(eq(userTopSongs.userId, user.id))
     .orderBy(asc(userTopSongs.position));
 
+  let isFollowing = false;
+  if (currentUser && !isOwner) {
+    const [followRecord] = await db
+      .select({ followerId: follows.followerId })
+      .from(follows)
+      .where(and(eq(follows.followerId, currentUser.id), eq(follows.followeeId, user.id)))
+      .limit(1);
+    isFollowing = !!followRecord;
+  }
+
   return (
     <ProfileView
       user={user}
       isOwner={isOwner}
+      isFollowing={isFollowing}
+      isLoggedIn={Boolean(currentUser)}
       topAlbums={userAlbums}
       topSongs={userSongs}
     />

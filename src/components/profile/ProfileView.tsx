@@ -34,9 +34,13 @@ export interface TopSongItem {
   coverUrl: string | null;
 }
 
+import { UserFollowButton } from "./UserFollowButton";
+
 interface ProfileViewProps {
   user: ProfileUser;
   isOwner: boolean;
+  isFollowing?: boolean;
+  isLoggedIn?: boolean;
   topAlbums: TopAlbumItem[];
   topSongs: TopSongItem[];
 }
@@ -44,6 +48,8 @@ interface ProfileViewProps {
 export function ProfileView({
   user,
   isOwner,
+  isFollowing = false,
+  isLoggedIn = false,
   topAlbums: initialAlbums,
   topSongs: initialSongs,
 }: ProfileViewProps) {
@@ -218,13 +224,12 @@ export function ProfileView({
                 </button>
               </>
             ) : (
-              <button
-                type="button"
-                className="text-xs uppercase tracking-wider font-mono px-4 py-1.5 rounded-full text-black font-medium transition-transform duration-300 hover:scale-105 cursor-pointer shadow-sm"
-                style={{ backgroundColor: activePalette.accent }}
-              >
-                + Follow
-              </button>
+              <UserFollowButton
+                targetUserId={user.id}
+                initialFollowing={Boolean(isFollowing)}
+                isLoggedIn={Boolean(isLoggedIn)}
+                accentColor={activePalette.accent}
+              />
             )}
           </div>
         </div>
