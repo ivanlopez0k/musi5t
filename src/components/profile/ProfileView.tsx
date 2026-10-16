@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Lenis from "lenis";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { setLenis, getLenis } from "@/lib/lenis-store";
+import { SidePlayer } from "@/components/landing/SidePlayer";
 import { PaletteSelector, PROFILE_PALETTES } from "./PaletteSelector";
 import { AlbumSearchModal } from "./AlbumSearchModal";
 import { SongSearchModal } from "./SongSearchModal";
@@ -64,6 +68,7 @@ export function ProfileView({
   userPosts = [],
 }: ProfileViewProps) {
   const router = useRouter();
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [currentThemeKey, setCurrentThemeKey] = useState(user.themeKey || "lima");
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user.displayName);
@@ -83,12 +88,186 @@ export function ProfileView({
   const [albumModalPos, setAlbumModalPos] = useState<number | null>(null);
   const [songModalPos, setSongModalPos] = useState<number | null>(null);
 
+  // Carousel hover & GSAP refs
+  const [hoveredAlbumIndex, setHoveredAlbumIndex] = useState<number | null>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const recordsContainerRef = useRef<HTMLDivElement>(null);
+  const albumCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const lateralOrbsRef = useRef<HTMLDivElement>(null);
+
   // Active palette
   const activePalette =
     PROFILE_PALETTES.find((p) => p.key === currentThemeKey) || PROFILE_PALETTES[0];
 
+  // Lenis smooth scroll initialization (matching src/app/page.tsx)
+  useEffect(() => {
+    const mainEl = mainRef.current;
+    const contentEl = contentRef.current;
+    if (!mainEl || !contentEl) return;
+
+    const lenis = new Lenis({
+      wrapper: mainEl,
+      content: contentEl,
+      lerp: 0.18,
+      wheelMultiplier: 1.05,
+      smoothWheel: true,
+    });
+    setLenis(lenis);
+
+    lenis.on("scroll", ScrollTrigger.update);
+
+    const rafHandler = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+    gsap.ticker.add(rafHandler);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      gsap.ticker.remove(rafHandler);
+      lenis.destroy();
+      setLenis(null);
+    };
+  }, []);
+
+  // Stop Lenis background scroll when search modals are open
+  useEffect(() => {
+    const lenis = getLenis();
+    if (!lenis) return;
+    if (albumModalPos !== null || songModalPos !== null) {
+      lenis.stop();
+    } else {
+      lenis.start();
+    }
+  }, [albumModalPos, songModalPos]);
+
+  // Keyboard shortcut: press 'm' to toggle player, 'Escape' to close
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        albumModalPos !== null ||
+        songModalPos !== null
+      ) {
+        return;
+      }
+
+      if (e.key === "m" || e.key === "M") {
+        setIsPlayerOpen((prev) => !prev);
+      }
+      if (e.key === "Escape" && isPlayerOpen) {
+        setIsPlayerOpen(false);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isPlayerOpen, albumModalPos, songModalPos]);
+
+  // Hero entrance & Lateral Orbs floating GSAP animation
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".profile-hero-reveal", {
+        y: 36,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.08,
+        ease: "power3.out",
+      });
+
+      gsap.to(".profile-orb-float-slow", {
+        y: -22,
+        x: 8,
+        rotate: 6,
+        duration: 4.2,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+
+      gsap.to(".profile-orb-float-reverse", {
+        y: 20,
+        x: -10,
+        rotate: -8,
+        duration: 3.6,
+        delay: 0.4,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+
+      gsap.to(".profile-orb-pulse", {
+        scale: 1.08,
+        duration: 3.1,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+    }, contentRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Top 5 Records 3D Horizontal Carousel wave animation (matching WorkCarousel.tsx)
+  useEffect(() => {
+    const container = recordsContainerRef.current;
+    if (!container) return;
+
+    const ctx = gsap.context(() => {
+      albumCardRefs.current.forEach((el, i) => {
+        if (!el) return;
+        gsap.to(el, {
+          y: i % 2 === 0 ? -12 : 12,
+          duration: 2.5 + i * 0.3,
+          delay: i * 0.2,
+          yoyo: true,
+          repeat: -1,
+          ease: "sine.inOut",
+        });
+      });
+    }, container);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Hover scale & peer dim effect on Top 5 Records (matching WorkCarousel.tsx)
+  useEffect(() => {
+    albumCardRefs.current.forEach((card, i) => {
+      if (!card) return;
+      if (hoveredAlbumIndex === null) {
+        gsap.to(card, { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" });
+      } else if (hoveredAlbumIndex === i) {
+        gsap.to(card, {
+          scale: 1.05,
+          opacity: 1,
+          zIndex: 10,
+          duration: 0.4,
+          ease: "power3.out",
+        });
+      } else {
+        gsap.to(card, {
+          scale: 0.98,
+          opacity: 0.85,
+          zIndex: 1,
+          duration: 0.4,
+          ease: "power2.out",
+        });
+      }
+    });
+  }, [hoveredAlbumIndex]);
+
+  const scrollTo = (hash: string) => {
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.scrollTo(hash, { duration: 1.2 });
+    } else {
+      document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   const handlePaletteChange = async (newKey: string) => {
     setCurrentThemeKey(newKey);
+    if (!isOwner) return;
     try {
       await fetch("/api/v1/users/profile", {
         method: "PATCH",
@@ -261,7 +440,10 @@ export function ProfileView({
       router.push("/login");
       return;
     }
-    if (!blocked && !confirm(`Block @${user.username}? This will also remove any follow relationship.`)) {
+    if (
+      !blocked &&
+      !confirm(`Block @${user.username}? This will also remove any follow relationship.`)
+    ) {
       return;
     }
     setModerationLoading(true);
@@ -280,540 +462,931 @@ export function ProfileView({
     }
   };
 
+  const joinedLabel = new Date(user.createdAt).toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
+
   return (
     <div
-      className="min-h-screen transition-colors duration-500 ease-in-out font-sans"
-      style={{
-        backgroundColor: activePalette.bg,
-        color: activePalette.text,
-      }}
+      className={`site-frame text-secondary ${
+        isPlayerOpen ? "panel-open" : ""
+      }`}
     >
-      {/* Profile Header Navigation */}
-      <header className="w-full border-b border-black/10 backdrop-blur-md sticky top-0 z-30 bg-inherit/90">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-5">
-            <Link
-              href="/"
-              className="flex items-center gap-2.5 font-medium tracking-tight text-sm hover:opacity-75 transition-opacity"
-            >
-              <span
-                className="w-3 h-3 rounded-[3px] transition-transform duration-300 hover:rotate-45"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-              <span>musi5t</span>
-            </Link>
+      {/* 1:1 Sidejob Music Player Drawer */}
+      <SidePlayer
+        isOpen={isPlayerOpen}
+        onClose={() => setIsPlayerOpen(false)}
+      />
 
-            <Link
-              href="/feed"
-              className="text-xs font-mono uppercase tracking-wider opacity-60 hover:opacity-100 transition-opacity"
-            >
-              Feed
-            </Link>
-          </div>
+      {/* Main Foreground Layout */}
+      <div className="site-layout">
+        <div
+          className="app transition-colors duration-700"
+          style={{ backgroundColor: activePalette.accent }}
+        >
+          <div className="route-surface">
+            {/* Editorial Fixed Header (matching src/components/landing/Header.tsx) */}
+            <header className="header">
+              <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
+                {/* Brand Wordmark */}
+                <div className="text-secondary mediumText col-span-2 sm:col-span-3 flex justify-start items-center gap-[0.8vw]">
+                  <Link href="/" className="nav-btn cursor-pointer text-left">
+                    musi5t
+                  </Link>
+                </div>
 
-          <div className="flex items-center gap-3">
-            {isOwner ? (
-              <>
-                <PaletteSelector
-                  selectedTheme={currentThemeKey}
-                  onSelect={handlePaletteChange}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="text-xs uppercase tracking-wider font-mono border border-black/15 hover:border-black/40 px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
-                >
-                  {isEditing ? "Cancel" : "Edit Profile"}
-                </button>
-                <Link
-                  href="/settings"
-                  className="text-xs uppercase tracking-wider font-mono border border-black/15 hover:border-black/40 px-3 py-1.5 rounded-full transition-colors"
-                >
-                  Settings
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                  className="text-xs uppercase tracking-wider font-mono text-black/50 hover:text-black transition-colors cursor-pointer"
-                >
-                  {isLoggingOut ? "..." : "Logout"}
-                </button>
-              </>
-            ) : (
-              <div className="flex items-center gap-2">
-                {!blocked && (
-                  <UserFollowButton
-                    targetUserId={user.id}
-                    initialFollowing={Boolean(isFollowing)}
-                    isLoggedIn={Boolean(isLoggedIn)}
-                    accentColor={activePalette.accent}
-                  />
-                )}
-                {isLoggedIn && (
-                  <>
+                {/* Center Navigation Group */}
+                <div className="text-secondary smallText col-span-6 justify-center items-center hidden sm:flex">
+                  <span className="nav-group flex gap-[0.25vw]">
                     <button
                       type="button"
-                      disabled={moderationLoading}
-                      onClick={handleToggleMute}
-                      className={`text-xs uppercase tracking-wider font-mono px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
-                        muted
-                          ? "bg-black text-white border-black"
-                          : "border-black/20 hover:border-black/50 text-black/70"
-                      }`}
+                      onClick={() => scrollTo("#overview")}
+                      className="nav-btn cursor-pointer"
                     >
-                      {muted ? "Muted" : "Mute"}
+                      Overview,
                     </button>
                     <button
                       type="button"
-                      disabled={moderationLoading}
-                      onClick={handleToggleBlock}
-                      className={`text-xs uppercase tracking-wider font-mono px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
-                        blocked
-                          ? "bg-red-600 text-white border-red-600"
-                          : "border-red-600/30 text-red-700 hover:bg-red-600/10"
-                      }`}
+                      onClick={() => scrollTo("#records")}
+                      className="nav-btn cursor-pointer"
                     >
-                      {blocked ? "Blocked" : "Block"}
+                      Records,
                     </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        {/* User Identity Banner */}
-        <section className="mb-14 pb-10 border-b border-black/10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="flex items-start gap-5">
-              {/* Avatar circle */}
-              <div
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center font-bold text-2xl sm:text-3xl text-black shadow-inner flex-shrink-0"
-                style={{ backgroundColor: activePalette.accent }}
-              >
-                {user.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={user.avatarUrl}
-                    alt={displayName}
-                    className="w-full h-full object-cover rounded-2xl"
-                  />
-                ) : (
-                  displayName.slice(0, 2).toUpperCase()
-                )}
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-3xl sm:text-4xl font-normal tracking-tight">
-                    {displayName}
-                  </h1>
-                </div>
-                <div className="flex items-center gap-2 font-mono text-xs opacity-60 mb-3">
-                  <span>@{user.username}</span>
-                  <span>•</span>
-                  <span>
-                    Joined{" "}
-                    {new Date(user.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-                <p className="text-sm sm:text-base max-w-xl opacity-80 leading-relaxed font-light">
-                  {bio ||
-                    (isOwner
-                      ? "No bio yet. Click 'Edit Profile' to write something about your taste."
-                      : "No bio provided.")}
-                </p>
-              </div>
-            </div>
-
-            {/* Quick taste stats badge */}
-            <div className="flex items-center gap-3 font-mono text-xs opacity-75">
-              <div className="border border-black/10 rounded-lg px-3 py-2 bg-black/5">
-                <span className="block text-base font-bold">{initialAlbums.length}/5</span>
-                <span className="opacity-60 text-[10px] uppercase">Top Albums</span>
-              </div>
-              <div className="border border-black/10 rounded-lg px-3 py-2 bg-black/5">
-                <span className="block text-base font-bold">{initialSongs.length}/5</span>
-                <span className="opacity-60 text-[10px] uppercase">Top Songs</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Inline Edit Form */}
-          {isEditing && (
-            <form
-              onSubmit={handleSaveProfile}
-              className="mt-8 pt-6 border-t border-black/10 max-w-lg space-y-4"
-            >
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider opacity-60 mb-1">
-                  Display Name
-                </label>
-                <input
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-white/60 border border-black/20 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/20"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider opacity-60 mb-1">
-                  Bio (max 250 characters)
-                </label>
-                <textarea
-                  rows={3}
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  maxLength={250}
-                  className="w-full bg-white/60 border border-black/20 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/20 resize-none"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  type="submit"
-                  disabled={savingProfile}
-                  className="px-4 py-2 rounded-lg text-xs font-mono uppercase font-bold text-black shadow-sm transition-transform hover:scale-105 cursor-pointer"
-                  style={{ backgroundColor: activePalette.accent }}
-                >
-                  {savingProfile ? "Saving..." : "Save Changes"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="px-3 py-2 text-xs font-mono opacity-60 hover:opacity-100"
-                >
-                  Dismiss
-                </button>
-              </div>
-            </form>
-          )}
-        </section>
-
-        {/* TOP 5 ALBUMS SECTION */}
-        <section className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <span
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-              <h2 className="text-xl sm:text-2xl font-medium tracking-tight">
-                TOP 5 ALBUMS
-              </h2>
-            </div>
-            <span className="text-xs font-mono opacity-50 uppercase tracking-widest">
-              [ curated records ]
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
-            {[1, 2, 3, 4, 5].map((pos) => {
-              const album = initialAlbums.find((a) => a.position === pos);
-
-              if (album) {
-                return (
-                  <div
-                    key={pos}
-                    className="group relative flex flex-col transition-transform duration-300 hover:-translate-y-1.5"
-                  >
-                    {/* Record Artwork Box */}
-                    <div className="relative aspect-square rounded-xl overflow-hidden shadow-lg border border-black/10 bg-black/5 mb-3">
-                      {/* Position pill */}
-                      <span
-                        className="absolute top-2.5 left-2.5 z-10 text-[11px] font-mono font-bold px-2 py-0.5 rounded-md text-black shadow-sm"
-                        style={{ backgroundColor: activePalette.accent }}
-                      >
-                        0{pos}
-                      </span>
-
-                      {/* Cover image */}
-                      <Link href={`/album/${album.albumId}`} className="block w-full h-full">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={album.coverUrl}
-                          alt={album.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </Link>
-
-                      {/* Owner hover actions */}
-                      {isOwner && (
-                        <div className="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            {pos > 1 && (
-                              <button
-                                type="button"
-                                disabled={reordering}
-                                onClick={() => handleSwapAlbumPosition(pos, pos - 1)}
-                                className="w-7 h-7 rounded-md bg-white/90 text-black font-mono text-xs font-bold hover:bg-white cursor-pointer shadow"
-                                title="Move left"
-                              >
-                                ←
-                              </button>
-                            )}
-                            {pos < 5 && (
-                              <button
-                                type="button"
-                                disabled={reordering}
-                                onClick={() => handleSwapAlbumPosition(pos, pos + 1)}
-                                className="w-7 h-7 rounded-md bg-white/90 text-black font-mono text-xs font-bold hover:bg-white cursor-pointer shadow"
-                                title="Move right"
-                              >
-                                →
-                              </button>
-                            )}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setAlbumModalPos(pos)}
-                            className="px-3 py-1 rounded-md text-[11px] font-mono font-medium bg-white text-black hover:scale-105 transition-transform cursor-pointer shadow"
-                          >
-                            Replace
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveAlbum(pos)}
-                            className="px-3 py-1 rounded-md text-[11px] font-mono font-medium bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer shadow"
-                          >
-                            Remove
-                          </button>
-                          <Link
-                            href={`/album/${album.albumId}`}
-                            className="text-[10px] font-mono text-white/80 hover:text-white underline mt-1"
-                          >
-                            View Record →
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Album metadata */}
-                    <Link href={`/album/${album.albumId}`} className="px-0.5 hover:opacity-75 transition-opacity">
-                      <h3 className="font-medium text-sm truncate" title={album.title}>
-                        {album.title}
-                      </h3>
-                      <p
-                        className="text-xs opacity-70 truncate font-light"
-                        title={album.artistName}
-                      >
-                        {album.artistName}{" "}
-                        {album.releaseYear ? `• ${album.releaseYear}` : ""}
-                      </p>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#tracks")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Tracks,
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#discussions")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Notes,
+                    </button>
+                    <Link href="/feed" className="nav-btn cursor-pointer">
+                      Feed
                     </Link>
-                  </div>
-                );
-              }
-
-              // Empty slot
-              return (
-                <div
-                  key={pos}
-                  onClick={() => isOwner && setAlbumModalPos(pos)}
-                  className={`aspect-square rounded-xl border border-dashed border-black/20 flex flex-col items-center justify-center p-4 text-center transition-all duration-300 ${
-                    isOwner
-                      ? "hover:border-black/50 hover:bg-black/[0.04] cursor-pointer"
-                      : "opacity-40"
-                  }`}
-                >
-                  <span className="font-mono text-xs opacity-40 mb-1">0{pos}</span>
-                  <span className="text-xs opacity-60 font-medium">
-                    {isOwner ? "+ Add Album" : "Empty Slot"}
                   </span>
                 </div>
-              );
-            })}
-          </div>
-        </section>
 
-        {/* TOP 5 SONGS SECTION */}
-        <section className="mb-16">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <span
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-              <h2 className="text-xl sm:text-2xl font-medium tracking-tight">
-                TOP 5 TRACKS
-              </h2>
-            </div>
-            <span className="text-xs font-mono opacity-50 uppercase tracking-widest">
-              [ essential tracks ]
-            </span>
-          </div>
-
-          <div className="border border-black/10 rounded-2xl divide-y divide-black/10 overflow-hidden bg-black/[0.02]">
-            {[1, 2, 3, 4, 5].map((pos) => {
-              const song = initialSongs.find((s) => s.position === pos);
-
-              if (song) {
-                return (
-                  <div
-                    key={pos}
-                    className="group flex items-center justify-between px-6 py-4 hover:bg-black/[0.03] transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <span
-                        className="w-7 h-7 rounded-lg flex items-center justify-center font-mono text-xs font-bold text-black"
-                        style={{ backgroundColor: activePalette.accent }}
+                {/* Right Owner / Visitor Actions */}
+                <div className="col-span-4 sm:col-span-3 flex justify-end items-center gap-[2vw] sm:gap-[0.9vw]">
+                  {isOwner ? (
+                    <>
+                      <Link
+                        href="/settings"
+                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
                       >
-                        0{pos}
-                      </span>
-                      {song.coverUrl && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={song.coverUrl}
-                          alt={song.title}
-                          className="w-9 h-9 rounded object-cover shadow-sm hidden sm:block"
+                        Settings
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors cursor-pointer"
+                      >
+                        {isLoggingOut ? "..." : "Logout"}
+                      </button>
+                      <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                        <button
+                          type="button"
+                          onClick={() => setIsEditing(!isEditing)}
+                          className="main-btn smallText text-secondary transition-colors duration-500"
+                          style={{ backgroundColor: activePalette.accent }}
+                        >
+                          <span className="main-btn__icon" aria-hidden="true" />
+                          <span className="main-btn__label">
+                            <span className="main-btn__clip">
+                              <span className="main-btn__from">
+                                {isEditing ? "Close edit" : "Edit profile"}
+                              </span>
+                              <span className="main-btn__to" aria-hidden="true">
+                                {isEditing ? "Close edit" : "Edit profile"}
+                              </span>
+                            </span>
+                          </span>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {!blocked && (
+                        <UserFollowButton
+                          targetUserId={user.id}
+                          initialFollowing={Boolean(isFollowing)}
+                          isLoggedIn={Boolean(isLoggedIn)}
+                          accentColor={activePalette.accent}
                         />
                       )}
-                      <div>
-                        <h4 className="font-medium text-sm">{song.title}</h4>
-                        <p className="text-xs opacity-70">{song.artistName}</p>
+                      <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw] hidden sm:block">
+                        <Link
+                          href="/feed"
+                          className="main-btn smallText text-secondary transition-colors duration-500"
+                          style={{ backgroundColor: activePalette.accent }}
+                        >
+                          <span className="main-btn__icon" aria-hidden="true" />
+                          <span className="main-btn__label">
+                            <span className="main-btn__clip">
+                              <span className="main-btn__from">Feed</span>
+                              <span className="main-btn__to" aria-hidden="true">
+                                Feed
+                              </span>
+                            </span>
+                          </span>
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Press 'm' trigger */}
+                <span
+                  onClick={() => setIsPlayerOpen(true)}
+                  className="text-[1vw] font-normal text-secondary/30 hover:text-secondary/70 duration-300 absolute bottom-[-1.75vw] sm:block hidden cursor-pointer"
+                >
+                  <span className="text-hover cursor-pointer w-fit">
+                    press &apos;m&apos; for player
+                  </span>
+                </span>
+              </div>
+            </header>
+
+            {/* Scrollable Container managed by Lenis */}
+            <main
+              ref={mainRef}
+              id="swup"
+              className="transition-swup hide-scrollbar relative bg-primary text-secondary"
+              tabIndex={-1}
+            >
+              <div ref={contentRef} className="relative overflow-x-clip bg-primary text-secondary">
+                {/* DECORATIVE VISUAL LATERAL CIRCLES (Left & Right Sides, Palette-Driven) */}
+                <div
+                  ref={lateralOrbsRef}
+                  aria-hidden="true"
+                  className="pointer-events-none select-none inset-0 overflow-hidden z-0"
+                >
+                  {/* Left Edge Upper Concentric Vinyl Orb */}
+                  <div
+                    className="profile-orb-float-slow absolute top-[11vh] left-[-15vw] sm:left-[-8.5vw] w-[32vw] h-[32vw] sm:w-[17vw] sm:h-[17vw] rounded-full drop-shadow-soft transition-colors duration-700 flex items-center justify-center"
+                    style={{ backgroundColor: activePalette.accent }}
+                  >
+                    <div
+                      className="w-[68%] h-[68%] rounded-full border border-secondary/15 transition-colors duration-700 flex items-center justify-center"
+                      style={{ backgroundColor: activePalette.secondaryOrb }}
+                    >
+                      <div
+                        className="w-[34%] h-[34%] rounded-full transition-colors duration-700"
+                        style={{ backgroundColor: activePalette.softGlow }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Left Edge Satellite Circle */}
+                  <div
+                    className="profile-orb-float-reverse absolute top-[44vh] left-[-6vw] sm:left-[-2.8vw] w-[13vw] h-[13vw] sm:w-[6.5vw] sm:h-[6.5vw] rounded-full border border-secondary/10 drop-shadow transition-colors duration-700"
+                    style={{ backgroundColor: activePalette.secondaryOrb }}
+                  />
+
+                  {/* Left Edge Lower Radial Sphere */}
+                  <div
+                    className="profile-orb-pulse absolute top-[118vh] left-[-12vw] sm:left-[-6.5vw] w-[26vw] h-[26vw] sm:w-[13.5vw] sm:h-[13.5vw] rounded-full drop-shadow-soft transition-all duration-700 flex items-center justify-center"
+                    style={{
+                      background: `radial-gradient(circle at 35% 35%, ${activePalette.secondaryOrb}, ${activePalette.accent} 68%, ${activePalette.softGlow})`,
+                    }}
+                  >
+                    <div className="w-[22%] h-[22%] rounded-full bg-primary/90 border border-secondary/15" />
+                  </div>
+
+                  {/* Right Edge Upper Layered Graphic Circle */}
+                  <div
+                    className="profile-orb-float-reverse absolute top-[18vh] right-[-14vw] sm:right-[-7.8vw] w-[30vw] h-[30vw] sm:w-[16vw] sm:h-[16vw] rounded-full drop-shadow-soft transition-colors duration-700 flex items-center justify-center"
+                    style={{ backgroundColor: activePalette.secondaryOrb }}
+                  >
+                    <div
+                      className="w-[62%] h-[62%] rounded-full transition-colors duration-700 flex items-center justify-center"
+                      style={{ backgroundColor: activePalette.accent }}
+                    >
+                      <div className="w-[28%] h-[28%] rounded-full bg-secondary" />
+                    </div>
+                  </div>
+
+                  {/* Right Edge Mid Accent Dot */}
+                  <div
+                    className="profile-orb-float-slow absolute top-[56vh] right-[-5vw] sm:right-[-2.2vw] w-[12vw] h-[12vw] sm:w-[5.8vw] sm:h-[5.8vw] rounded-full drop-shadow transition-colors duration-700"
+                    style={{ backgroundColor: activePalette.softGlow }}
+                  />
+
+                  {/* Right Edge Lower Concentric Disc */}
+                  <div
+                    className="profile-orb-pulse absolute top-[134vh] right-[-13vw] sm:right-[-7.2vw] w-[28vw] h-[28vw] sm:w-[15vw] sm:h-[15vw] rounded-full drop-shadow-soft transition-colors duration-700 flex items-center justify-center"
+                    style={{ backgroundColor: activePalette.accent }}
+                  >
+                    <div
+                      className="w-[54%] h-[54%] rounded-full border border-secondary/15 transition-colors duration-700"
+                      style={{ backgroundColor: activePalette.softGlow }}
+                    />
+                  </div>
+                </div>
+
+                {/* 1. HERO / IDENTITY SECTION (#overview) */}
+                <section
+                  id="overview"
+                  data-nav-color="secondary"
+                  className="w-full bg-transparent text-secondary pt-[24vw] sm:pt-[9.5vw] pb-[8vw] sm:pb-[5vw] relative z-10"
+                >
+                  <div className="layout-grid w-full items-start">
+                    {/* Top Section Badge & Palette Selector Bar */}
+                    <div className="col-span-full flex flex-wrap items-center justify-between gap-[3vw] mb-[5vw] sm:mb-[3vw] profile-hero-reveal">
+                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
+                        <div className="drop-shadow rounded-[0.25vw]">
+                          <div
+                            className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] transition-colors duration-500"
+                            style={{ backgroundColor: activePalette.accent }}
+                          />
+                        </div>
+                        <span className="mediumText">profile / @{user.username}</span>
+                      </div>
+
+                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
+                        <PaletteSelector
+                          selectedTheme={currentThemeKey}
+                          onSelect={handlePaletteChange}
+                        />
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      {isOwner && (
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5">
-                          {pos > 1 && (
-                            <button
-                              type="button"
-                              disabled={reordering}
-                              onClick={() => handleSwapSongPosition(pos, pos - 1)}
-                              className="text-xs font-mono px-2 py-1 rounded bg-black/10 hover:bg-black/20 transition-colors cursor-pointer"
-                              title="Move up"
+                    {/* Left 8 Columns: Giant Editorial Name, Bio & Taste Metrics */}
+                    <div className="col-span-full sm:col-span-8 flex flex-col justify-between profile-hero-reveal">
+                      <h1 className="largeText font-medium text-secondary tracking-[-0.05em] break-words mb-[4vw] sm:mb-[2.2vw]">
+                        {displayName}
+                      </h1>
+
+                      <p className="mediumText font-light leading-snug text-secondary/80 max-w-[38ch] mb-[6vw] sm:mb-[3.5vw]">
+                        {bio ||
+                          (isOwner
+                            ? "No listener bio yet. Open 'Edit profile' to describe the records, pressings, and soundscapes that define your taste."
+                            : "Curating essential records and tracks on musi5t.")}
+                      </p>
+
+                      {/* Editorial Stats & Metadata Grid */}
+                      <div className="grid grid-cols-3 gap-[3vw] sm:gap-[2vw] pt-[4vw] sm:pt-[2vw] border-t border-secondary/15">
+                        <div className="flex flex-col gap-[0.4vw]">
+                          <span className="mediumText font-medium">
+                            0{initialAlbums.length}/05
+                          </span>
+                          <span className="extraSmallText text-secondary/55">
+                            curated records
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-[0.4vw]">
+                          <span className="mediumText font-medium">
+                            0{initialSongs.length}/05
+                          </span>
+                          <span className="extraSmallText text-secondary/55">
+                            essential tracks
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-[0.4vw]">
+                          <span className="smallText font-medium">{joinedLabel}</span>
+                          <span className="extraSmallText text-secondary/55">
+                            member since
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right 4 Columns: Editorial Avatar Card & Visitor Moderation Controls */}
+                    <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[3vw] sm:gap-[1.5vw] mt-[8vw] sm:mt-0 profile-hero-reveal">
+                      <div className="w-[46vw] sm:w-[18vw] aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary relative flex items-center justify-center group">
+                        {user.avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={user.avatarUrl}
+                            alt={displayName}
+                            className="w-full h-full object-cover select-none transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full flex items-center justify-center relative transition-colors duration-700"
+                            style={{
+                              background: `radial-gradient(circle at 30% 30%, ${activePalette.secondaryOrb}, ${activePalette.accent} 65%, ${activePalette.softGlow})`,
+                            }}
+                          >
+                            <div
+                              className="w-[72%] h-[72%] rounded-full border border-secondary/15 flex items-center justify-center transition-colors duration-700"
+                              style={{ backgroundColor: activePalette.secondaryOrb }}
                             >
-                              ↑
-                            </button>
-                          )}
-                          {pos < 5 && (
-                            <button
-                              type="button"
-                              disabled={reordering}
-                              onClick={() => handleSwapSongPosition(pos, pos + 1)}
-                              className="text-xs font-mono px-2 py-1 rounded bg-black/10 hover:bg-black/20 transition-colors cursor-pointer"
-                              title="Move down"
-                            >
-                              ↓
-                            </button>
-                          )}
+                              <span className="largeText font-medium text-secondary select-none">
+                                {displayName.slice(0, 2).toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        <div className="absolute bottom-0 left-0 w-full p-[2vw] sm:p-[0.9vw] bg-gradient-to-t from-black/75 via-black/30 to-transparent text-primary flex items-center justify-between">
+                          <span className="detailText text-primary/90 truncate">
+                            @{user.username}
+                          </span>
+                          <span
+                            className="w-[2vw] h-[2vw] sm:w-[0.65vw] sm:h-[0.65vw] rounded-full transition-colors duration-500"
+                            style={{ backgroundColor: activePalette.accent }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Visitor Moderation Controls */}
+                      {!isOwner && isLoggedIn && (
+                        <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
                           <button
                             type="button"
-                            onClick={() => setSongModalPos(pos)}
-                            className="text-xs font-mono px-2.5 py-1 rounded bg-black/10 hover:bg-black/20 transition-colors cursor-pointer"
+                            disabled={moderationLoading}
+                            onClick={handleToggleMute}
+                            className={`detailText px-[2.5vw] py-[1vw] sm:px-[0.8vw] sm:py-[0.35vw] rounded-[0.25vw] border transition-colors cursor-pointer ${
+                              muted
+                                ? "bg-secondary text-primary border-secondary"
+                                : "border-secondary/20 hover:border-secondary/60 text-secondary/70"
+                            }`}
                           >
-                            Replace
+                            {muted ? "muted" : "mute"}
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleRemoveSong(pos)}
-                            className="text-xs font-mono px-2 py-1 rounded text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            disabled={moderationLoading}
+                            onClick={handleToggleBlock}
+                            className={`detailText px-[2.5vw] py-[1vw] sm:px-[0.8vw] sm:py-[0.35vw] rounded-[0.25vw] border transition-colors cursor-pointer ${
+                              blocked
+                                ? "bg-red-600 text-white border-red-600"
+                                : "border-red-600/30 text-red-700 hover:bg-red-600/10"
+                            }`}
                           >
-                            ✕
+                            {blocked ? "blocked" : "block"}
                           </button>
                         </div>
                       )}
-                      <span className="text-xs font-mono opacity-40">TRACK</span>
+                    </div>
+
+                    {/* Inline Profile Edit Drawer (Owner) */}
+                    {isEditing && (
+                      <form
+                        onSubmit={handleSaveProfile}
+                        className="col-span-full mt-[6vw] sm:mt-[3vw] pt-[5vw] sm:pt-[2.5vw] border-t border-secondary/15 grid grid-cols-1 sm:grid-cols-12 gap-[3vw] sm:gap-[1.5vw] items-end"
+                      >
+                        <div className="sm:col-span-4 flex flex-col gap-[0.6vw]">
+                          <label className="extraSmallTextBold text-secondary/70">
+                            display name
+                          </label>
+                          <input
+                            type="text"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            className="w-full bg-primary border border-secondary/25 rounded-[0.3vw] px-[2.5vw] py-[1.8vw] sm:px-[0.9vw] sm:py-[0.65vw] smallText text-secondary focus:outline-none focus:border-secondary"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-5 flex flex-col gap-[0.6vw]">
+                          <label className="extraSmallTextBold text-secondary/70">
+                            listener bio (max 250 chars)
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                            maxLength={250}
+                            className="w-full bg-primary border border-secondary/25 rounded-[0.3vw] px-[2.5vw] py-[1.8vw] sm:px-[0.9vw] sm:py-[0.65vw] extraSmallText text-secondary focus:outline-none focus:border-secondary resize-none"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-3 flex items-center sm:justify-end gap-[2vw] sm:gap-[0.8vw]">
+                          <div className="drop-shadow rounded-[0.25vw]">
+                            <button
+                              type="submit"
+                              disabled={savingProfile}
+                              className="main-btn smallText text-secondary transition-colors duration-500"
+                              style={{ backgroundColor: activePalette.accent }}
+                            >
+                              <span className="main-btn__icon" aria-hidden="true" />
+                              <span className="main-btn__label">
+                                <span className="main-btn__clip">
+                                  <span className="main-btn__from">
+                                    {savingProfile ? "Saving..." : "Save changes"}
+                                  </span>
+                                  <span className="main-btn__to" aria-hidden="true">
+                                    {savingProfile ? "Saving..." : "Save changes"}
+                                  </span>
+                                </span>
+                              </span>
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setIsEditing(false)}
+                            className="extraSmallText text-secondary/60 hover:text-secondary transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    )}
+
+                    <div className="w-full border-t border-secondary/15 col-span-full mt-[8vw] sm:mt-[4.5vw]" />
+                  </div>
+                </section>
+
+                {/* 2. TOP 5 RECORDS SECTION (1:1 WorkCarousel.tsx 3D Horizontal Showcase) */}
+                <section
+                  ref={recordsContainerRef}
+                  id="records"
+                  data-nav-color="secondary"
+                  className="w-full relative select-none pt-[2vw] pb-[8vw] sm:pb-[6vw] bg-transparent text-secondary z-10"
+                >
+                  <div className="layout-grid mb-[2vw]">
+                    <div className="col-span-full flex justify-between items-center">
+                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
+                        <div className="drop-shadow rounded-[0.25vw]">
+                          <div
+                            className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] transition-colors duration-500"
+                            style={{ backgroundColor: activePalette.accent }}
+                          />
+                        </div>
+                        <span className="mediumText">top 5 records</span>
+                      </div>
+                      <h2 className="mediumText">curated ({initialAlbums.length}/5)</h2>
                     </div>
                   </div>
-                );
-              }
 
-              return (
-                <div
-                  key={pos}
-                  onClick={() => isOwner && setSongModalPos(pos)}
-                  className={`flex items-center justify-between px-6 py-4 transition-colors ${
-                    isOwner
-                      ? "hover:bg-black/[0.03] cursor-pointer opacity-60 hover:opacity-100"
-                      : "opacity-40"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="font-mono text-xs w-7 text-center">0{pos}</span>
-                    <span className="text-xs font-light">
-                      {isOwner ? "+ Add track to position" : "Empty slot"}
-                    </span>
+                  {/* 3D Horizontal Carousel */}
+                  <div className="w-full overflow-x-auto hide-scrollbar py-[3vw] px-[var(--margin)]">
+                    <div className="flex gap-[2.5vw] w-fit items-center [perspective:1400px]">
+                      {[1, 2, 3, 4, 5].map((pos, i) => {
+                        const album = initialAlbums.find((a) => a.position === pos);
+
+                        if (album) {
+                          return (
+                            <div
+                              key={pos}
+                              ref={(el) => {
+                                albumCardRefs.current[i] = el;
+                              }}
+                              onMouseEnter={() => setHoveredAlbumIndex(i)}
+                              onMouseLeave={() => setHoveredAlbumIndex(null)}
+                              className="w-[55vw] sm:w-[22vw] aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary shrink-0 will-change-transform relative group"
+                            >
+                              {/* Top-left rank badge */}
+                              <div
+                                className="absolute top-[2.5vw] left-[2.5vw] sm:top-[1vw] sm:left-[1vw] z-20 px-[1.8vw] py-[0.6vw] sm:px-[0.55vw] sm:py-[0.2vw] rounded-[0.2vw] text-secondary extraSmallTextBold drop-shadow transition-colors duration-500 pointer-events-none"
+                                style={{ backgroundColor: activePalette.accent }}
+                              >
+                                0{pos}
+                              </div>
+
+                              {/* Owner Hover Controls (Top-Right) */}
+                              {isOwner && (
+                                <div className="absolute top-[2.5vw] right-[2.5vw] sm:top-[1vw] sm:right-[1vw] z-20 flex items-center gap-[1vw] sm:gap-[0.35vw] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                  {pos > 1 && (
+                                    <button
+                                      type="button"
+                                      disabled={reordering}
+                                      onClick={() => handleSwapAlbumPosition(pos, pos - 1)}
+                                      className="px-[1.6vw] py-[0.6vw] sm:px-[0.45vw] sm:py-[0.2vw] rounded-[0.2vw] bg-primary/95 text-secondary detailText font-medium hover:bg-primary cursor-pointer drop-shadow"
+                                      title="Move left"
+                                    >
+                                      ←
+                                    </button>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => setAlbumModalPos(pos)}
+                                    className="px-[2vw] py-[0.6vw] sm:px-[0.55vw] sm:py-[0.2vw] rounded-[0.2vw] bg-primary/95 text-secondary detailText font-medium hover:bg-primary cursor-pointer drop-shadow"
+                                  >
+                                    Replace
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveAlbum(pos)}
+                                    className="px-[2vw] py-[0.6vw] sm:px-[0.55vw] sm:py-[0.2vw] rounded-[0.2vw] bg-secondary/90 text-primary detailText font-medium hover:bg-red-600 cursor-pointer drop-shadow transition-colors"
+                                  >
+                                    Remove
+                                  </button>
+                                  {pos < 5 && (
+                                    <button
+                                      type="button"
+                                      disabled={reordering}
+                                      onClick={() => handleSwapAlbumPosition(pos, pos + 1)}
+                                      className="px-[1.6vw] py-[0.6vw] sm:px-[0.45vw] sm:py-[0.2vw] rounded-[0.2vw] bg-primary/95 text-secondary detailText font-medium hover:bg-primary cursor-pointer drop-shadow"
+                                      title="Move right"
+                                    >
+                                      →
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Full-bleed Album Cover */}
+                              <Link
+                                href={`/album/${album.albumId}`}
+                                className="block w-full h-full"
+                              >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={album.coverUrl}
+                                  alt={`${album.artistName} - ${album.title}`}
+                                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 select-none"
+                                />
+                              </Link>
+
+                              {/* Bottom Editorial Overlay */}
+                              <Link
+                                href={`/album/${album.albumId}`}
+                                className="absolute bottom-0 left-0 w-full p-[3.5vw] sm:p-[1.5vw] bg-gradient-to-t from-black/85 via-black/40 to-transparent text-primary block"
+                              >
+                                <span className="smallText font-medium block truncate">
+                                  {album.title}
+                                </span>
+                                <span className="extraSmallText text-primary/70 block truncate">
+                                  {album.artistName}
+                                  {album.releaseYear ? ` · ${album.releaseYear}` : ""}
+                                </span>
+                              </Link>
+                            </div>
+                          );
+                        }
+
+                        // Empty Slot Card (Dark Editorial Vinyl Placeholder)
+                        return (
+                          <div
+                            key={pos}
+                            ref={(el) => {
+                              albumCardRefs.current[i] = el;
+                            }}
+                            onMouseEnter={() => setHoveredAlbumIndex(i)}
+                            onMouseLeave={() => setHoveredAlbumIndex(null)}
+                            onClick={() => isOwner && setAlbumModalPos(pos)}
+                            className={`w-[55vw] sm:w-[22vw] aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary text-primary shrink-0 will-change-transform relative group flex flex-col justify-between p-[3.5vw] sm:p-[1.5vw] ${
+                              isOwner ? "cursor-pointer" : "opacity-80"
+                            }`}
+                          >
+                            {/* Top Rank Badge */}
+                            <div className="flex items-center justify-between z-10">
+                              <span
+                                className="px-[1.8vw] py-[0.6vw] sm:px-[0.55vw] sm:py-[0.2vw] rounded-[0.2vw] text-secondary extraSmallTextBold transition-colors duration-500"
+                                style={{ backgroundColor: activePalette.accent }}
+                              >
+                                0{pos}
+                              </span>
+                              <span className="detailText text-primary/40">vinyl slot</span>
+                            </div>
+
+                            {/* Decorative Concentric Vinyl Grooves */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="w-[68%] h-[68%] rounded-full border border-primary/10 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                                <div className="w-[62%] h-[62%] rounded-full border border-primary/15 flex items-center justify-center">
+                                  <div
+                                    className="w-[34%] h-[34%] rounded-full opacity-80 transition-colors duration-500"
+                                    style={{ backgroundColor: activePalette.accent }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Bottom Trigger */}
+                            <div className="z-10">
+                              <span className="smallText font-medium block truncate">
+                                {isOwner ? `+ curate record 0${pos}` : `empty record 0${pos}`}
+                              </span>
+                              <span className="extraSmallText text-primary/50 block truncate">
+                                {isOwner
+                                  ? "select pressing & sleeve"
+                                  : "no edition selected"}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <span className="text-xs font-mono opacity-40">—</span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+                </section>
 
-        {/* USER POSTS SECTION */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <span
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-              <h2 className="text-xl sm:text-2xl font-medium tracking-tight">
-                RECENT DISCUSSIONS
-              </h2>
-            </div>
-            <span className="text-xs font-mono opacity-50 uppercase tracking-widest">
-              [ @{user.username} posts ]
-            </span>
-          </div>
-
-          {userPosts.length === 0 ? (
-            <div className="p-10 border border-dashed border-black/15 rounded-2xl text-center">
-              <p className="text-sm opacity-60 mb-2">
-                No visible discussions from @{user.username} yet.
-              </p>
-              {isOwner && (
-                <Link
-                  href="/feed"
-                  className="inline-block px-4 py-2 rounded-lg text-xs font-mono uppercase font-bold text-black shadow-sm transition-transform hover:scale-105"
-                  style={{ backgroundColor: activePalette.accent }}
+                {/* 3. TOP 5 TRACKS SECTION (Editorial Numbered Rows) */}
+                <section
+                  id="tracks"
+                  data-nav-color="secondary"
+                  className="w-full bg-transparent text-secondary py-[6vw] sm:py-[4vw] relative z-10 select-none"
                 >
-                  Publish a Post in Feed
-                </Link>
-              )}
-            </div>
-          ) : (
-            <div className="max-w-2xl">
-              <InteractivePostList
-                posts={userPosts}
-                currentUser={currentUser}
-                variant="light"
-              />
-            </div>
-          )}
-        </section>
-      </main>
+                  <div className="layout-grid mb-[4vw] sm:mb-[2.5vw]">
+                    <div className="col-span-full flex justify-between items-center">
+                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
+                        <div className="drop-shadow rounded-[0.25vw]">
+                          <div
+                            className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] transition-colors duration-500"
+                            style={{ backgroundColor: activePalette.accent }}
+                          />
+                        </div>
+                        <span className="mediumText">top 5 tracks</span>
+                      </div>
+                      <h2 className="mediumText">essential ({initialSongs.length}/5)</h2>
+                    </div>
+                  </div>
 
-      {/* Album Search & Edition Modal */}
+                  <div className="layout-grid">
+                    {[1, 2, 3, 4, 5].map((pos, idx) => {
+                      const song = initialSongs.find((s) => s.position === pos);
+                      const isLast = idx === 4;
+
+                      if (song) {
+                        return (
+                          <div
+                            key={pos}
+                            className={`col-span-full grid grid-cols-6 sm:grid-cols-12 gap-[var(--gutter)] items-center py-[3.8vw] sm:py-[1.8vw] border-t border-secondary/15 group hover:bg-secondary/[0.03] transition-colors rounded-[0.25vw] px-[1vw] ${
+                              isLast ? "border-b" : ""
+                            }`}
+                          >
+                            {/* Index Number */}
+                            <div className="col-span-1 flex items-center">
+                              <span
+                                className="px-[1.8vw] py-[0.6vw] sm:px-[0.65vw] sm:py-[0.25vw] rounded-[0.2vw] extraSmallTextBold text-secondary drop-shadow transition-colors duration-500"
+                                style={{ backgroundColor: activePalette.accent }}
+                              >
+                                0{pos}
+                              </span>
+                            </div>
+
+                            {/* Track Cover & Title/Artist */}
+                            <div className="col-span-3 sm:col-span-7 flex items-center gap-[2.5vw] sm:gap-[1.5vw] min-w-0 group-hover:translate-x-[0.4vw] transition-transform duration-300">
+                              {song.coverUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={song.coverUrl}
+                                  alt={song.title}
+                                  className="w-[11vw] h-[11vw] sm:w-[3.8vw] sm:h-[3.8vw] rounded-[0.3vw] object-cover drop-shadow-soft shrink-0"
+                                />
+                              ) : (
+                                <div
+                                  className="w-[11vw] h-[11vw] sm:w-[3.8vw] sm:h-[3.8vw] rounded-[0.3vw] shrink-0 flex items-center justify-center bg-secondary text-primary detailText"
+                                >
+                                  0{pos}
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <h3 className="mediumText font-medium truncate">
+                                  {song.title}
+                                </h3>
+                                <p className="extraSmallText text-secondary/60 truncate mt-[0.2vw]">
+                                  {song.artistName}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Owner Controls / Track Tag */}
+                            <div className="col-span-2 sm:col-span-4 flex items-center justify-end gap-[1.2vw] sm:gap-[0.5vw]">
+                              {isOwner && (
+                                <div className="flex items-center gap-[1vw] sm:gap-[0.4vw] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                  {pos > 1 && (
+                                    <button
+                                      type="button"
+                                      disabled={reordering}
+                                      onClick={() => handleSwapSongPosition(pos, pos - 1)}
+                                      className="detailText px-[1.8vw] py-[0.8vw] sm:px-[0.55vw] sm:py-[0.25vw] rounded-[0.2vw] border border-secondary/20 hover:bg-secondary hover:text-primary transition-colors cursor-pointer"
+                                      title="Move up"
+                                    >
+                                      ↑
+                                    </button>
+                                  )}
+                                  {pos < 5 && (
+                                    <button
+                                      type="button"
+                                      disabled={reordering}
+                                      onClick={() => handleSwapSongPosition(pos, pos + 1)}
+                                      className="detailText px-[1.8vw] py-[0.8vw] sm:px-[0.55vw] sm:py-[0.25vw] rounded-[0.2vw] border border-secondary/20 hover:bg-secondary hover:text-primary transition-colors cursor-pointer"
+                                      title="Move down"
+                                    >
+                                      ↓
+                                    </button>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => setSongModalPos(pos)}
+                                    className="detailText px-[2vw] py-[0.8vw] sm:px-[0.65vw] sm:py-[0.25vw] rounded-[0.2vw] border border-secondary/20 hover:bg-secondary hover:text-primary transition-colors cursor-pointer"
+                                  >
+                                    Replace
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveSong(pos)}
+                                    className="detailText px-[1.8vw] py-[0.8vw] sm:px-[0.55vw] sm:py-[0.25vw] rounded-[0.2vw] border border-red-600/30 text-red-700 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              )}
+                              <span className="detailText text-secondary/40 hidden sm:inline">
+                                track 0{pos}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // Empty Track Row
+                      return (
+                        <div
+                          key={pos}
+                          onClick={() => isOwner && setSongModalPos(pos)}
+                          className={`col-span-full grid grid-cols-6 sm:grid-cols-12 gap-[var(--gutter)] items-center py-[3.8vw] sm:py-[1.8vw] border-t border-secondary/15 px-[1vw] transition-colors ${
+                            isLast ? "border-b" : ""
+                          } ${
+                            isOwner
+                              ? "hover:bg-secondary/[0.03] cursor-pointer group"
+                              : "opacity-50"
+                          }`}
+                        >
+                          <div className="col-span-1">
+                            <span className="extraSmallTextBold text-secondary/40">
+                              0{pos}
+                            </span>
+                          </div>
+                          <div className="col-span-4 sm:col-span-8">
+                            <span className="mediumText text-secondary/45 group-hover:text-secondary transition-colors">
+                              {isOwner ? `+ curate track 0${pos}` : "unassigned track slot"}
+                            </span>
+                          </div>
+                          <div className="col-span-1 sm:col-span-3 text-right">
+                            <span className="detailText text-secondary/35">—</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* 4. LISTENER DISCUSSIONS SECTION (#discussions) */}
+                <section
+                  id="discussions"
+                  data-nav-color="secondary"
+                  className="w-full bg-transparent text-secondary pt-[6vw] sm:pt-[4vw] pb-[12vw] sm:pb-[8vw] relative z-10"
+                >
+                  <div className="layout-grid mb-[4vw] sm:mb-[3vw]">
+                    <div className="col-span-full flex justify-between items-center">
+                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
+                        <div className="drop-shadow rounded-[0.25vw]">
+                          <div
+                            className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] transition-colors duration-500"
+                            style={{ backgroundColor: activePalette.accent }}
+                          />
+                        </div>
+                        <span className="mediumText">listener notes</span>
+                      </div>
+                      <h2 className="mediumText">discussions ({userPosts.length})</h2>
+                    </div>
+                  </div>
+
+                  <div className="layout-grid items-start">
+                    {/* Left Column: Editorial Context */}
+                    <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[6vw] sm:mb-0">
+                      <span className="smallText font-medium">
+                        Record-driven conversations
+                      </span>
+                      <p className="extraSmallText text-secondary/60 leading-relaxed pr-[2vw]">
+                        Thoughts, sleeve notes, and ratings published by @{user.username} across album communities and the global feed.
+                      </p>
+                      {isOwner && (
+                        <div className="w-fit mt-[1vw]">
+                          <div className="drop-shadow rounded-[0.25vw]">
+                            <Link
+                              href="/feed"
+                              className="main-btn smallText text-secondary transition-colors duration-500"
+                              style={{ backgroundColor: activePalette.accent }}
+                            >
+                              <span className="main-btn__icon" aria-hidden="true" />
+                              <span className="main-btn__label">
+                                <span className="main-btn__clip">
+                                  <span className="main-btn__from">Publish a note</span>
+                                  <span className="main-btn__to" aria-hidden="true">
+                                    Publish a note
+                                  </span>
+                                </span>
+                              </span>
+                            </Link>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right Column: Feed Posts */}
+                    <div className="col-span-full sm:col-span-8">
+                      {userPosts.length === 0 ? (
+                        <div className="p-[6vw] sm:p-[3vw] border border-secondary/15 rounded-[0.5vw] bg-primary/80 backdrop-blur-sm flex flex-col items-start justify-between gap-[1.5vw]">
+                          <span className="smallText font-medium text-secondary">
+                            No visible notes from @{user.username} yet.
+                          </span>
+                          <p className="extraSmallText text-secondary/55">
+                            When @{user.username} shares thoughts on an album or posts to the feed, they will appear here.
+                          </p>
+                        </div>
+                      ) : (
+                        <InteractivePostList
+                          posts={userPosts}
+                          currentUser={currentUser}
+                          variant="light"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </section>
+
+                {/* 5. DARK EDITORIAL FOOTER (matching src/app/page.tsx) */}
+                <footer className="w-full bg-secondary text-primary layout-grid pt-[6vw] pb-[4vw] border-t border-primary/10 select-none relative z-10">
+                  {/* Profile & Platform Links */}
+                  <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
+                    <span className="extraSmallText text-primary/40 font-mono">
+                      listener archive
+                    </span>
+                    <div className="flex flex-col gap-[0.5vw]">
+                      <Link
+                        href="/"
+                        className="footer-link-clip w-fit mediumText hover:opacity-75 transition-opacity duration-300"
+                      >
+                        musi5t home
+                      </Link>
+                      <Link
+                        href="/feed"
+                        className="footer-link-clip w-fit mediumText hover:opacity-75 transition-opacity duration-300"
+                      >
+                        community feed
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Back to top button */}
+                  <div className="col-span-full sm:col-span-4 flex items-center justify-center mb-[8vw] sm:mb-0">
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#overview")}
+                      className="back-to-top extraSmallText text-primary/60 hover:text-primary cursor-pointer hover:scale-105 transition-transform"
+                    >
+                      <span className="back-to-top__clip">
+                        <span className="back-to-top__from">
+                          <span className="back-to-top__arrow mr-1">↑</span>
+                          <span className="back-to-top__label">back to top</span>
+                        </span>
+                        <span className="back-to-top__to" aria-hidden="true">
+                          <span className="back-to-top__arrow mr-1">↑</span>
+                          <span className="back-to-top__label">back to top</span>
+                        </span>
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Copyright & Legal */}
+                  <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[1vw]">
+                    <span className="detailText text-primary/40">
+                      © 2026 musi5t. The album-centric social network.
+                    </span>
+                    <div className="flex gap-[1vw] detailText text-primary/50">
+                      <Link href="/" className="hover:text-primary transition-colors">
+                        overview
+                      </Link>
+                      <span>,</span>
+                      <Link href="/feed" className="hover:text-primary transition-colors">
+                        feed
+                      </Link>
+                      <span>,</span>
+                      <span className="opacity-40">@{user.username}</span>
+                    </div>
+                  </div>
+                </footer>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+
+      {/* Album Search & Edition Modal (Rendered outside clip-path main) */}
       {albumModalPos && (
-        <AlbumSearchModal
-          isOpen={true}
-          position={albumModalPos}
-          onClose={() => setAlbumModalPos(null)}
-          onSelectAlbum={handleSelectAlbum}
-          accentColor={activePalette.accent}
-        />
+        <div data-lenis-prevent>
+          <AlbumSearchModal
+            isOpen={true}
+            position={albumModalPos}
+            onClose={() => setAlbumModalPos(null)}
+            onSelectAlbum={handleSelectAlbum}
+            accentColor={activePalette.accent}
+          />
+        </div>
       )}
 
-      {/* Song Search Modal */}
+      {/* Song Search Modal (Rendered outside clip-path main) */}
       {songModalPos && (
-        <SongSearchModal
-          isOpen={true}
-          position={songModalPos}
-          onClose={() => setSongModalPos(null)}
-          onSelectSong={handleSelectSong}
-          accentColor={activePalette.accent}
-        />
+        <div data-lenis-prevent>
+          <SongSearchModal
+            isOpen={true}
+            position={songModalPos}
+            onClose={() => setSongModalPos(null)}
+            onSelectSong={handleSelectSong}
+            accentColor={activePalette.accent}
+          />
+        </div>
       )}
     </div>
   );
