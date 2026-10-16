@@ -6,6 +6,7 @@ import type { CatalogAlbum, AlbumEdition } from "@/lib/catalog/musicbrainz";
 interface AlbumSearchModalProps {
   isOpen: boolean;
   position?: number;
+  enableEditionSelection?: boolean;
   onClose: () => void;
   onSelectAlbum: (
     albumId: string,
@@ -19,6 +20,7 @@ interface AlbumSearchModalProps {
 export function AlbumSearchModal({
   isOpen,
   position,
+  enableEditionSelection = Boolean(position),
   onClose,
   onSelectAlbum,
   accentColor,
@@ -64,8 +66,25 @@ export function AlbumSearchModal({
     }, 350);
   };
 
-  // When an album is picked, fetch available editions
+  // When an album is picked: if edition selection is disabled, select immediately in 1 click
   const handlePickAlbum = async (album: CatalogAlbum) => {
+    if (!enableEditionSelection) {
+      setSubmitting(true);
+      try {
+        await onSelectAlbum(album.id, album.defaultCoverUrl, null, {
+          title: album.title,
+          artistName: album.artistName,
+        });
+        onClose();
+      } catch (err) {
+        console.error("Select album error:", err);
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    // Top 5 records flow: fetch available pressings and covers
     setSelectedAlbum(album);
     const defaultEdition: AlbumEdition = {
       releaseMbid: album.mbid,
