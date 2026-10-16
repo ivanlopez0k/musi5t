@@ -1,4 +1,5 @@
-import { boolean, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, check, pgTable, primaryKey, smallint, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { users } from "./users";
 import { albums } from "./albums";
 
@@ -43,3 +44,36 @@ export const postLikes = pgTable(
     primaryKey({ columns: [table.postId, table.userId] }),
   ]
 );
+
+export const postReplies = pgTable("post_replies", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  postId: uuid("post_id")
+    .notNull()
+    .references(() => posts.id, { onDelete: "cascade" }),
+  authorId: uuid("author_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+});
+
+export const albumRatings = pgTable(
+  "album_ratings",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    albumId: uuid("album_id")
+      .notNull()
+      .references(() => albums.id, { onDelete: "cascade" }),
+    score: smallint("score").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.albumId] }),
+    check("valid_rating_score", sql`${table.score} >= 1 AND ${table.score} <= 10`),
+  ]
+);
+

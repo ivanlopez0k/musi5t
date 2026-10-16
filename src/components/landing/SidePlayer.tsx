@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface Track {
   title: string;
@@ -88,7 +88,6 @@ export function SidePlayer({ isOpen, onClose }: SidePlayerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(25);
-  const audioContextRef = useRef<AudioContext | null>(null);
 
   const activeTrack = TRACKS[activeIndex];
 

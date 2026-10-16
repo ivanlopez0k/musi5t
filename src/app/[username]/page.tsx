@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/db";
-import { users, albums, songs, userTopAlbums, userTopSongs, follows } from "@/db/schema";
+import { users, albums, songs, userTopAlbums, userTopSongs, follows, mutes, blocks } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { eq, sql, asc, and } from "drizzle-orm";
 import { ProfileView } from "@/components/profile/ProfileView";
+import { getUserVisiblePosts } from "@/lib/feed/visibility";
 
 export const instant = false;
 
@@ -64,10 +65,23 @@ export default async function UserProfilePage({ params }: PageProps) {
   const currentUser = await getCurrentUser();
   const isOwner = currentUser?.id === user.id;
 
+  // Check if profile owner blocked currentUser
+  if (currentUser && !isOwner) {
+    const [blockedByOwner] = await db
+      .select({ blockerId: blocks.blockerId })
+      .from(blocks)
+      .where(and(eq(blocks.blockerId, user.id), eq(blocks.blockedId, currentUser.id)))
+      .limit(1);
+    if (blockedByOwner) {
+      notFound();
+    }
+  }
+
   // Fetch top 5 albums
   const userAlbums = await db
     .select({
       id: userTopAlbums.id,
+      albumId: userTopAlbums.albumId,
       position: userTopAlbums.position,
       coverUrl: userTopAlbums.coverUrl,
       title: albums.title,
@@ -94,6 +108,8 @@ export default async function UserProfilePage({ params }: PageProps) {
     .orderBy(asc(userTopSongs.position));
 
   let isFollowing = false;
+  let isMuted = false;
+  let isBlocked = false;
   if (currentUser && !isOwner) {
     const [followRecord] = await db
       .select({ followerId: follows.followerId })
@@ -101,16 +117,41 @@ export default async function UserProfilePage({ params }: PageProps) {
       .where(and(eq(follows.followerId, currentUser.id), eq(follows.followeeId, user.id)))
       .limit(1);
     isFollowing = !!followRecord;
+
+    const [muteRecord] = await db
+      .select({ muterId: mutes.muterId })
+      .from(mutes)
+      .where(and(eq(mutes.muterId, currentUser.id), eq(mutes.mutedId, user.id)))
+      .limit(1);
+    isMuted = !!muteRecord;
+
+    const [blockRecord] = await db
+      .select({ blockerId: blocks.blockerId })
+      .from(blocks)
+      .where(and(eq(blocks.blockerId, currentUser.id), eq(blocks.blockedId, user.id)))
+      .limit(1);
+    isBlocked = !!blockRecord;
   }
+
+  const userPosts = await getUserVisiblePosts({
+    profileUserId: user.id,
+    viewerUserId: currentUser?.id || null,
+    limit: 20,
+  });
 
   return (
     <ProfileView
       user={user}
       isOwner={isOwner}
       isFollowing={isFollowing}
+      isMuted={isMuted}
+      isBlocked={isBlocked}
       isLoggedIn={Boolean(currentUser)}
+      currentUser={currentUser}
       topAlbums={userAlbums}
       topSongs={userSongs}
+      userPosts={userPosts}
     />
   );
 }
+

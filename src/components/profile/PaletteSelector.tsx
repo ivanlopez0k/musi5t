@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 export const PROFILE_PALETTES = [
   { key: "lima", label: "lima", bg: "#F4F7E8", text: "#1B1F10", accent: "#B6E02E" },
   { key: "coral", label: "coral", bg: "#FFF1EC", text: "#2A1511", accent: "#FF5A3C" },

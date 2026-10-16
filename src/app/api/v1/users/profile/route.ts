@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { getCurrentUser } from "@/lib/auth/session";
+import { clearSessionCookie, getCurrentUser } from "@/lib/auth/session";
 import { eq } from "drizzle-orm";
 
 const ALLOWED_THEMES = ["lima", "coral", "cobalto", "violeta", "mandarina"];
@@ -70,3 +70,27 @@ export async function PATCH(req: Request) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = await getCurrentUser(request);
+    if (!user) {
+      return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+    }
+
+    await db.delete(users).where(eq(users.id, user.id));
+    await clearSessionCookie();
+
+    return NextResponse.json({ success: true });
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "digest" in error) {
+      throw error;
+    }
+    console.error("[profile delete error]:", error);
+    return NextResponse.json(
+      { error: "Error interno al eliminar la cuenta." },
+      { status: 500 }
+    );
+  }
+}
+

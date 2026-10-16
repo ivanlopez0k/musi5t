@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     // Validate albums
     if (!Array.isArray(albumIds) || albumIds.length > 3) {
       return NextResponse.json(
-        { error: "Podés asociar un máximo de 3 álbumes por post." },
+        { error: "Puedes asociar un máximo de 3 álbumes por post." },
         { status: 400 }
       );
     }
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     // Validate audience rule (must be public OR tagged to at least 1 album)
     if (!isPub && albumIds.length === 0) {
       return NextResponse.json(
-        { error: "Debés seleccionar al menos una audiencia (#public o al menos un #álbum)." },
+        { error: "Debes seleccionar al menos una audiencia (#public o al menos un #álbum)." },
         { status: 400 }
       );
     }

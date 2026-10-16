@@ -17,7 +17,7 @@ export async function POST(
     const { id: targetId } = await params;
     if (user.id === targetId) {
       return NextResponse.json(
-        { error: "No podés mutearte a vos mismo." },
+        { error: "No puedes silenciarte a ti mismo." },
         { status: 400 }
       );
     }

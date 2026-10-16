@@ -25,16 +25,15 @@ export function SongSearchModal({
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!isOpen) {
-      setQuery("");
-      setResults([]);
-      setSubmittingId(null);
-    }
-  }, [isOpen]);
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, []);
 
-  useEffect(() => {
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    if (!query.trim()) {
+    if (!value.trim()) {
       setResults([]);
       setLoading(false);
       return;
@@ -43,7 +42,7 @@ export function SongSearchModal({
     setLoading(true);
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/v1/catalog/songs?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`/api/v1/catalog/songs?q=${encodeURIComponent(value)}`);
         if (res.ok) {
           const data = await res.json();
           setResults(data.songs || []);
@@ -54,11 +53,7 @@ export function SongSearchModal({
         setLoading(false);
       }
     }, 350);
-
-    return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    };
-  }, [query]);
+  };
 
   const handlePick = async (song: CatalogSong) => {
     setSubmittingId(song.id);
@@ -104,7 +99,7 @@ export function SongSearchModal({
               type="text"
               autoFocus
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => handleQueryChange(e.target.value)}
               placeholder="Search track title or artist (e.g. Karma Police, Hard to Explain...)"
               className="w-full bg-[#1C1C19] border border-white/10 rounded-xl px-4 py-3 text-sm text-[#E6E5DF] placeholder:text-white/30 focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-colors"
             />

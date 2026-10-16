@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { albums, songs } from "@/db/schema";
-import { eq, or, sql } from "drizzle-orm";
+import { or, sql } from "drizzle-orm";
 
 const USER_AGENT =
   process.env.MUSICBRAINZ_USER_AGENT || "musi5t/0.1.0 ( contact@musi5t.local )";

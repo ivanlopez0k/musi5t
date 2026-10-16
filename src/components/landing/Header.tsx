@@ -61,8 +61,11 @@ export function Header({ onOpenPlayer }: HeaderProps) {
               onClick={() => scrollTo("#how-it-works")}
               className="nav-btn cursor-pointer"
             >
-              How it works
+              How it works,
             </button>
+            <Link href="/feed" className="nav-btn cursor-pointer">
+              Feed
+            </Link>
           </span>
         </div>
 

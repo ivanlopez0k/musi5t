@@ -1,11 +1,14 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { db } from "@/db";
-import { albums, userTopAlbums, users, albumFollows, posts, postAlbums, postLikes } from "@/db/schema";
+import { db, ensurePhase3Tables } from "@/db";
+import { albums, userTopAlbums, users, albumFollows, albumRatings } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { AlbumFollowButton } from "@/components/album/AlbumFollowButton";
+import { AlbumRatingWidget } from "@/components/album/AlbumRatingWidget";
+import { getAlbumVisiblePosts } from "@/lib/feed/visibility";
+import { InteractivePostList } from "@/components/feed/FeedView";
 
 export const instant = false;
 
@@ -32,6 +35,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function AlbumDetailPage({ params }: PageProps) {
   const { id } = await params;
 
+  await ensurePhase3Tables();
+
   const [album] = await db
     .select()
     .from(albums)
@@ -46,6 +51,7 @@ export default async function AlbumDetailPage({ params }: PageProps) {
 
   // Check if following album
   let isFollowingAlbum = false;
+  let userRatingScore: number | null = null;
   if (currentUser) {
     const [followRec] = await db
       .select({ userId: albumFollows.userId })
@@ -53,7 +59,28 @@ export default async function AlbumDetailPage({ params }: PageProps) {
       .where(and(eq(albumFollows.userId, currentUser.id), eq(albumFollows.albumId, album.id)))
       .limit(1);
     isFollowingAlbum = !!followRec;
+
+    const [myRating] = await db
+      .select({ score: albumRatings.score })
+      .from(albumRatings)
+      .where(and(eq(albumRatings.userId, currentUser.id), eq(albumRatings.albumId, album.id)))
+      .limit(1);
+    if (myRating) {
+      userRatingScore = myRating.score;
+    }
   }
+
+  // Fetch community rating stats
+  const [ratingStats] = await db
+    .select({
+      averageScore: sql<string | null>`ROUND(AVG(${albumRatings.score})::numeric, 1)::text`,
+      ratingsCount: sql<string>`COUNT(*)::text`,
+    })
+    .from(albumRatings)
+    .where(eq(albumRatings.albumId, album.id));
+
+  const averageScore = ratingStats?.averageScore ? parseFloat(ratingStats.averageScore) : null;
+  const ratingsCount = ratingStats?.ratingsCount ? parseInt(ratingStats.ratingsCount, 10) : 0;
 
   // Fetch users with this album in their Top 5
   const topListeners = await db
@@ -73,60 +100,11 @@ export default async function AlbumDetailPage({ params }: PageProps) {
     .limit(12);
 
   // Fetch posts tagged with this album
-  const albumPostsRows = await db.execute<{
-    id: string;
-    body: string;
-    is_public: boolean;
-    created_at: string;
-    author_id: string;
-    author_username: string;
-    author_display_name: string;
-    author_avatar_url: string | null;
-    author_theme_key: string;
-    likes_count: string;
-    liked_by_me: boolean;
-  }>(sql`
-    SELECT 
-      p.id,
-      p.body,
-      p.is_public,
-      p.created_at,
-      u.id AS author_id,
-      u.username AS author_username,
-      u.display_name AS author_display_name,
-      u.avatar_url AS author_avatar_url,
-      u.theme_key AS author_theme_key,
-      COUNT(DISTINCT pl.user_id)::text AS likes_count,
-      CASE 
-        WHEN ${currentUser?.id || null}::uuid IS NOT NULL THEN 
-          EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = ${currentUser?.id || null}::uuid)
-        ELSE false
-      END AS liked_by_me
-    FROM post_albums pa
-    JOIN posts p ON p.id = pa.post_id
-    JOIN users u ON u.id = p.author_id
-    LEFT JOIN post_likes pl ON pl.post_id = p.id
-    WHERE pa.album_id = ${album.id}
-      AND p.deleted_at IS NULL
-      ${
-        currentUser
-          ? sql`
-            AND NOT EXISTS (
-              SELECT 1 FROM blocks b
-              WHERE (b.blocker_id = ${currentUser.id}::uuid AND b.blocked_id = p.author_id)
-                 OR (b.blocker_id = p.author_id AND b.blocked_id = ${currentUser.id}::uuid)
-            )
-            AND NOT EXISTS (
-              SELECT 1 FROM mutes m
-              WHERE m.muter_id = ${currentUser.id}::uuid AND m.muted_id = p.author_id
-            )
-          `
-          : sql``
-      }
-    GROUP BY p.id, u.id
-    ORDER BY p.created_at DESC
-    LIMIT 20;
-  `);
+  const albumPosts = await getAlbumVisiblePosts({
+    albumId: album.id,
+    viewerUserId: currentUser?.id || null,
+    limit: 20,
+  });
 
   return (
     <div className="min-h-screen bg-[#11110F] text-[#E6E5DF] font-sans selection:bg-[#FFE600] selection:text-black">
@@ -149,13 +127,21 @@ export default async function AlbumDetailPage({ params }: PageProps) {
               Feed
             </Link>
             {currentUser ? (
-              <Link
-                href={`/@${currentUser.username}`}
-                className="flex items-center gap-2 text-xs font-mono opacity-80 hover:opacity-100 transition-opacity border border-white/15 rounded-full px-3 py-1"
-              >
-                <span className="w-2 h-2 rounded-full bg-[#FFE600]" />
-                <span>@{currentUser.username}</span>
-              </Link>
+              <>
+                <Link
+                  href="/settings"
+                  className="text-xs font-mono opacity-70 hover:opacity-100 transition-opacity"
+                >
+                  Settings
+                </Link>
+                <Link
+                  href={`/@${currentUser.username}`}
+                  className="flex items-center gap-2 text-xs font-mono opacity-80 hover:opacity-100 transition-opacity border border-white/15 rounded-full px-3 py-1"
+                >
+                  <span className="w-2 h-2 rounded-full bg-[#FFE600]" />
+                  <span>@{currentUser.username}</span>
+                </Link>
+              </>
             ) : (
               <Link
                 href="/login"
@@ -171,7 +157,7 @@ export default async function AlbumDetailPage({ params }: PageProps) {
       {/* Main Album Container */}
       <main className="max-w-6xl mx-auto px-6 py-12">
         {/* Album Hero Section */}
-        <section className="flex flex-col md:flex-row items-start md:items-end gap-8 pb-12 border-b border-white/10">
+        <section className="flex flex-col md:flex-row items-start md:items-end gap-8 pb-10 border-b border-white/10">
           <div className="relative aspect-square w-48 sm:w-64 rounded-2xl overflow-hidden shadow-2xl border border-white/15 flex-shrink-0 bg-black/40">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -200,6 +186,17 @@ export default async function AlbumDetailPage({ params }: PageProps) {
               />
             </div>
           </div>
+        </section>
+
+        {/* Rating Section (Phase 3) */}
+        <section className="py-8 border-b border-white/10">
+          <AlbumRatingWidget
+            albumId={album.id}
+            initialUserScore={userRatingScore}
+            initialAverageScore={averageScore}
+            initialRatingsCount={ratingsCount}
+            isLoggedIn={Boolean(currentUser)}
+          />
         </section>
 
         {/* Listeners With This in Top 5 */}
@@ -269,7 +266,7 @@ export default async function AlbumDetailPage({ params }: PageProps) {
             </span>
           </div>
 
-          {albumPostsRows.length === 0 ? (
+          {albumPosts.length === 0 ? (
             <div className="p-12 border border-dashed border-white/10 rounded-2xl text-center">
               <p className="text-sm opacity-50 mb-3">
                 No discussions about this album yet.
@@ -282,44 +279,12 @@ export default async function AlbumDetailPage({ params }: PageProps) {
               </Link>
             </div>
           ) : (
-            <div className="space-y-4 max-w-2xl">
-              {albumPostsRows.map((post) => (
-                <article
-                  key={post.id}
-                  className="border border-white/10 bg-[#161614]/70 rounded-2xl p-5"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <Link
-                      href={`/@${post.author_username}`}
-                      className="flex items-center gap-3"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-[#FFE600] flex items-center justify-center text-black font-bold text-xs">
-                        {post.author_display_name.slice(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-white">
-                          {post.author_display_name}
-                        </h4>
-                        <span className="text-[11px] font-mono opacity-50">
-                          @{post.author_username}
-                        </span>
-                      </div>
-                    </Link>
-                    <span className="text-[10px] font-mono opacity-40">
-                      {new Date(post.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
-                  </div>
-                  <p className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap mb-3 font-light">
-                    {post.body}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs font-mono opacity-60">
-                    <span>♥ {post.likes_count}</span>
-                  </div>
-                </article>
-              ))}
+            <div className="max-w-2xl">
+              <InteractivePostList
+                posts={albumPosts}
+                currentUser={currentUser}
+                variant="dark"
+              />
             </div>
           )}
         </section>
@@ -327,3 +292,4 @@ export default async function AlbumDetailPage({ params }: PageProps) {
     </div>
   );
 }
+

@@ -28,7 +28,7 @@ export async function DELETE(
 
     if (post.authorId !== user.id) {
       return NextResponse.json(
-        { error: "No tenés permiso para eliminar este post." },
+        { error: "No tienes permiso para eliminar este post." },
         { status: 403 }
       );
     }

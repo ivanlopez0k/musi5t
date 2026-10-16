@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     if (!identifier || !password) {
       return NextResponse.json(
-        { error: "Completá todos los campos requeridos." },
+        { error: "Completa todos los campos requeridos." },
         { status: 400 }
       );
     }

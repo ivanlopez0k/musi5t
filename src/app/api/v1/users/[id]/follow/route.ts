@@ -18,7 +18,7 @@ export async function POST(
 
     if (user.id === targetId) {
       return NextResponse.json(
-        { error: "No podés seguirte a vos mismo." },
+        { error: "No puedes seguirte a ti mismo." },
         { status: 400 }
       );
     }
