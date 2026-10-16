@@ -65,33 +65,33 @@ interface PaletteSelectorProps {
 
 export function PaletteSelector({ selectedTheme, onSelect }: PaletteSelectorProps) {
   return (
-    <div className="inline-flex items-center gap-[1.8vw] sm:gap-[0.55vw] bg-primary/90 border border-secondary/15 rounded-[0.4vw] sm:rounded-[0.25vw] px-[2.5vw] py-[1.2vw] sm:px-[0.8vw] sm:py-[0.4vw] drop-shadow-soft backdrop-blur-md">
-      <span className="detailText text-secondary/60 lowercase mr-[0.5vw] sm:mr-[0.25vw] select-none">
-        palette
-      </span>
-      <div className="flex items-center gap-[1.5vw] sm:gap-[0.45vw]">
-        {PROFILE_PALETTES.map((p) => {
-          const isSelected = selectedTheme === p.key;
-          return (
-            <button
-              key={p.key}
-              type="button"
-              onClick={() => onSelect(p.key)}
-              aria-label={`Select ${p.label} palette`}
-              title={p.label}
-              className={`relative w-[4.2vw] h-[4.2vw] sm:w-[1.25vw] sm:h-[1.25vw] rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center ${
-                isSelected
-                  ? "scale-125 ring-2 ring-secondary ring-offset-2 ring-offset-primary"
-                  : "hover:scale-110 opacity-75 hover:opacity-100"
-              }`}
-              style={{
-                background: `radial-gradient(circle at 35% 35%, ${p.secondaryOrb}, ${p.accent} 65%, ${p.softGlow})`,
-              }}
-            />
-          );
-        })}
-      </div>
+    <div
+      role="group"
+      aria-label="Profile palette selector"
+      className="inline-flex items-center gap-[1.2vw] sm:gap-[0.38vw] bg-primary/85 border border-secondary/15 rounded-full px-[1.8vw] py-[0.9vw] sm:px-[0.55vw] sm:py-[0.28vw] backdrop-blur-md"
+    >
+      {PROFILE_PALETTES.map((p) => {
+        const isSelected = selectedTheme === p.key;
+        return (
+          <button
+            key={p.key}
+            type="button"
+            onClick={() => onSelect(p.key)}
+            aria-label={`Select ${p.label} palette`}
+            title={p.label}
+            className={`relative w-[3.4vw] h-[3.4vw] sm:w-[0.95vw] sm:h-[0.95vw] rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center ${
+              isSelected
+                ? "scale-115 ring-1 ring-secondary ring-offset-1 ring-offset-primary"
+                : "hover:scale-110 opacity-75 hover:opacity-100"
+            }`}
+            style={{
+              background: `radial-gradient(circle at 35% 35%, ${p.secondaryOrb}, ${p.accent} 65%, ${p.softGlow})`,
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
+
 

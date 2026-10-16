@@ -490,14 +490,14 @@ export function ProfileView({
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Brand Wordmark */}
-                <div className="text-secondary mediumText col-span-2 sm:col-span-3 flex justify-start items-center gap-[0.8vw]">
+                <div className="text-secondary mediumText col-span-2 flex justify-start items-center gap-[0.8vw]">
                   <Link href="/" className="nav-btn cursor-pointer text-left">
                     musi5t
                   </Link>
                 </div>
 
                 {/* Center Navigation Group */}
-                <div className="text-secondary smallText col-span-6 justify-center items-center hidden sm:flex">
+                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
                   <span className="nav-group flex gap-[0.25vw]">
                     <button
                       type="button"
@@ -533,8 +533,13 @@ export function ProfileView({
                   </span>
                 </div>
 
-                {/* Right Owner / Visitor Actions */}
-                <div className="col-span-4 sm:col-span-3 flex justify-end items-center gap-[2vw] sm:gap-[0.9vw]">
+                {/* Right Navbar Actions + PaletteSelector */}
+                <div className="col-span-4 sm:col-span-5 flex justify-end items-center gap-[1.8vw] sm:gap-[0.75vw]">
+                  <PaletteSelector
+                    selectedTheme={currentThemeKey}
+                    onSelect={handlePaletteChange}
+                  />
+
                   {isOwner ? (
                     <>
                       <Link
@@ -699,64 +704,23 @@ export function ProfileView({
                   className="w-full bg-transparent text-secondary pt-[24vw] sm:pt-[9.5vw] pb-[8vw] sm:pb-[5vw] relative z-10"
                 >
                   <div className="layout-grid w-full items-start">
-                    {/* Top Section Badge & Palette Selector Bar */}
-                    <div className="col-span-full flex flex-wrap items-center justify-between gap-[3vw] mb-[5vw] sm:mb-[3vw] profile-hero-reveal">
-                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
-                        <div className="drop-shadow rounded-[0.25vw]">
-                          <div
-                            className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] transition-colors duration-500"
-                            style={{ backgroundColor: activePalette.accent }}
-                          />
-                        </div>
-                        <span className="mediumText">profile / @{user.username}</span>
-                      </div>
-
-                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
-                        <PaletteSelector
-                          selectedTheme={currentThemeKey}
-                          onSelect={handlePaletteChange}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Left 8 Columns: Giant Editorial Name, Bio & Taste Metrics */}
+                    {/* Left 8 Columns: Giant Editorial Name (+ member since) & Bio */}
                     <div className="col-span-full sm:col-span-8 flex flex-col justify-between profile-hero-reveal">
-                      <h1 className="largeText font-medium text-secondary tracking-[-0.05em] break-words mb-[4vw] sm:mb-[2.2vw]">
-                        {displayName}
-                      </h1>
+                      <div className="flex flex-wrap items-baseline gap-x-[2vw] sm:gap-x-[1vw] gap-y-[1vw] mb-[4vw] sm:mb-[2.2vw]">
+                        <h1 className="largeText font-medium text-secondary tracking-[-0.05em] break-words">
+                          {displayName}
+                        </h1>
+                        <span className="extraSmallText text-secondary/45 whitespace-nowrap">
+                          member since {joinedLabel.toLowerCase()}
+                        </span>
+                      </div>
 
-                      <p className="mediumText font-light leading-snug text-secondary/80 max-w-[38ch] mb-[6vw] sm:mb-[3.5vw]">
+                      <p className="mediumText font-light leading-snug text-secondary/80 max-w-[38ch]">
                         {bio ||
                           (isOwner
                             ? "No listener bio yet. Open 'Edit profile' to describe the records, pressings, and soundscapes that define your taste."
                             : "Curating essential records and tracks on musi5t.")}
                       </p>
-
-                      {/* Editorial Stats & Metadata Grid */}
-                      <div className="grid grid-cols-3 gap-[3vw] sm:gap-[2vw] pt-[4vw] sm:pt-[2vw] border-t border-secondary/15">
-                        <div className="flex flex-col gap-[0.4vw]">
-                          <span className="mediumText font-medium">
-                            0{initialAlbums.length}/05
-                          </span>
-                          <span className="extraSmallText text-secondary/55">
-                            curated records
-                          </span>
-                        </div>
-                        <div className="flex flex-col gap-[0.4vw]">
-                          <span className="mediumText font-medium">
-                            0{initialSongs.length}/05
-                          </span>
-                          <span className="extraSmallText text-secondary/55">
-                            essential tracks
-                          </span>
-                        </div>
-                        <div className="flex flex-col gap-[0.4vw]">
-                          <span className="smallText font-medium">{joinedLabel}</span>
-                          <span className="extraSmallText text-secondary/55">
-                            member since
-                          </span>
-                        </div>
-                      </div>
                     </div>
 
                     {/* Right 4 Columns: Editorial Avatar Card & Visitor Moderation Controls */}
