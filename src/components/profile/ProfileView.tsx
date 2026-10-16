@@ -208,28 +208,6 @@ export function ProfileView({
     return () => ctx.revert();
   }, []);
 
-  // Top 5 Records 3D Horizontal Carousel wave animation (matching WorkCarousel.tsx)
-  useEffect(() => {
-    const container = recordsContainerRef.current;
-    if (!container) return;
-
-    const ctx = gsap.context(() => {
-      albumCardRefs.current.forEach((el, i) => {
-        if (!el) return;
-        gsap.to(el, {
-          y: i % 2 === 0 ? -12 : 12,
-          duration: 2.5 + i * 0.3,
-          delay: i * 0.2,
-          yoyo: true,
-          repeat: -1,
-          ease: "sine.inOut",
-        });
-      });
-    }, container);
-
-    return () => ctx.revert();
-  }, []);
-
   // Hover scale & peer dim effect on Top 5 Records (matching WorkCarousel.tsx)
   useEffect(() => {
     albumCardRefs.current.forEach((card, i) => {
@@ -491,7 +469,10 @@ export function ProfileView({
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Brand Wordmark */}
                 <div className="text-secondary mediumText col-span-2 flex justify-start items-center gap-[0.8vw]">
-                  <Link href="/" className="nav-btn cursor-pointer text-left">
+                  <Link
+                    href={isLoggedIn ? "/feed" : "/"}
+                    className="nav-btn cursor-pointer text-left"
+                  >
                     musi5t
                   </Link>
                 </div>
@@ -701,12 +682,12 @@ export function ProfileView({
                 <section
                   id="overview"
                   data-nav-color="secondary"
-                  className="w-full bg-transparent text-secondary pt-[24vw] sm:pt-[9.5vw] pb-[8vw] sm:pb-[5vw] relative z-10"
+                  className="w-full bg-transparent text-secondary pt-[24vw] sm:pt-[9.5vw] pb-[6vw] sm:pb-[4vw] relative z-10"
                 >
                   <div className="layout-grid w-full items-start">
                     {/* Left 8 Columns: Giant Editorial Name (+ member since) & Bio */}
                     <div className="col-span-full sm:col-span-8 flex flex-col justify-between profile-hero-reveal">
-                      <div className="flex flex-wrap items-baseline gap-x-[2vw] sm:gap-x-[1vw] gap-y-[1vw] mb-[4vw] sm:mb-[2.2vw]">
+                      <div className="flex flex-wrap items-baseline gap-x-[2vw] sm:gap-x-[1vw] gap-y-[1vw]">
                         <h1 className="largeText font-medium text-secondary tracking-[-0.05em] break-words">
                           {displayName}
                         </h1>
@@ -715,17 +696,16 @@ export function ProfileView({
                         </span>
                       </div>
 
-                      <p className="mediumText font-light leading-snug text-secondary/80 max-w-[38ch]">
-                        {bio ||
-                          (isOwner
-                            ? "No listener bio yet. Open 'Edit profile' to describe the records, pressings, and soundscapes that define your taste."
-                            : "Curating essential records and tracks on musi5t.")}
-                      </p>
+                      {bio.trim() && (
+                        <p className="mediumText font-light leading-snug text-secondary/80 max-w-[38ch] mt-[3.5vw] sm:mt-[1.8vw]">
+                          {bio}
+                        </p>
+                      )}
                     </div>
 
-                    {/* Right 4 Columns: Editorial Avatar Card & Visitor Moderation Controls */}
-                    <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[3vw] sm:gap-[1.5vw] mt-[8vw] sm:mt-0 profile-hero-reveal">
-                      <div className="w-[46vw] sm:w-[18vw] aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary relative flex items-center justify-center group">
+                    {/* Right 4 Columns: Refined Compact Avatar Card & Visitor Moderation Controls */}
+                    <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[2vw] sm:gap-[1vw] mt-[6vw] sm:mt-0 profile-hero-reveal">
+                      <div className="w-[28vw] sm:w-[9.5vw] aspect-square rounded-[0.4vw] overflow-hidden drop-shadow-soft bg-secondary relative flex items-center justify-center group">
                         {user.avatarUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -741,21 +721,21 @@ export function ProfileView({
                             }}
                           >
                             <div
-                              className="w-[72%] h-[72%] rounded-full border border-secondary/15 flex items-center justify-center transition-colors duration-700"
+                              className="w-[70%] h-[70%] rounded-full border border-secondary/15 flex items-center justify-center transition-colors duration-700"
                               style={{ backgroundColor: activePalette.secondaryOrb }}
                             >
-                              <span className="largeText font-medium text-secondary select-none">
+                              <span className="mediumText font-medium text-secondary select-none">
                                 {displayName.slice(0, 2).toUpperCase()}
                               </span>
                             </div>
                           </div>
                         )}
-                        <div className="absolute bottom-0 left-0 w-full p-[2vw] sm:p-[0.9vw] bg-gradient-to-t from-black/75 via-black/30 to-transparent text-primary flex items-center justify-between">
+                        <div className="absolute bottom-0 left-0 w-full px-[1.5vw] py-[1vw] sm:px-[0.55vw] sm:py-[0.35vw] bg-gradient-to-t from-black/75 via-black/30 to-transparent text-primary flex items-center justify-between">
                           <span className="detailText text-primary/90 truncate">
                             @{user.username}
                           </span>
                           <span
-                            className="w-[2vw] h-[2vw] sm:w-[0.65vw] sm:h-[0.65vw] rounded-full transition-colors duration-500"
+                            className="w-[1.5vw] h-[1.5vw] sm:w-[0.45vw] sm:h-[0.45vw] rounded-full transition-colors duration-500 shrink-0"
                             style={{ backgroundColor: activePalette.accent }}
                           />
                         </div>
@@ -855,11 +835,11 @@ export function ProfileView({
                       </form>
                     )}
 
-                    <div className="w-full border-t border-secondary/15 col-span-full mt-[8vw] sm:mt-[4.5vw]" />
+                    <div className="w-full border-t border-secondary/15 col-span-full mt-[6vw] sm:mt-[3.5vw]" />
                   </div>
                 </section>
 
-                {/* 2. TOP 5 RECORDS SECTION (1:1 WorkCarousel.tsx 3D Horizontal Showcase) */}
+                {/* 2. TOP 5 RECORDS SECTION (Static 5-Slot Editorial Showcase with Labels Below) */}
                 <section
                   ref={recordsContainerRef}
                   id="records"
@@ -881,9 +861,9 @@ export function ProfileView({
                     </div>
                   </div>
 
-                  {/* 3D Horizontal Carousel */}
-                  <div className="w-full overflow-x-auto sm:overflow-visible hide-scrollbar py-[3vw] px-[var(--margin)]">
-                    <div className="flex sm:grid sm:grid-cols-5 gap-[2.5vw] sm:gap-[1.5vw] w-fit sm:w-full items-center [perspective:1400px]">
+                  {/* 5-Column Record Grid */}
+                  <div className="w-full overflow-x-auto sm:overflow-visible hide-scrollbar py-[2.5vw] px-[var(--margin)]">
+                    <div className="flex sm:grid sm:grid-cols-5 gap-[2.5vw] sm:gap-[1.5vw] w-fit sm:w-full items-start">
                       {[1, 2, 3, 4, 5].map((pos, i) => {
                         const album = initialAlbums.find((a) => a.position === pos);
 
@@ -896,80 +876,89 @@ export function ProfileView({
                               }}
                               onMouseEnter={() => setHoveredAlbumIndex(i)}
                               onMouseLeave={() => setHoveredAlbumIndex(null)}
-                              className="w-[55vw] sm:w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary shrink-0 will-change-transform relative group"
+                              className="w-[55vw] sm:w-full shrink-0 min-w-0 flex flex-col gap-[1.5vw] sm:gap-[0.65vw] will-change-transform group"
                             >
-                              {/* Top-left rank badge */}
-                              <div
-                                className="absolute top-[2.5vw] left-[2.5vw] sm:top-[1vw] sm:left-[1vw] z-20 px-[1.8vw] py-[0.6vw] sm:px-[0.55vw] sm:py-[0.2vw] rounded-[0.2vw] text-secondary extraSmallTextBold drop-shadow transition-colors duration-500 pointer-events-none"
-                                style={{ backgroundColor: activePalette.accent }}
-                              >
-                                0{pos}
+                              {/* Square Record Cover */}
+                              <div className="w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary relative">
+                                {/* Top-left rank badge */}
+                                <div
+                                  className="absolute top-[2.5vw] left-[2.5vw] sm:top-[0.85vw] sm:left-[0.85vw] z-20 px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] text-secondary detailText font-medium drop-shadow transition-colors duration-500 pointer-events-none"
+                                  style={{ backgroundColor: activePalette.accent }}
+                                >
+                                  0{pos}
+                                </div>
+
+                                {/* Owner Hover Controls (Top-Right) */}
+                                {isOwner && (
+                                  <div className="absolute top-[2.5vw] right-[2.5vw] sm:top-[0.85vw] sm:right-[0.85vw] z-20 flex items-center gap-[1vw] sm:gap-[0.3vw] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    {pos > 1 && (
+                                      <button
+                                        type="button"
+                                        disabled={reordering}
+                                        onClick={() => handleSwapAlbumPosition(pos, pos - 1)}
+                                        className="px-[1.6vw] py-[0.6vw] sm:px-[0.4vw] sm:py-[0.18vw] rounded-[0.2vw] bg-primary/95 text-secondary detailText font-medium hover:bg-primary cursor-pointer drop-shadow"
+                                        title="Move left"
+                                      >
+                                        ←
+                                      </button>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => setAlbumModalPos(pos)}
+                                      className="px-[2vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] bg-primary/95 text-secondary detailText font-medium hover:bg-primary cursor-pointer drop-shadow"
+                                    >
+                                      Replace
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveAlbum(pos)}
+                                      className="px-[2vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] bg-secondary/90 text-primary detailText font-medium hover:bg-red-600 cursor-pointer drop-shadow transition-colors"
+                                    >
+                                      Remove
+                                    </button>
+                                    {pos < 5 && (
+                                      <button
+                                        type="button"
+                                        disabled={reordering}
+                                        onClick={() => handleSwapAlbumPosition(pos, pos + 1)}
+                                        className="px-[1.6vw] py-[0.6vw] sm:px-[0.4vw] sm:py-[0.18vw] rounded-[0.2vw] bg-primary/95 text-secondary detailText font-medium hover:bg-primary cursor-pointer drop-shadow"
+                                        title="Move right"
+                                      >
+                                        →
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Full-bleed Album Cover */}
+                                <Link
+                                  href={`/album/${album.albumId}`}
+                                  className="block w-full h-full"
+                                >
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={album.coverUrl}
+                                    alt={`${album.artistName} - ${album.title}`}
+                                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 select-none"
+                                  />
+                                </Link>
                               </div>
 
-                              {/* Owner Hover Controls (Top-Right) */}
-                              {isOwner && (
-                                <div className="absolute top-[2.5vw] right-[2.5vw] sm:top-[1vw] sm:right-[1vw] z-20 flex items-center gap-[1vw] sm:gap-[0.35vw] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  {pos > 1 && (
-                                    <button
-                                      type="button"
-                                      disabled={reordering}
-                                      onClick={() => handleSwapAlbumPosition(pos, pos - 1)}
-                                      className="px-[1.6vw] py-[0.6vw] sm:px-[0.45vw] sm:py-[0.2vw] rounded-[0.2vw] bg-primary/95 text-secondary detailText font-medium hover:bg-primary cursor-pointer drop-shadow"
-                                      title="Move left"
-                                    >
-                                      ←
-                                    </button>
-                                  )}
-                                  <button
-                                    type="button"
-                                    onClick={() => setAlbumModalPos(pos)}
-                                    className="px-[2vw] py-[0.6vw] sm:px-[0.55vw] sm:py-[0.2vw] rounded-[0.2vw] bg-primary/95 text-secondary detailText font-medium hover:bg-primary cursor-pointer drop-shadow"
-                                  >
-                                    Replace
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveAlbum(pos)}
-                                    className="px-[2vw] py-[0.6vw] sm:px-[0.55vw] sm:py-[0.2vw] rounded-[0.2vw] bg-secondary/90 text-primary detailText font-medium hover:bg-red-600 cursor-pointer drop-shadow transition-colors"
-                                  >
-                                    Remove
-                                  </button>
-                                  {pos < 5 && (
-                                    <button
-                                      type="button"
-                                      disabled={reordering}
-                                      onClick={() => handleSwapAlbumPosition(pos, pos + 1)}
-                                      className="px-[1.6vw] py-[0.6vw] sm:px-[0.45vw] sm:py-[0.2vw] rounded-[0.2vw] bg-primary/95 text-secondary detailText font-medium hover:bg-primary cursor-pointer drop-shadow"
-                                      title="Move right"
-                                    >
-                                      →
-                                    </button>
-                                  )}
-                                </div>
-                              )}
-
-                              {/* Full-bleed Album Cover */}
+                              {/* Album Title & Artist Below Cover in Small Text */}
                               <Link
                                 href={`/album/${album.albumId}`}
-                                className="block w-full h-full"
+                                className="flex flex-col gap-[0.3vw] sm:gap-[0.15vw] px-[0.2vw] min-w-0 hover:opacity-75 transition-opacity"
                               >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={album.coverUrl}
-                                  alt={`${album.artistName} - ${album.title}`}
-                                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 select-none"
-                                />
-                              </Link>
-
-                              {/* Bottom Editorial Overlay */}
-                              <Link
-                                href={`/album/${album.albumId}`}
-                                className="absolute bottom-0 left-0 w-full p-[3.5vw] sm:p-[1.5vw] bg-gradient-to-t from-black/85 via-black/40 to-transparent text-primary block"
-                              >
-                                <span className="smallText font-medium block truncate">
+                                <span
+                                  className="extraSmallText font-medium text-secondary block truncate"
+                                  title={album.title}
+                                >
                                   {album.title}
                                 </span>
-                                <span className="extraSmallText text-primary/70 block truncate">
+                                <span
+                                  className="detailText text-secondary/60 block truncate"
+                                  title={album.artistName}
+                                >
                                   {album.artistName}
                                   {album.releaseYear ? ` · ${album.releaseYear}` : ""}
                                 </span>
@@ -978,7 +967,7 @@ export function ProfileView({
                           );
                         }
 
-                        // Empty Slot Card (Dark Editorial Vinyl Placeholder)
+                        // Empty Slot Card (Dark Editorial Vinyl Placeholder + Label Below)
                         return (
                           <div
                             key={pos}
@@ -988,39 +977,41 @@ export function ProfileView({
                             onMouseEnter={() => setHoveredAlbumIndex(i)}
                             onMouseLeave={() => setHoveredAlbumIndex(null)}
                             onClick={() => isOwner && setAlbumModalPos(pos)}
-                            className={`w-[55vw] sm:w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary text-primary shrink-0 will-change-transform relative group flex flex-col justify-between p-[3.5vw] sm:p-[1.5vw] ${
+                            className={`w-[55vw] sm:w-full shrink-0 min-w-0 flex flex-col gap-[1.5vw] sm:gap-[0.65vw] will-change-transform group ${
                               isOwner ? "cursor-pointer" : "opacity-80"
                             }`}
                           >
-                            {/* Top Rank Badge */}
-                            <div className="flex items-center justify-between z-10">
-                              <span
-                                className="px-[1.8vw] py-[0.6vw] sm:px-[0.55vw] sm:py-[0.2vw] rounded-[0.2vw] text-secondary extraSmallTextBold transition-colors duration-500"
-                                style={{ backgroundColor: activePalette.accent }}
-                              >
-                                0{pos}
-                              </span>
-                              <span className="detailText text-primary/40">vinyl slot</span>
-                            </div>
+                            <div className="w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary text-primary relative flex flex-col justify-between p-[3.5vw] sm:p-[1.2vw]">
+                              {/* Top Rank Badge */}
+                              <div className="flex items-center justify-between z-10">
+                                <span
+                                  className="px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] text-secondary detailText font-medium transition-colors duration-500"
+                                  style={{ backgroundColor: activePalette.accent }}
+                                >
+                                  0{pos}
+                                </span>
+                                <span className="detailText text-primary/40">vinyl slot</span>
+                              </div>
 
-                            {/* Decorative Concentric Vinyl Grooves */}
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <div className="w-[68%] h-[68%] rounded-full border border-primary/10 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                                <div className="w-[62%] h-[62%] rounded-full border border-primary/15 flex items-center justify-center">
-                                  <div
-                                    className="w-[34%] h-[34%] rounded-full opacity-80 transition-colors duration-500"
-                                    style={{ backgroundColor: activePalette.accent }}
-                                  />
+                              {/* Decorative Concentric Vinyl Grooves */}
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="w-[68%] h-[68%] rounded-full border border-primary/10 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                                  <div className="w-[62%] h-[62%] rounded-full border border-primary/15 flex items-center justify-center">
+                                    <div
+                                      className="w-[34%] h-[34%] rounded-full opacity-80 transition-colors duration-500"
+                                      style={{ backgroundColor: activePalette.accent }}
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
 
-                            {/* Bottom Trigger */}
-                            <div className="z-10">
-                              <span className="smallText font-medium block truncate">
+                            {/* Small Text Below Empty Cover */}
+                            <div className="flex flex-col gap-[0.3vw] sm:gap-[0.15vw] px-[0.2vw] min-w-0">
+                              <span className="extraSmallText font-medium text-secondary/55 block truncate">
                                 {isOwner ? `+ curate record 0${pos}` : `empty record 0${pos}`}
                               </span>
-                              <span className="extraSmallText text-primary/50 block truncate">
+                              <span className="detailText text-secondary/40 block truncate">
                                 {isOwner
                                   ? "select pressing & sleeve"
                                   : "no edition selected"}

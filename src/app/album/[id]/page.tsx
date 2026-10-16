@@ -112,7 +112,7 @@ export default async function AlbumDetailPage({ params }: PageProps) {
       <header className="border-b border-white/10 backdrop-blur-md sticky top-0 z-30 bg-[#11110F]/80">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
-            href="/"
+            href={currentUser ? "/feed" : "/"}
             className="flex items-center gap-2.5 font-medium tracking-tight text-sm hover:opacity-80 transition-opacity"
           >
             <span className="w-3 h-3 rounded-[2px] bg-[#FFE600]" />

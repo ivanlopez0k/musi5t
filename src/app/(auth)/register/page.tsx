@@ -33,8 +33,8 @@ export default function RegisterPage() {
         throw new Error(data.error || "Ocurrió un error al registrarse.");
       }
 
-      // Successful registration -> redirect to user's profile to curate top 5
-      router.push(`/@${data.user.username}`);
+      // Successful registration -> redirect to feed
+      router.push("/feed");
       router.refresh();
     } catch (err: unknown) {
       if (err instanceof Error) {

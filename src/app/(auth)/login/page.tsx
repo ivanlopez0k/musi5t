@@ -31,8 +31,8 @@ export default function LoginPage() {
         throw new Error(data.error || "Credenciales inválidas.");
       }
 
-      // Redirect to user's profile
-      router.push(`/@${data.user.username}`);
+      // Redirect to feed
+      router.push("/feed");
       router.refresh();
     } catch (err: unknown) {
       if (err instanceof Error) {
