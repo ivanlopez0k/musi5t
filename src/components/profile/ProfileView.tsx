@@ -882,8 +882,8 @@ export function ProfileView({
                   </div>
 
                   {/* 3D Horizontal Carousel */}
-                  <div className="w-full overflow-x-auto hide-scrollbar py-[3vw] px-[var(--margin)]">
-                    <div className="flex gap-[2.5vw] w-fit items-center [perspective:1400px]">
+                  <div className="w-full overflow-x-auto sm:overflow-visible hide-scrollbar py-[3vw] px-[var(--margin)]">
+                    <div className="flex sm:grid sm:grid-cols-5 gap-[2.5vw] sm:gap-[1.5vw] w-fit sm:w-full items-center [perspective:1400px]">
                       {[1, 2, 3, 4, 5].map((pos, i) => {
                         const album = initialAlbums.find((a) => a.position === pos);
 
@@ -896,7 +896,7 @@ export function ProfileView({
                               }}
                               onMouseEnter={() => setHoveredAlbumIndex(i)}
                               onMouseLeave={() => setHoveredAlbumIndex(null)}
-                              className="w-[55vw] sm:w-[22vw] aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary shrink-0 will-change-transform relative group"
+                              className="w-[55vw] sm:w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary shrink-0 will-change-transform relative group"
                             >
                               {/* Top-left rank badge */}
                               <div
@@ -988,7 +988,7 @@ export function ProfileView({
                             onMouseEnter={() => setHoveredAlbumIndex(i)}
                             onMouseLeave={() => setHoveredAlbumIndex(null)}
                             onClick={() => isOwner && setAlbumModalPos(pos)}
-                            className={`w-[55vw] sm:w-[22vw] aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary text-primary shrink-0 will-change-transform relative group flex flex-col justify-between p-[3.5vw] sm:p-[1.5vw] ${
+                            className={`w-[55vw] sm:w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary text-primary shrink-0 will-change-transform relative group flex flex-col justify-between p-[3.5vw] sm:p-[1.5vw] ${
                               isOwner ? "cursor-pointer" : "opacity-80"
                             }`}
                           >
