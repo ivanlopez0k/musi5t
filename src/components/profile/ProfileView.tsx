@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
-import { SidePlayer } from "@/components/landing/SidePlayer";
 import { PaletteSelector, PROFILE_PALETTES } from "./PaletteSelector";
 import { AlbumSearchModal } from "./AlbumSearchModal";
 import { SongSearchModal } from "./SongSearchModal";
@@ -68,7 +67,6 @@ export function ProfileView({
   userPosts = [],
 }: ProfileViewProps) {
   const router = useRouter();
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [currentThemeKey, setCurrentThemeKey] = useState(user.themeKey || "lima");
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user.displayName);
@@ -140,29 +138,6 @@ export function ProfileView({
       lenis.start();
     }
   }, [albumModalPos, songModalPos]);
-
-  // Keyboard shortcut: press 'm' to toggle player, 'Escape' to close
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement ||
-        albumModalPos !== null ||
-        songModalPos !== null
-      ) {
-        return;
-      }
-
-      if (e.key === "m" || e.key === "M") {
-        setIsPlayerOpen((prev) => !prev);
-      }
-      if (e.key === "Escape" && isPlayerOpen) {
-        setIsPlayerOpen(false);
-      }
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isPlayerOpen, albumModalPos, songModalPos]);
 
   // Hero entrance & Lateral Orbs floating GSAP animation
   useEffect(() => {
@@ -446,17 +421,7 @@ export function ProfileView({
   });
 
   return (
-    <div
-      className={`site-frame text-secondary ${
-        isPlayerOpen ? "panel-open" : ""
-      }`}
-    >
-      {/* 1:1 Sidejob Music Player Drawer */}
-      <SidePlayer
-        isOpen={isPlayerOpen}
-        onClose={() => setIsPlayerOpen(false)}
-      />
-
+    <div className="site-frame text-secondary">
       {/* Main Foreground Layout */}
       <div className="site-layout">
         <div
@@ -588,16 +553,6 @@ export function ProfileView({
                     </>
                   )}
                 </div>
-
-                {/* Press 'm' trigger */}
-                <span
-                  onClick={() => setIsPlayerOpen(true)}
-                  className="text-[1vw] font-normal text-secondary/30 hover:text-secondary/70 duration-300 absolute bottom-[-1.75vw] sm:block hidden cursor-pointer"
-                >
-                  <span className="text-hover cursor-pointer w-fit">
-                    press &apos;m&apos; for player
-                  </span>
-                </span>
               </div>
             </header>
 

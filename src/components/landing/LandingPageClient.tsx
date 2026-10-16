@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
-import { SidePlayer } from "@/components/landing/SidePlayer";
 import { Header } from "@/components/landing/Header";
 import { HeroPhotos } from "@/components/landing/HeroPhotos";
 import { Services } from "@/components/landing/Services";
@@ -42,7 +41,6 @@ const PROCESS_STEPS = [
 ];
 
 export function LandingPageClient() {
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -80,26 +78,6 @@ export function LandingPageClient() {
       setLenis(null);
     };
   }, []);
-
-  // Keyboard shortcut: press 'm' to toggle player, 'Escape' to close
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      )
-        return;
-
-      if (e.key === "m" || e.key === "M") {
-        setIsPlayerOpen((prev) => !prev);
-      }
-      if (e.key === "Escape" && isPlayerOpen) {
-        setIsPlayerOpen(false);
-      }
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isPlayerOpen]);
 
   // Hero Wordmark 3D Char Flip & Parallax scrub
   useEffect(() => {
@@ -163,23 +141,13 @@ export function LandingPageClient() {
   };
 
   return (
-    <div
-      className={`site-frame text-secondary ${
-        isPlayerOpen ? "panel-open" : ""
-      }`}
-    >
-      {/* 1:1 Sidejob Music Player Drawer */}
-      <SidePlayer
-        isOpen={isPlayerOpen}
-        onClose={() => setIsPlayerOpen(false)}
-      />
-
+    <div className="site-frame text-secondary">
       {/* Main Foreground Layout */}
       <div className="site-layout">
         <div className="app">
           <div className="route-surface">
             {/* Header */}
-            <Header onOpenPlayer={() => setIsPlayerOpen(true)} />
+            <Header />
 
             {/* Scrollable Container managed by Lenis */}
             <main
