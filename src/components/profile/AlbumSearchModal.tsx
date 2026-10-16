@@ -7,7 +7,12 @@ interface AlbumSearchModalProps {
   isOpen: boolean;
   position: number;
   onClose: () => void;
-  onSelectAlbum: (albumId: string, coverUrl: string, coverReleaseMbid: string | null) => Promise<void>;
+  onSelectAlbum: (
+    albumId: string,
+    coverUrl: string,
+    coverReleaseMbid: string | null,
+    albumMeta?: { title: string; artistName: string }
+  ) => Promise<void>;
   accentColor: string;
 }
 
@@ -97,7 +102,10 @@ export function AlbumSearchModal({
           ? selectedEdition.releaseMbid
           : null;
 
-      await onSelectAlbum(selectedAlbum.id, coverUrl, releaseMbid);
+      await onSelectAlbum(selectedAlbum.id, coverUrl, releaseMbid, {
+        title: selectedAlbum.title,
+        artistName: selectedAlbum.artistName,
+      });
       onClose();
     } catch (err) {
       console.error("Save top album error:", err);

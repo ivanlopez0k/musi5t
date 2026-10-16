@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Lenis from "lenis";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { setLenis, getLenis } from "@/lib/lenis-store";
 import type { FeedPost } from "@/lib/feed/visibility";
 import { AlbumSearchModal } from "@/components/profile/AlbumSearchModal";
 
@@ -39,7 +42,6 @@ export function InteractivePostList({
   posts: externalPosts,
   currentUser,
   onPostsChange,
-  variant = "dark",
 }: InteractivePostListProps) {
   const router = useRouter();
   const [internalPosts, setInternalPosts] = useState<FeedPost[]>(externalPosts);
@@ -54,8 +56,6 @@ export function InteractivePostList({
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [submittingReply, setSubmittingReply] = useState<Record<string, boolean>>({});
   const [openMenuPostId, setOpenMenuPostId] = useState<string | null>(null);
-
-  const isLight = variant === "light";
 
   const handleToggleLike = async (post: FeedPost) => {
     if (!currentUser) {
@@ -205,7 +205,7 @@ export function InteractivePostList({
   };
 
   return (
-    <div className="space-y-4">
+    <div>
       {postsList.map((post) => {
         const isRepliesOpen = Boolean(expandedPostIds[post.id]);
         const replies = repliesByPost[post.id] || [];
@@ -216,63 +216,60 @@ export function InteractivePostList({
         return (
           <article
             key={post.id}
-            className={`rounded-2xl p-5 transition-colors border ${
-              isLight
-                ? "border-black/10 bg-black/[0.03] hover:border-black/20"
-                : "border-white/10 bg-[#161614]/70 backdrop-blur-sm hover:border-white/20"
-            }`}
+            className="bg-primary text-secondary border border-secondary/15 rounded-[0.5vw] drop-shadow-soft p-[3.5vw] sm:p-[2vw] mb-[2.5vw] sm:mb-[1.5vw] transition-colors hover:border-secondary/25"
           >
-            {/* Author row */}
-            <div className="flex items-center justify-between mb-3">
+            {/* Author Header */}
+            <div className="flex items-center justify-between">
               <Link
                 href={`/@${post.author.username}`}
-                className="flex items-center gap-3 group"
+                className="flex items-center gap-[2.5vw] sm:gap-[0.8vw] group"
               >
-                <div className="w-8 h-8 rounded-lg bg-[#FFE600] flex items-center justify-center text-black font-bold text-xs flex-shrink-0">
+                <div className="w-[7vw] sm:w-[2.4vw] aspect-square rounded-[0.3vw] overflow-hidden bg-yellow flex items-center justify-center text-secondary extraSmallTextBold flex-shrink-0 drop-shadow">
                   {post.author.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={post.author.avatarUrl}
-                      alt=""
-                      className="w-full h-full object-cover rounded-lg"
+                      alt={post.author.displayName}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     post.author.displayName.slice(0, 2).toUpperCase()
                   )}
                 </div>
-                <div>
-                  <h4
-                    className={`text-sm font-medium transition-colors leading-tight ${
-                      isLight
-                        ? "text-black group-hover:opacity-70"
-                        : "text-white group-hover:text-[#FFE600]"
-                    }`}
-                  >
+                <div className="flex flex-col">
+                  <span className="smallText font-medium text-secondary group-hover:underline leading-tight">
                     {post.author.displayName}
-                  </h4>
-                  <span className="text-[11px] font-mono opacity-50">
+                  </span>
+                  <span className="extraSmallText text-secondary/50 leading-tight">
                     @{post.author.username}
                   </span>
                 </div>
               </Link>
 
-              <div className="flex items-center gap-2 relative">
-                <span className="text-[10px] font-mono opacity-40">
+              <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw] relative">
+                {post.isPublic && (
+                  <span className="detailText text-secondary/35 hidden sm:inline">
+                    #public
+                  </span>
+                )}
+                <span className="detailText text-secondary/40">
                   {new Date(post.createdAt).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
                   })}
                 </span>
+
                 {currentUser?.id === post.author.id && (
                   <button
                     type="button"
                     onClick={() => handleDeletePost(post.id)}
-                    className="text-xs font-mono text-red-500/70 hover:text-red-500 px-1.5 py-0.5 ml-1 transition-colors cursor-pointer"
+                    className="extraSmallText text-secondary/40 hover:text-red-600 px-[1vw] py-[0.3vw] sm:px-[0.4vw] sm:py-[0.15vw] transition-colors cursor-pointer"
                     title="Delete post"
                   >
                     ✕
                   </button>
                 )}
+
                 {currentUser && currentUser.id !== post.author.id && (
                   <div className="relative">
                     <button
@@ -280,19 +277,19 @@ export function InteractivePostList({
                       onClick={() =>
                         setOpenMenuPostId(openMenuPostId === post.id ? null : post.id)
                       }
-                      className="text-xs font-mono opacity-50 hover:opacity-100 px-1.5 py-0.5 rounded cursor-pointer"
+                      className="extraSmallText text-secondary/50 hover:text-secondary px-[1.2vw] py-[0.4vw] sm:px-[0.5vw] sm:py-[0.2vw] rounded-[0.25vw] hover:bg-secondary/5 transition-colors cursor-pointer"
                       title="More actions"
                     >
                       •••
                     </button>
                     {openMenuPostId === post.id && (
-                      <div className="absolute right-0 mt-1 w-36 rounded-xl border border-white/15 bg-[#1C1C19] text-[#E6E5DF] shadow-xl py-1 z-20 text-xs font-mono">
+                      <div className="absolute right-0 mt-[0.5vw] w-[42vw] sm:w-[12vw] rounded-[0.4vw] border border-secondary/15 bg-primary text-secondary drop-shadow py-[0.6vw] sm:py-[0.35vw] z-20">
                         <button
                           type="button"
                           onClick={() =>
                             handleMuteAuthor(post.author.id, post.author.username)
                           }
-                          className="w-full text-left px-3 py-1.5 hover:bg-white/10 transition-colors cursor-pointer"
+                          className="w-full text-left px-[2.5vw] py-[1.2vw] sm:px-[0.8vw] sm:py-[0.45vw] extraSmallText text-secondary hover:bg-secondary/5 transition-colors cursor-pointer"
                         >
                           Mute @{post.author.username}
                         </button>
@@ -301,7 +298,7 @@ export function InteractivePostList({
                           onClick={() =>
                             handleBlockAuthor(post.author.id, post.author.username)
                           }
-                          className="w-full text-left px-3 py-1.5 text-red-400 hover:bg-white/10 transition-colors cursor-pointer"
+                          className="w-full text-left px-[2.5vw] py-[1.2vw] sm:px-[0.8vw] sm:py-[0.45vw] extraSmallText text-red-600 hover:bg-secondary/5 transition-colors cursor-pointer"
                         >
                           Block @{post.author.username}
                         </button>
@@ -312,61 +309,53 @@ export function InteractivePostList({
               </div>
             </div>
 
-            {/* Target album tags */}
+            {/* Post Body */}
+            <p className="smallText text-secondary leading-relaxed whitespace-pre-wrap mt-[1.5vw] sm:mt-[0.8vw]">
+              {post.body}
+            </p>
+
+            {/* Tagged Albums */}
             {post.albums.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
+              <div className="flex flex-wrap gap-[1.5vw] sm:gap-[0.6vw]">
                 {post.albums.map((alb) => (
                   <Link
                     key={alb.id}
                     href={`/album/${alb.id}`}
-                    className={`inline-flex items-center gap-1.5 rounded-full pl-1.5 pr-2.5 py-0.5 text-[11px] font-mono transition-colors border ${
-                      isLight
-                        ? "bg-black/5 hover:bg-black/10 border-black/15 text-black"
-                        : "bg-white/5 hover:bg-white/10 border-white/10 text-white/80 hover:text-[#FFE600]"
-                    }`}
+                    className="flex items-center gap-[1vw] sm:gap-[0.5vw] bg-secondary/5 hover:bg-secondary/10 border border-secondary/15 rounded-[0.3vw] p-[1.5vw] sm:p-[0.6vw] mt-[2vw] sm:mt-[1vw] w-fit cursor-pointer transition-colors"
                   >
-                    {alb.defaultCoverUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
+                    <div className="w-[6vw] sm:w-[2vw] aspect-square rounded-[0.2vw] overflow-hidden bg-secondary/10 flex-shrink-0 drop-shadow">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={alb.defaultCoverUrl}
-                        alt=""
-                        className="w-3.5 h-3.5 rounded-full object-cover"
+                        src={alb.defaultCoverUrl || "/images/musi5t/vinyl_player.webp"}
+                        alt={alb.title}
+                        className="w-full h-full object-cover"
                       />
-                    )}
-                    <span>#{alb.title}</span>
+                    </div>
+                    <div className="flex flex-col pr-[1vw] sm:pr-[0.4vw]">
+                      <span className="extraSmallTextBold text-secondary leading-tight">
+                        {alb.title}
+                      </span>
+                      {alb.artistName && (
+                        <span className="detailText text-secondary/60 leading-tight">
+                          {alb.artistName}
+                        </span>
+                      )}
+                    </div>
                   </Link>
                 ))}
-                {post.isPublic && (
-                  <span className="text-[10px] font-mono opacity-40 self-center">
-                    #public
-                  </span>
-                )}
               </div>
             )}
 
-            {/* Body */}
-            <p
-              className={`text-sm leading-relaxed whitespace-pre-wrap mb-4 font-light ${
-                isLight ? "text-black/90" : "text-white/90"
-              }`}
-            >
-              {post.body}
-            </p>
-
-            {/* Bottom stats row */}
-            <div
-              className={`flex items-center justify-between pt-3 border-t text-xs font-mono ${
-                isLight ? "border-black/10" : "border-white/5"
-              }`}
-            >
-              <div className="flex items-center gap-3">
+            {/* Card Footer */}
+            <div className="flex items-center justify-between pt-[2.5vw] sm:pt-[1.2vw] mt-[2.5vw] sm:mt-[1.2vw] border-t border-secondary/10">
+              <div className="flex items-center gap-[3vw] sm:gap-[1.2vw]">
                 <button
                   type="button"
                   onClick={() => handleToggleLike(post)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                  className={`extraSmallText flex items-center gap-[0.5vw] transition-colors cursor-pointer ${
                     post.likedByMe
-                      ? "text-red-500 bg-red-500/10 font-bold"
-                      : "opacity-60 hover:opacity-100 hover:bg-black/5"
+                      ? "text-red-600 font-medium"
+                      : "text-secondary/70 hover:text-red-600"
                   }`}
                 >
                   <span>{post.likedByMe ? "♥" : "♡"}</span>
@@ -376,76 +365,65 @@ export function InteractivePostList({
                 <button
                   type="button"
                   onClick={() => toggleReplies(post.id)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                  className={`extraSmallText flex items-center gap-[0.5vw] transition-colors cursor-pointer ${
                     isRepliesOpen
-                      ? "opacity-100 font-bold bg-black/10"
-                      : "opacity-60 hover:opacity-100"
+                      ? "text-secondary font-medium"
+                      : "text-secondary/70 hover:text-secondary"
                   }`}
                 >
                   <span>💬</span>
                   <span>{post.repliesCount || 0}</span>
-                  <span className="text-[10px]">
-                    {post.repliesCount === 1 ? "Reply" : "Replies"}
+                  <span>
+                    {post.repliesCount === 1 ? "reply" : "replies"}
                   </span>
                 </button>
               </div>
 
-              <span className="text-[10px] opacity-30">album-first social</span>
+              <span className="detailText text-secondary/35">listener note</span>
             </div>
 
-            {/* Expandable Inline Replies Section */}
+            {/* Inline Replies Section */}
             {isRepliesOpen && (
-              <div
-                className={`mt-4 pt-4 border-t space-y-3 ${
-                  isLight ? "border-black/10" : "border-white/10"
-                }`}
-              >
+              <div className="border-t border-secondary/10 pt-[2vw] sm:pt-[1.2vw] mt-[2vw] sm:mt-[1.2vw]">
                 {isLoadingReplies ? (
-                  <p className="text-xs font-mono opacity-50 py-2">
+                  <p className="extraSmallText text-secondary/50 py-[1vw] sm:py-[0.5vw]">
                     Loading replies...
                   </p>
                 ) : replies.length === 0 ? (
-                  <p className="text-xs font-mono opacity-40 py-1">
+                  <p className="extraSmallText text-secondary/45 pb-[1.5vw] sm:pb-[0.8vw]">
                     No replies yet. Start the conversation below.
                   </p>
                 ) : (
-                  <div className="space-y-2.5">
+                  <div className="mb-[2vw] sm:mb-[1vw]">
                     {replies.map((reply) => (
                       <div
                         key={reply.id}
-                        className={`rounded-xl p-3 text-xs border ${
-                          isLight
-                            ? "bg-white/50 border-black/10"
-                            : "bg-black/30 border-white/5"
-                        }`}
+                        className="bg-secondary/[0.03] border border-secondary/10 rounded-[0.3vw] p-[2vw] sm:p-[1vw] mb-[1.5vw] sm:mb-[0.8vw] text-secondary"
                       >
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center justify-between mb-[0.8vw] sm:mb-[0.4vw]">
                           <Link
                             href={`/@${reply.author.username}`}
-                            className="font-mono font-medium hover:underline flex items-center gap-1.5"
+                            className="flex items-center gap-[1vw] sm:gap-[0.4vw] hover:underline"
                           >
-                            <span>{reply.author.displayName}</span>
-                            <span className="opacity-50">
+                            <span className="extraSmallTextBold text-secondary">
+                              {reply.author.displayName}
+                            </span>
+                            <span className="detailText text-secondary/50">
                               @{reply.author.username}
                             </span>
                           </Link>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-[10px] opacity-40">
-                              {new Date(reply.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                }
-                              )}
+                          <div className="flex items-center gap-[1vw] sm:gap-[0.5vw]">
+                            <span className="detailText text-secondary/40">
+                              {new Date(reply.createdAt).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
                             </span>
                             {currentUser?.id === reply.author.id && (
                               <button
                                 type="button"
-                                onClick={() =>
-                                  handleDeleteReply(post.id, reply.id)
-                                }
-                                className="text-[10px] font-mono text-red-400/70 hover:text-red-400 cursor-pointer"
+                                onClick={() => handleDeleteReply(post.id, reply.id)}
+                                className="detailText text-secondary/40 hover:text-red-600 transition-colors cursor-pointer"
                                 title="Delete reply"
                               >
                                 ✕
@@ -453,7 +431,7 @@ export function InteractivePostList({
                             )}
                           </div>
                         </div>
-                        <p className="opacity-90 whitespace-pre-wrap leading-relaxed">
+                        <p className="extraSmallText text-secondary/90 whitespace-pre-wrap leading-relaxed">
                           {reply.body}
                         </p>
                       </div>
@@ -464,7 +442,7 @@ export function InteractivePostList({
                 {currentUser ? (
                   <form
                     onSubmit={(e) => handleCreateReply(e, post.id)}
-                    className="flex items-center gap-2 pt-1"
+                    className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]"
                   >
                     <input
                       type="text"
@@ -477,23 +455,31 @@ export function InteractivePostList({
                         }))
                       }
                       placeholder="Write a reply..."
-                      className={`flex-1 rounded-lg px-3 py-1.5 text-xs border focus:outline-none ${
-                        isLight
-                          ? "bg-white/70 border-black/20 text-black placeholder:text-black/40"
-                          : "bg-white/5 border-white/15 text-white placeholder:text-white/30"
-                      }`}
+                      className="flex-1 bg-primary border border-secondary/20 rounded-[0.3vw] px-[2vw] py-[1.2vw] sm:px-[0.8vw] sm:py-[0.5vw] extraSmallText text-secondary placeholder:text-secondary/40 focus:outline-none focus:border-secondary transition-colors"
                     />
-                    <button
-                      type="submit"
-                      disabled={isSubmitting || !draft.trim()}
-                      className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-[#FFE600] text-black hover:bg-[#F2DA00] disabled:opacity-40 cursor-pointer"
-                    >
-                      {isSubmitting ? "..." : "Reply"}
-                    </button>
+                    <div className="drop-shadow rounded-[0.25vw]">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting || !draft.trim()}
+                        className="main-btn smallText text-secondary disabled:opacity-40 cursor-pointer"
+                      >
+                        <span className="main-btn__icon" aria-hidden="true" />
+                        <span className="main-btn__label">
+                          <span className="main-btn__clip">
+                            <span className="main-btn__from">
+                              {isSubmitting ? "..." : "Reply"}
+                            </span>
+                            <span className="main-btn__to" aria-hidden="true">
+                              {isSubmitting ? "..." : "Reply"}
+                            </span>
+                          </span>
+                        </span>
+                      </button>
+                    </div>
                   </form>
                 ) : (
-                  <p className="text-[11px] font-mono opacity-50">
-                    <Link href="/login" className="underline">
+                  <p className="extraSmallText text-secondary/55">
+                    <Link href="/login" className="underline hover:text-secondary">
                       Sign in
                     </Link>{" "}
                     to reply to this discussion.
@@ -540,6 +526,60 @@ export function FeedView({
 
   // Tag album modal state
   const [isTaggingAlbum, setIsTaggingAlbum] = useState(false);
+
+  // Lenis refs
+  const mainRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Lenis smooth scroll initialization (matching LandingPageClient & ProfileView)
+  useEffect(() => {
+    const mainEl = mainRef.current;
+    const contentEl = contentRef.current;
+    if (!mainEl || !contentEl) return;
+
+    const lenis = new Lenis({
+      wrapper: mainEl,
+      content: contentEl,
+      lerp: 0.18,
+      wheelMultiplier: 1.05,
+      smoothWheel: true,
+    });
+    setLenis(lenis);
+
+    lenis.on("scroll", ScrollTrigger.update);
+
+    const rafHandler = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+    gsap.ticker.add(rafHandler);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      gsap.ticker.remove(rafHandler);
+      lenis.destroy();
+      setLenis(null);
+    };
+  }, []);
+
+  // Stop Lenis background scroll when AlbumSearchModal is open
+  useEffect(() => {
+    const lenis = getLenis();
+    if (!lenis) return;
+    if (isTaggingAlbum) {
+      lenis.stop();
+    } else {
+      lenis.start();
+    }
+  }, [isTaggingAlbum]);
+
+  const scrollTo = (hash: string) => {
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.scrollTo(hash, { duration: 1.2 });
+    } else {
+      document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const switchFeedType = async (type: "for-you" | "global") => {
     setFeedType(type);
@@ -622,18 +662,37 @@ export function FeedView({
     }
   };
 
-  const handleAddAlbumTag = async (albumId: string, coverUrl: string) => {
+  const handleAddAlbumTag = async (
+    albumId: string,
+    coverUrl: string,
+    _coverReleaseMbid: string | null,
+    albumMeta?: { title: string; artistName: string }
+  ) => {
     if (taggedAlbums.length >= 3) return;
     if (taggedAlbums.some((a) => a.id === albumId)) return;
+
+    if (albumMeta?.title) {
+      setTaggedAlbums((prev) => [
+        ...prev,
+        {
+          id: albumId,
+          title: albumMeta.title,
+          artistName: albumMeta.artistName || "",
+          coverUrl,
+        },
+      ]);
+      return;
+    }
 
     try {
       const res = await fetch(`/api/v1/catalog/albums/${albumId}/covers`);
       const data = res.ok ? await res.json() : null;
-      const title = data?.editions?.[0]?.title || "Album";
+      const title = data?.album?.title || data?.editions?.[0]?.title || "Album";
+      const artistName = data?.album?.artistName || "";
 
       setTaggedAlbums((prev) => [
         ...prev,
-        { id: albumId, title, artistName: "", coverUrl },
+        { id: albumId, title, artistName, coverUrl },
       ]);
     } catch {
       setTaggedAlbums((prev) => [
@@ -644,236 +703,456 @@ export function FeedView({
   };
 
   return (
-    <div className="min-h-screen bg-[#11110F] text-[#E6E5DF] font-sans selection:bg-[#FFE600] selection:text-black">
-      {/* Top Navbar */}
-      <header className="border-b border-white/10 backdrop-blur-md sticky top-0 z-30 bg-[#11110F]/80">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link
-            href={currentUser ? "/feed" : "/"}
-            className="flex items-center gap-2.5 font-medium tracking-tight text-sm hover:opacity-80 transition-opacity"
-          >
-            <span className="w-3 h-3 rounded-[2px] bg-[#FFE600]" />
-            <span>musi5t</span>
-          </Link>
-
-          <div className="flex items-center gap-4">
-            {currentUser ? (
-              <>
-                <Link
-                  href="/settings"
-                  className="text-xs font-mono opacity-70 hover:opacity-100 transition-opacity"
-                >
-                  Settings
-                </Link>
-                <Link
-                  href={`/@${currentUser.username}`}
-                  className="flex items-center gap-2 text-xs font-mono opacity-80 hover:opacity-100 transition-opacity border border-white/15 rounded-full px-3 py-1"
-                >
-                  <span className="w-2 h-2 rounded-full bg-[#FFE600]" />
-                  <span>@{currentUser.username}</span>
-                </Link>
-              </>
-            ) : (
-              <Link
-                href="/login"
-                className="text-xs font-mono uppercase bg-[#FFE600] text-black px-4 py-1.5 rounded-full font-bold hover:scale-105 transition-transform"
-              >
-                Sign In
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="max-w-2xl mx-auto px-4 py-8">
-        {/* Create Post Box (only if logged in) */}
-        {currentUser ? (
-          <section className="mb-8 border border-white/10 bg-[#161614] rounded-2xl p-5 shadow-xl">
-            <form onSubmit={handleCreatePost} className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FFE600] flex items-center justify-center text-black font-bold text-xs flex-shrink-0">
-                  {currentUser.displayName.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="flex-1">
-                  <textarea
-                    rows={3}
-                    value={bodyText}
-                    onChange={(e) => setBodyText(e.target.value.slice(0, 500))}
-                    placeholder="Talk records. What are you listening to right now?"
-                    className="w-full bg-transparent text-sm text-[#E6E5DF] placeholder:text-white/30 focus:outline-none resize-none"
-                  />
-                </div>
-              </div>
-
-              {/* Tagged albums preview */}
-              {taggedAlbums.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-white/5">
-                  {taggedAlbums.map((alb) => (
-                    <div
-                      key={alb.id}
-                      className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full pl-1.5 pr-2.5 py-1 text-xs font-mono"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={alb.coverUrl}
-                        alt=""
-                        className="w-4 h-4 rounded-full object-cover"
-                      />
-                      <span className="text-[#FFE600]">#{alb.title}</span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setTaggedAlbums(taggedAlbums.filter((a) => a.id !== alb.id))
-                        }
-                        className="opacity-50 hover:opacity-100 text-[10px]"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {postError && (
-                <div className="p-2.5 bg-red-950/40 border border-red-500/30 rounded-lg text-xs text-red-200">
-                  {postError}
-                </div>
-              )}
-
-              <div className="flex items-center justify-between pt-3 border-t border-white/10">
-                <div className="flex items-center gap-2">
-                  {/* Public audience pill */}
-                  <button
-                    type="button"
-                    onClick={() => setIsPublic(!isPublic)}
-                    className={`px-3 py-1 rounded-full text-xs font-mono transition-colors cursor-pointer ${
-                      isPublic
-                        ? "bg-[#FFE600] text-black font-medium"
-                        : "bg-white/5 text-white/40 hover:text-white/70 border border-white/10"
-                    }`}
+    <div className="site-frame text-secondary">
+      <div className="site-layout">
+        <div className="app">
+          <div className="route-surface">
+            {/* Editorial Fixed Header (matching Home & ProfileView) */}
+            <header className="header">
+              <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
+                {/* Brand Wordmark */}
+                <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
+                  <Link
+                    href={currentUser ? "/feed" : "/"}
+                    className="nav-btn cursor-pointer text-left"
                   >
-                    #public
-                  </button>
+                    musi5t
+                  </Link>
+                </div>
 
-                  {/* Add Album pill */}
-                  {taggedAlbums.length < 3 && (
+                {/* Center Navigation Group */}
+                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
+                  <span className="nav-group flex gap-[0.25vw]">
                     <button
                       type="button"
-                      onClick={() => setIsTaggingAlbum(true)}
-                      className="px-3 py-1 rounded-full text-xs font-mono border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-colors cursor-pointer"
+                      onClick={() => {
+                        switchFeedType("for-you");
+                        scrollTo("#feed-top");
+                      }}
+                      className="nav-btn cursor-pointer"
                     >
-                      + #album
+                      Feed,
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        switchFeedType("global");
+                        scrollTo("#feed-top");
+                      }}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Explore,
+                    </button>
+                    <Link
+                      href={currentUser ? `/@${currentUser.username}` : "/#records"}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Records
+                    </Link>
+                  </span>
+                </div>
+
+                {/* Right Actions */}
+                <div className="col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
+                  {currentUser ? (
+                    <>
+                      <Link
+                        href="/settings"
+                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                      >
+                        Settings
+                      </Link>
+                      <Link
+                        href={`/@${currentUser.username}`}
+                        className="flex items-center gap-[1.2vw] sm:gap-[0.45vw] bg-primary/90 hover:bg-primary border border-secondary/15 rounded-[0.3vw] px-[2.2vw] py-[0.8vw] sm:px-[0.75vw] sm:py-[0.3vw] drop-shadow transition-colors"
+                      >
+                        <span className="w-[1.8vw] h-[1.8vw] sm:w-[0.45vw] sm:h-[0.45vw] rounded-full bg-yellow flex-shrink-0" />
+                        <span className="extraSmallText font-medium text-secondary">
+                          {currentUser.displayName || `@${currentUser.username}`}
+                        </span>
+                        <span className="detailText text-secondary/45 hidden md:inline">
+                          @{currentUser.username}
+                        </span>
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                      >
+                        Sign in
+                      </Link>
+                      <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                        <Link href="/register" className="main-btn smallText">
+                          <span className="main-btn__icon" aria-hidden="true" />
+                          <span className="main-btn__label">
+                            <span className="main-btn__clip">
+                              <span className="main-btn__from">Join musi5t</span>
+                              <span className="main-btn__to" aria-hidden="true">
+                                Join musi5t
+                              </span>
+                            </span>
+                          </span>
+                        </Link>
+                      </div>
+                    </>
                   )}
                 </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-[11px] font-mono opacity-40">
-                    {bodyText.length}/500
-                  </span>
-                  <button
-                    type="submit"
-                    disabled={isPublishing || !bodyText.trim()}
-                    className="px-4 py-1.5 rounded-lg text-xs font-mono font-bold bg-[#FFE600] text-black hover:bg-[#F2DA00] transition-transform hover:scale-105 disabled:opacity-40 disabled:hover:scale-100 cursor-pointer shadow-md"
-                  >
-                    {isPublishing ? "Posting..." : "Publish"}
-                  </button>
-                </div>
               </div>
-            </form>
-          </section>
-        ) : (
-          <div className="mb-8 p-6 rounded-2xl border border-white/10 bg-[#161614] text-center">
-            <p className="text-sm text-white/70 mb-3">
-              Join the conversation. Sign in to curate your Top 5 and publish posts to kindred listeners.
-            </p>
-            <Link
-              href="/register"
-              className="inline-block px-5 py-2 rounded-lg text-xs font-mono font-bold uppercase bg-[#FFE600] text-black hover:scale-105 transition-transform"
+            </header>
+
+            {/* Scrollable Container managed by Lenis */}
+            <main
+              id="swup"
+              ref={mainRef}
+              className="transition-swup hide-scrollbar bg-primary text-secondary"
+              tabIndex={-1}
             >
-              Create Account
-            </Link>
-          </div>
-        )}
-
-        {/* Feed Type Switcher Tabs */}
-        <div className="flex items-center gap-4 mb-6 border-b border-white/10 pb-3">
-          <button
-            type="button"
-            onClick={() => switchFeedType("for-you")}
-            className={`text-sm font-medium transition-colors cursor-pointer pb-2 -mb-3 relative ${
-              feedType === "for-you" ? "text-[#FFE600]" : "text-white/40 hover:text-white/70"
-            }`}
-          >
-            For You
-            {feedType === "for-you" && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FFE600]" />
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => switchFeedType("global")}
-            className={`text-sm font-medium transition-colors cursor-pointer pb-2 -mb-3 relative ${
-              feedType === "global" ? "text-[#FFE600]" : "text-white/40 hover:text-white/70"
-            }`}
-          >
-            Global
-            {feedType === "global" && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FFE600]" />
-            )}
-          </button>
-        </div>
-
-        {/* Posts List */}
-        {loading ? (
-          <div className="text-center py-16 font-mono text-xs opacity-50 animate-pulse">
-            Loading discussions...
-          </div>
-        ) : postsList.length === 0 ? (
-          <div className="text-center py-20 border border-dashed border-white/10 rounded-2xl">
-            <p className="text-sm opacity-50 mb-1">No posts found in this feed yet.</p>
-            <p className="text-xs opacity-30 font-mono">
-              {feedType === "for-you"
-                ? "Follow users or curate albums into your Top 5 to see relevant discussions."
-                : "Be the first to share a thought!"}
-            </p>
-          </div>
-        ) : (
-          <>
-            <InteractivePostList
-              posts={postsList}
-              currentUser={currentUser}
-              onPostsChange={setPostsList}
-              variant="dark"
-            />
-
-            {nextCursor && (
-              <div className="mt-8 text-center">
-                <button
-                  type="button"
-                  onClick={handleLoadMore}
-                  disabled={loadingMore}
-                  className="px-5 py-2 rounded-full text-xs font-mono uppercase border border-white/15 hover:border-white/40 text-white/80 hover:text-white transition-colors cursor-pointer"
+              <div ref={contentRef} className="layout-content bg-primary text-secondary">
+                {/* Main Feed Section */}
+                <section
+                  id="feed-top"
+                  data-nav-color="secondary"
+                  className="w-full min-h-lvh pt-[22vw] sm:pt-[9vw] pb-[10vw] sm:pb-[6vw]"
                 >
-                  {loadingMore ? "Loading..." : "Load More"}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </main>
+                  <div className="layout-grid">
+                    {/* Center Responsive Editorial Feed Column */}
+                    <div className="col-span-full sm:col-start-3 sm:col-span-8">
+                      {/* Feed Header & Switcher Tabs */}
+                      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-[3vw] sm:gap-[1.5vw] pb-[3.5vw] sm:pb-[1.8vw] mb-[4vw] sm:mb-[2.5vw] border-b border-secondary/15">
+                        <div className="flex items-center gap-[2vw] sm:gap-[1vw]">
+                          <div className="drop-shadow rounded-[0.25vw]">
+                            <div className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] bg-yellow" />
+                          </div>
+                          <h1 className="largeText lowercase">discussions</h1>
+                        </div>
 
-      {/* Album Tagging Modal */}
+                        {/* Feed Switcher Tabs (for you / global) */}
+                        <div className="flex items-center gap-[4vw] sm:gap-[1.5vw]">
+                          <button
+                            type="button"
+                            onClick={() => switchFeedType("for-you")}
+                            className={`smallText lowercase flex items-center gap-[1vw] sm:gap-[0.4vw] pb-[0.5vw] sm:pb-[0.2vw] border-b-2 transition-all cursor-pointer ${
+                              feedType === "for-you"
+                                ? "text-secondary font-medium border-secondary"
+                                : "text-secondary/40 hover:text-secondary/75 border-transparent"
+                            }`}
+                          >
+                            {feedType === "for-you" && (
+                              <span className="w-[1.5vw] h-[1.5vw] sm:w-[0.4vw] sm:h-[0.4vw] rounded-full bg-yellow inline-block" />
+                            )}
+                            <span>for you</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => switchFeedType("global")}
+                            className={`smallText lowercase flex items-center gap-[1vw] sm:gap-[0.4vw] pb-[0.5vw] sm:pb-[0.2vw] border-b-2 transition-all cursor-pointer ${
+                              feedType === "global"
+                                ? "text-secondary font-medium border-secondary"
+                                : "text-secondary/40 hover:text-secondary/75 border-transparent"
+                            }`}
+                          >
+                            {feedType === "global" && (
+                              <span className="w-[1.5vw] h-[1.5vw] sm:w-[0.4vw] sm:h-[0.4vw] rounded-full bg-yellow inline-block" />
+                            )}
+                            <span>global</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Post Composer (Create Post Box) */}
+                      {currentUser ? (
+                        <div className="bg-primary border border-secondary/15 rounded-[0.5vw] drop-shadow-soft p-[3vw] sm:p-[1.8vw] mb-[4vw] sm:mb-[2.5vw]">
+                          <form onSubmit={handleCreatePost}>
+                            <div className="flex items-start gap-[2.5vw] sm:gap-[1vw]">
+                              <div className="w-[7vw] sm:w-[2.4vw] aspect-square rounded-[0.3vw] overflow-hidden bg-yellow flex items-center justify-center text-secondary extraSmallTextBold flex-shrink-0 drop-shadow">
+                                {currentUser.avatarUrl ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={currentUser.avatarUrl}
+                                    alt={currentUser.displayName}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  currentUser.displayName.slice(0, 2).toUpperCase()
+                                )}
+                              </div>
+
+                              <div className="flex-1">
+                                <textarea
+                                  rows={3}
+                                  value={bodyText}
+                                  onChange={(e) =>
+                                    setBodyText(e.target.value.slice(0, 500))
+                                  }
+                                  placeholder="Talk records. What are you listening to right now?"
+                                  className="w-full smallText text-secondary placeholder:text-secondary/35 bg-transparent border-0 focus:outline-none resize-none"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Tagged Albums Preview */}
+                            {taggedAlbums.length > 0 && (
+                              <div className="flex flex-wrap gap-[1.5vw] sm:gap-[0.6vw] pt-[2vw] sm:pt-[1vw] mt-[2vw] sm:mt-[0.8vw] border-t border-secondary/10">
+                                {taggedAlbums.map((alb) => (
+                                  <div
+                                    key={alb.id}
+                                    className="flex items-center gap-[0.5vw] bg-secondary/5 border border-secondary/15 rounded-[0.3vw] px-[1vw] py-[0.5vw] sm:px-[0.5vw] sm:py-[0.25vw] extraSmallText text-secondary font-medium"
+                                  >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={alb.coverUrl}
+                                      alt={alb.title}
+                                      className="w-[4vw] h-[4vw] sm:w-[1.2vw] sm:h-[1.2vw] rounded-[0.15vw] object-cover flex-shrink-0"
+                                    />
+                                    <span>#{alb.title}</span>
+                                    {alb.artistName && (
+                                      <span className="detailText text-secondary/55">
+                                        — {alb.artistName}
+                                      </span>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setTaggedAlbums(
+                                          taggedAlbums.filter((a) => a.id !== alb.id)
+                                        )
+                                      }
+                                      className="text-secondary/45 hover:text-secondary ml-[0.5vw] sm:ml-[0.2vw] cursor-pointer"
+                                      title="Remove album tag"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {postError && (
+                              <div className="mt-[2vw] sm:mt-[0.8vw] p-[2vw] sm:p-[0.8vw] bg-red-500/10 border border-red-500/25 rounded-[0.3vw] extraSmallText text-red-700">
+                                {postError}
+                              </div>
+                            )}
+
+                            {/* Composer Actions Bar */}
+                            <div className="flex items-center justify-between pt-[2.5vw] sm:pt-[1.2vw] mt-[2vw] sm:mt-[1vw] border-t border-secondary/10">
+                              <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
+                                <button
+                                  type="button"
+                                  onClick={() => setIsPublic(!isPublic)}
+                                  className={`px-[2.2vw] py-[0.8vw] sm:px-[0.75vw] sm:py-[0.3vw] rounded-[0.3vw] extraSmallText transition-colors cursor-pointer ${
+                                    isPublic
+                                      ? "bg-yellow text-secondary font-medium border border-secondary/15 drop-shadow"
+                                      : "bg-secondary/5 text-secondary/50 hover:text-secondary border border-secondary/15"
+                                  }`}
+                                >
+                                  #public
+                                </button>
+
+                                {taggedAlbums.length < 3 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setIsTaggingAlbum(true)}
+                                    className="px-[2.2vw] py-[0.8vw] sm:px-[0.75vw] sm:py-[0.3vw] rounded-[0.3vw] extraSmallText border border-secondary/15 bg-primary hover:bg-secondary/5 text-secondary/75 hover:text-secondary transition-colors cursor-pointer"
+                                  >
+                                    + #album
+                                  </button>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-[2.5vw] sm:gap-[1vw]">
+                                <span className="extraSmallText text-secondary/40">
+                                  {bodyText.length}/500
+                                </span>
+
+                                <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                                  <button
+                                    type="submit"
+                                    disabled={isPublishing || !bodyText.trim()}
+                                    className="main-btn smallText text-secondary disabled:opacity-40 cursor-pointer"
+                                  >
+                                    <span className="main-btn__icon" aria-hidden="true" />
+                                    <span className="main-btn__label">
+                                      <span className="main-btn__clip">
+                                        <span className="main-btn__from">
+                                          {isPublishing ? "Posting..." : "Publish"}
+                                        </span>
+                                        <span className="main-btn__to" aria-hidden="true">
+                                          {isPublishing ? "Posting..." : "Publish"}
+                                        </span>
+                                      </span>
+                                    </span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      ) : (
+                        <div className="bg-primary border border-secondary/15 rounded-[0.5vw] drop-shadow-soft p-[4vw] sm:p-[2.2vw] mb-[4vw] sm:mb-[2.5vw] flex flex-col sm:flex-row sm:items-center justify-between gap-[3vw] sm:gap-[1.5vw]">
+                          <div className="flex flex-col gap-[0.6vw]">
+                            <span className="smallText font-medium text-secondary">
+                              Join the conversation
+                            </span>
+                            <p className="extraSmallText text-secondary/60">
+                              Sign in to curate your Top 5 records and publish notes to kindred listeners.
+                            </p>
+                          </div>
+                          <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw] w-fit">
+                            <Link href="/register" className="main-btn smallText">
+                              <span className="main-btn__icon" aria-hidden="true" />
+                              <span className="main-btn__label">
+                                <span className="main-btn__clip">
+                                  <span className="main-btn__from">Create account</span>
+                                  <span className="main-btn__to" aria-hidden="true">
+                                    Create account
+                                  </span>
+                                </span>
+                              </span>
+                            </Link>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Posts List */}
+                      {loading ? (
+                        <div className="p-[6vw] sm:p-[3.5vw] border border-secondary/15 rounded-[0.5vw] bg-primary text-center">
+                          <span className="smallText text-secondary/50 animate-pulse">
+                            Loading discussions...
+                          </span>
+                        </div>
+                      ) : postsList.length === 0 ? (
+                        <div className="p-[6vw] sm:p-[3.5vw] border border-secondary/15 rounded-[0.5vw] bg-primary drop-shadow-soft flex flex-col items-start gap-[1vw]">
+                          <span className="smallText font-medium text-secondary">
+                            No discussions in this feed yet.
+                          </span>
+                          <p className="extraSmallText text-secondary/55">
+                            {feedType === "for-you"
+                              ? "Follow listeners or curate albums into your Top 5 to tune your personal timeline."
+                              : "Be the first to share a note on a record you love."}
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          <InteractivePostList
+                            posts={postsList}
+                            currentUser={currentUser}
+                            onPostsChange={setPostsList}
+                            variant="light"
+                          />
+
+                          {nextCursor && (
+                            <div className="mt-[4vw] sm:mt-[2.5vw] flex justify-center">
+                              <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                                <button
+                                  type="button"
+                                  onClick={handleLoadMore}
+                                  disabled={loadingMore}
+                                  className="main-btn smallText text-secondary disabled:opacity-40 cursor-pointer"
+                                >
+                                  <span className="main-btn__icon" aria-hidden="true" />
+                                  <span className="main-btn__label">
+                                    <span className="main-btn__clip">
+                                      <span className="main-btn__from">
+                                        {loadingMore ? "Loading..." : "Load More"}
+                                      </span>
+                                      <span className="main-btn__to" aria-hidden="true">
+                                        {loadingMore ? "Loading..." : "Load More"}
+                                      </span>
+                                    </span>
+                                  </span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Editorial Dark Footer (matching Home and Profile) */}
+                <footer className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none">
+                  {/* Platform Links */}
+                  <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
+                    <span className="extraSmallText text-primary/40 font-mono">
+                      listener archive
+                    </span>
+                    <div className="flex flex-col gap-[0.5vw]">
+                      <Link
+                        href="/"
+                        className="footer-link-clip w-fit mediumText hover:text-yellow transition-colors duration-300"
+                      >
+                        musi5t home
+                      </Link>
+                      {currentUser && (
+                        <Link
+                          href={`/@${currentUser.username}`}
+                          className="footer-link-clip w-fit mediumText hover:text-yellow transition-colors duration-300"
+                        >
+                          @{currentUser.username}
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Back to top button */}
+                  <div className="col-span-full sm:col-span-4 flex items-center justify-center mb-[8vw] sm:mb-0">
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#feed-top")}
+                      className="back-to-top extraSmallText text-primary/60 hover:text-primary cursor-pointer hover:scale-105 transition-transform"
+                    >
+                      <span className="back-to-top__clip">
+                        <span className="back-to-top__from">
+                          <span className="back-to-top__arrow mr-1">↑</span>
+                          <span className="back-to-top__label">back to top</span>
+                        </span>
+                        <span className="back-to-top__to" aria-hidden="true">
+                          <span className="back-to-top__arrow mr-1">↑</span>
+                          <span className="back-to-top__label">back to top</span>
+                        </span>
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Copyright & Legal */}
+                  <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[1vw]">
+                    <span className="detailText text-primary/40">
+                      © 2026 musi5t. The album-centric social network.
+                    </span>
+                    <div className="flex gap-[1vw] detailText text-primary/50">
+                      <Link href="/" className="hover:text-primary transition-colors">
+                        overview
+                      </Link>
+                      <span>,</span>
+                      <Link href="/feed" className="hover:text-primary transition-colors">
+                        discussions
+                      </Link>
+                      <span>,</span>
+                      <span className="opacity-40">musi5t core</span>
+                    </div>
+                  </div>
+                </footer>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+
+      {/* Album Tagging Modal (Rendered outside clip-path main) */}
       {isTaggingAlbum && (
-        <AlbumSearchModal
-          isOpen={true}
-          position={taggedAlbums.length + 1}
-          onClose={() => setIsTaggingAlbum(false)}
-          onSelectAlbum={handleAddAlbumTag}
-          accentColor="#FFE600"
-        />
+        <div data-lenis-prevent>
+          <AlbumSearchModal
+            isOpen={true}
+            position={taggedAlbums.length + 1}
+            onClose={() => setIsTaggingAlbum(false)}
+            onSelectAlbum={handleAddAlbumTag}
+            accentColor="#FFE600"
+          />
+        </div>
       )}
     </div>
   );
