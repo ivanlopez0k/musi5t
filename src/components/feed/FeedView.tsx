@@ -1147,7 +1147,6 @@ export function FeedView({
         <div data-lenis-prevent>
           <AlbumSearchModal
             isOpen={true}
-            position={taggedAlbums.length + 1}
             onClose={() => setIsTaggingAlbum(false)}
             onSelectAlbum={handleAddAlbumTag}
             accentColor="#FFE600"
