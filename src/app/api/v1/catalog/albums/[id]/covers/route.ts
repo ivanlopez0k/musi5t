@@ -22,7 +22,9 @@ export async function GET(
 
     const editions = await getAlbumEditions(
       album.mbid,
-      album.defaultCoverUrl || "/images/musi5t/vinyl_player.webp"
+      album.defaultCoverUrl || "/images/musi5t/vinyl_player.webp",
+      album.title,
+      album.artistName
     );
 
     return NextResponse.json({ editions });
