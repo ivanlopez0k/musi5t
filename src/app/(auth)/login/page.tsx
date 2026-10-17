@@ -48,16 +48,6 @@ export default function LoginPage() {
     <div className="layout-grid w-full items-center my-auto py-[4vw] sm:py-[2vw]">
       {/* Left Column: Editorial Identity & Vinyl Motif */}
       <div className="col-span-full sm:col-span-6 flex flex-col justify-center mb-[8vw] sm:mb-0 sm:pr-[3vw]">
-        {/* Section Badge */}
-        <div className="inline-flex items-center gap-[1.5vw] sm:gap-[0.5vw] mb-[3vw] sm:mb-[1.2vw]">
-          <div className="drop-shadow rounded-[0.25vw]">
-            <div className="w-[3.5vw] h-[3.5vw] sm:w-[1.2vw] sm:h-[1.2vw] rounded-[0.5vw] sm:rounded-[0.2vw] bg-yellow" />
-          </div>
-          <span className="extraSmallText uppercase tracking-wider text-secondary/60 font-mono">
-            [ 01 / sign in ]
-          </span>
-        </div>
-
         {/* Editorial Heading */}
         <h1 className="largeText text-secondary mb-[1.5vw] sm:mb-[0.8vw] leading-none">
           welcome back.

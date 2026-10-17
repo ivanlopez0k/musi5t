@@ -48,18 +48,8 @@ export default function RegisterPage() {
 
   return (
     <div className="layout-grid w-full items-center my-auto py-[4vw] sm:py-[2vw]">
-      {/* Left Column: Editorial Identity & Platform Pillars */}
+      {/* Left Column: Editorial Identity & Vinyl Motif (Identical to Login) */}
       <div className="col-span-full sm:col-span-6 flex flex-col justify-center mb-[8vw] sm:mb-0 sm:pr-[3vw]">
-        {/* Section Badge */}
-        <div className="inline-flex items-center gap-[1.5vw] sm:gap-[0.5vw] mb-[3vw] sm:mb-[1.2vw]">
-          <div className="drop-shadow rounded-[0.25vw]">
-            <div className="w-[3.5vw] h-[3.5vw] sm:w-[1.2vw] sm:h-[1.2vw] rounded-[0.5vw] sm:rounded-[0.2vw] bg-yellow" />
-          </div>
-          <span className="extraSmallText uppercase tracking-wider text-secondary/60 font-mono">
-            [ 02 / create account ]
-          </span>
-        </div>
-
         {/* Editorial Heading */}
         <h1 className="largeText text-secondary mb-[1.5vw] sm:mb-[0.8vw] leading-none">
           curate your 5.
@@ -69,52 +59,29 @@ export default function RegisterPage() {
         </p>
 
         <p className="smallText text-secondary/70 leading-relaxed max-w-[90vw] sm:max-w-[34vw] mb-[4vw] sm:mb-[2.5vw]">
-          Build your personal vinyl shelf. Pick your 5 essential albums and songs, select your favorite
-          international pressings, and discover listeners with genuine taste-affinity.
+          Create your account to curate your essential 5 albums and songs, select your favorite
+          international pressings, and connect with kindred listeners through shared taste.
         </p>
 
-        {/* 3 Editorial Pillars */}
-        <div className="hidden sm:flex flex-col gap-[1.2vw] max-w-[35vw]">
-          <div className="flex items-start gap-[1.2vw] p-[1.2vw] rounded-[0.4vw] bg-secondary/[0.03] border border-secondary/10 drop-shadow-soft">
-            <span className="extraSmallTextBold font-mono text-secondary/40 shrink-0 mt-[0.1vw]">
-              01
-            </span>
-            <div className="flex flex-col">
-              <span className="extraSmallTextBold text-secondary leading-tight">
-                Curate Essential Records & Pressings
-              </span>
-              <span className="detailText text-secondary/55 leading-tight mt-[0.2vw]">
-                Pick your definitive 5 albums and choose from Japanese, UK, and international editions.
-              </span>
+        {/* Vinyl Card Graphic (Matches Login exactly) */}
+        <div className="hidden sm:flex items-center gap-[1.5vw] p-[1.4vw] rounded-[0.5vw] bg-secondary/[0.03] border border-secondary/10 max-w-[34vw] drop-shadow-soft">
+          <div className="w-[5vw] h-[5vw] rounded-full bg-secondary flex items-center justify-center shrink-0 drop-shadow relative overflow-hidden group">
+            {/* Vinyl grooves */}
+            <div className="absolute inset-[0.4vw] rounded-full border border-primary/10" />
+            <div className="absolute inset-[0.8vw] rounded-full border border-primary/10" />
+            <div className="absolute inset-[1.2vw] rounded-full border border-primary/10" />
+            {/* Center label */}
+            <div className="w-[2vw] h-[2vw] rounded-full bg-yellow flex items-center justify-center text-[0.6vw] font-bold text-secondary z-10 drop-shadow">
+              33 RPM
             </div>
           </div>
-
-          <div className="flex items-start gap-[1.2vw] p-[1.2vw] rounded-[0.4vw] bg-secondary/[0.03] border border-secondary/10 drop-shadow-soft">
-            <span className="extraSmallTextBold font-mono text-secondary/40 shrink-0 mt-[0.1vw]">
-              02
+          <div className="flex flex-col">
+            <span className="extraSmallTextBold text-secondary leading-tight">
+              5 albums. Infinite connection.
             </span>
-            <div className="flex flex-col">
-              <span className="extraSmallTextBold text-secondary leading-tight">
-                Organic Taste-Matched Feed
-              </span>
-              <span className="detailText text-secondary/55 leading-tight mt-[0.2vw]">
-                Your &apos;For You&apos; timeline is tuned automatically by the records in your Top 5. No clickbait.
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-[1.2vw] p-[1.2vw] rounded-[0.4vw] bg-secondary/[0.03] border border-secondary/10 drop-shadow-soft">
-            <span className="extraSmallTextBold font-mono text-secondary/40 shrink-0 mt-[0.1vw]">
-              03
+            <span className="detailText text-secondary/55 leading-tight mt-[0.2vw]">
+              Organic taste-matching based entirely on shared vinyl and records.
             </span>
-            <div className="flex flex-col">
-              <span className="extraSmallTextBold text-secondary leading-tight">
-                Community Rankings & Reviews
-              </span>
-              <span className="detailText text-secondary/55 leading-tight mt-[0.2vw]">
-                Rate albums on a 1&ndash;10 scale, contribute to public rankings, and exchange listener notes.
-              </span>
-            </div>
           </div>
         </div>
       </div>

@@ -20,47 +20,48 @@ export default async function AuthLayout({
       <div className="site-layout">
         <div className="app">
           <div className="route-surface">
-            {/* Editorial Fixed Header */}
+            {/* Unauthenticated Navbar matching Feed & Rankings */}
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Brand Wordmark */}
-                <div className="text-secondary mediumText col-span-4 flex justify-start items-center">
-                  <Link
-                    href="/"
-                    className="nav-btn cursor-pointer text-left flex items-center gap-[1.5vw] sm:gap-[0.5vw]"
-                  >
-                    <span className="w-[2.8vw] h-[2.8vw] sm:w-[0.9vw] sm:h-[0.9vw] rounded-[0.5vw] sm:rounded-[0.2vw] bg-yellow drop-shadow inline-block shrink-0" />
-                    <span>musi5t</span>
+                <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
+                  <Link href="/" className="nav-btn cursor-pointer text-left">
+                    musi5t
                   </Link>
                 </div>
 
-                {/* Center Tagline */}
-                <div className="text-secondary smallText col-span-4 justify-center items-center hidden sm:flex">
-                  <span className="text-secondary/40 extraSmallText uppercase tracking-wider font-mono">
-                    curate your 5 &bull; connect through records
+                {/* Center Navigation Group (Feed • Rankings) */}
+                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
+                  <span className="nav-group flex items-center gap-[0.5vw]">
+                    <Link href="/feed" className="nav-btn cursor-pointer">
+                      Feed
+                    </Link>
+                    <span className="text-secondary/35">•</span>
+                    <Link href="/rankings" className="nav-btn cursor-pointer">
+                      Rankings
+                    </Link>
                   </span>
                 </div>
 
-                {/* Right Actions */}
-                <div className="col-span-8 sm:col-span-4 flex justify-end items-center gap-[3vw] sm:gap-[1.2vw]">
+                {/* Right Actions: Sign in + Join musi5t */}
+                <div className="col-span-9 sm:col-span-4 flex justify-end items-center gap-[2.5vw] sm:gap-[1vw]">
                   <Link
-                    href="/"
+                    href="/login"
                     className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
                   >
-                    Home
+                    Sign in
                   </Link>
-                  <Link
-                    href="/feed"
-                    className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
-                  >
-                    Feed
-                  </Link>
-                  <Link
-                    href="/rankings"
-                    className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
-                  >
-                    Rankings
-                  </Link>
+                  <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                    <Link
+                      href="/register"
+                      className="main-btn !px-[3vw] sm:!px-[1vw] !py-[1.2vw] sm:!py-[0.4vw] !gap-[1.5vw] sm:!gap-[0.5vw]"
+                    >
+                      <div className="main-btn__icon !w-[3vw] !h-[3vw] sm:!w-[0.9vw] sm:!h-[0.9vw] !rounded-[0.6vw] sm:!rounded-[0.2vw]" />
+                      <span className="main-btn__label text-[3vw] sm:text-[0.8vw] font-medium text-secondary">
+                        Join musi5t
+                      </span>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </header>
