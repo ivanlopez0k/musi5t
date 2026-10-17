@@ -51,6 +51,23 @@ interface ItunesSongItem {
   artworkUrl100?: string;
 }
 
+interface DeezerAlbumItem {
+  id?: number;
+  title?: string;
+  artist?: {
+    id?: number;
+    name?: string;
+  };
+  cover?: string;
+  cover_small?: string;
+  cover_medium?: string;
+  cover_big?: string;
+  cover_xl?: string;
+  release_date?: string;
+  record_type?: string;
+  nb_tracks?: number;
+}
+
 const EDITION_TAG_PATTERN =
   /\b(deluxe|super deluxe|remaster(?:ed)?|expanded|special edition|anniversary|bonus track(?:s)?|collector(?:'s)?|edition|reissue|explicit|clean|version|live edition|digital|import|intl|international)\b/i;
 
@@ -143,8 +160,13 @@ export function cleanDisplaySongTitle(rawTitle: string): string {
   return cleaned || rawTitle.trim();
 }
 
-function getCanonicalAlbumKey(artistName: string, title: string): string {
+export function getCanonicalAlbumKey(artistName: string, title: string): string {
   return `${normalizeText(artistName)}::${normalizeAlbumTitle(title)}`;
+}
+
+export function getCanonicalAlbumMbid(artistName: string, title: string): string {
+  const key = getCanonicalAlbumKey(artistName, title);
+  return canonicalUuid(`album:${key}`);
 }
 
 function getCanonicalSongKey(artistName: string, title: string): string {
@@ -201,17 +223,43 @@ export async function searchAlbums(query: string): Promise<CatalogAlbum[]> {
     const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(
       cleanQ
     )}&entity=album&limit=25`;
+    const deezerUrl = `https://api.deezer.com/search/album?q=${encodeURIComponent(
+      cleanQ
+    )}&limit=15`;
 
-    const res = await fetch(itunesUrl, {
-      next: { revalidate: 3600 },
-    });
+    const [itunesRes, deezerRes] = await Promise.allSettled([
+      fetch(itunesUrl, {
+        next: { revalidate: 3600 },
+      }).then(async (res) => {
+        if (!res.ok) throw new Error(`iTunes album search returned ${res.status}`);
+        return (await res.json()) as { results?: ItunesAlbumItem[] };
+      }),
+      fetch(deezerUrl, {
+        next: { revalidate: 3600 },
+      }).then(async (res) => {
+        if (!res.ok) throw new Error(`Deezer album search returned ${res.status}`);
+        return (await res.json()) as { data?: DeezerAlbumItem[] };
+      }),
+    ]);
 
-    if (!res.ok) {
-      throw new Error(`iTunes album search returned ${res.status}`);
+    const rawItunesResults: ItunesAlbumItem[] =
+      itunesRes.status === "fulfilled" && Array.isArray(itunesRes.value?.results)
+        ? itunesRes.value.results
+        : [];
+
+    const rawDeezerResults: DeezerAlbumItem[] =
+      deezerRes.status === "fulfilled" && Array.isArray(deezerRes.value?.data)
+        ? deezerRes.value.data
+        : [];
+
+    if (
+      rawItunesResults.length === 0 &&
+      rawDeezerResults.length === 0 &&
+      itunesRes.status === "rejected" &&
+      deezerRes.status === "rejected"
+    ) {
+      throw new Error("Both iTunes and Deezer searches failed");
     }
-
-    const data = await res.json();
-    const rawResults: ItunesAlbumItem[] = Array.isArray(data.results) ? data.results : [];
 
     // Group & deduplicate canonical albums
     const grouped = new Map<
@@ -225,7 +273,16 @@ export async function searchAlbums(query: string): Promise<CatalogAlbum[]> {
       }
     >();
 
-    for (const item of rawResults) {
+    const pickBestCover = (coverA: string, coverB: string): string => {
+      const isDefault = (url: string) => !url || url.includes("vinyl_player.webp");
+      if (isDefault(coverA)) return coverB;
+      if (isDefault(coverB)) return coverA;
+      if (coverB.includes("cover_xl") && !coverA.includes("cover_xl")) return coverB;
+      return coverA;
+    };
+
+    // 1. Process iTunes results
+    for (const item of rawItunesResults) {
       if (item.wrapperType !== "collection" || item.collectionType !== "Album") continue;
       const artistName = item.artistName?.trim();
       const rawTitle = item.collectionName?.trim();
@@ -242,10 +299,10 @@ export async function searchAlbums(query: string): Promise<CatalogAlbum[]> {
       // Filter out karaoke / tribute / cover spam
       if (isSpamOrTribute(artistName, rawTitle, cleanQ)) continue;
 
-      // Filter out 1-track singles masquerading as albums
-      const trackCount = item.trackCount ?? 0;
-      if (trackCount <= 1 || /\s+-\s+single$/i.test(rawTitle)) continue;
+      // Only discard if explicit single
+      if (/\s+-\s+single$/i.test(rawTitle)) continue;
 
+      const trackCount = item.trackCount ?? 0;
       const cleanTitle = cleanDisplayAlbumTitle(rawTitle);
       const key = getCanonicalAlbumKey(artistName, cleanTitle);
       const year = item.releaseDate ? parseInt(item.releaseDate.slice(0, 4), 10) : null;
@@ -266,22 +323,86 @@ export async function searchAlbums(query: string): Promise<CatalogAlbum[]> {
           score: candidateScore,
         });
       } else {
-        // Keep earliest release year across editions
         const earliestYear =
           existing.releaseYear && validYear
             ? Math.min(existing.releaseYear, validYear)
             : existing.releaseYear ?? validYear;
+
+        const bestCover = pickBestCover(existing.coverUrl, coverUrl);
 
         if (candidateScore > existing.score) {
           grouped.set(key, {
             cleanTitle,
             artistName,
             releaseYear: earliestYear,
-            coverUrl,
+            coverUrl: bestCover,
             score: candidateScore,
           });
         } else {
           existing.releaseYear = earliestYear;
+          existing.coverUrl = bestCover;
+        }
+      }
+    }
+
+    // 2. Process Deezer results
+    for (const item of rawDeezerResults) {
+      const artistName = item.artist?.name?.trim();
+      const rawTitle = item.title?.trim();
+      if (!artistName || !rawTitle) continue;
+
+      // Filter out "Various Artists" compilations unless explicitly searched
+      if (
+        artistName.toLowerCase() === "various artists" &&
+        !cleanQ.toLowerCase().includes("various")
+      ) {
+        continue;
+      }
+
+      // Filter out karaoke / tribute / cover spam
+      if (isSpamOrTribute(artistName, rawTitle, cleanQ)) continue;
+
+      // Discard singles
+      if (item.record_type === "single" || /\s+-\s+single$/i.test(rawTitle)) continue;
+
+      const cleanTitle = cleanDisplayAlbumTitle(rawTitle);
+      const key = getCanonicalAlbumKey(artistName, cleanTitle);
+      const year = item.release_date ? parseInt(item.release_date.slice(0, 4), 10) : null;
+      const validYear = year && !Number.isNaN(year) ? year : null;
+      const coverUrl =
+        item.cover_xl || item.cover_big || item.cover_medium || item.cover || "/images/musi5t/vinyl_player.webp";
+
+      const isUnadornedTitle = rawTitle.toLowerCase() === cleanTitle.toLowerCase();
+      const candidateScore = (isUnadornedTitle ? 20 : 0) + ((item.nb_tracks ?? 0) >= 4 ? 10 : 0);
+
+      const existing = grouped.get(key);
+      if (!existing) {
+        grouped.set(key, {
+          cleanTitle,
+          artistName,
+          releaseYear: validYear,
+          coverUrl,
+          score: candidateScore,
+        });
+      } else {
+        const earliestYear =
+          existing.releaseYear && validYear
+            ? Math.min(existing.releaseYear, validYear)
+            : existing.releaseYear ?? validYear;
+
+        const bestCover = pickBestCover(existing.coverUrl, coverUrl);
+
+        if (candidateScore > existing.score) {
+          grouped.set(key, {
+            cleanTitle,
+            artistName,
+            releaseYear: earliestYear,
+            coverUrl: bestCover,
+            score: candidateScore,
+          });
+        } else {
+          existing.releaseYear = earliestYear;
+          existing.coverUrl = bestCover;
         }
       }
     }
