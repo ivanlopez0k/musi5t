@@ -474,11 +474,17 @@ export function ProfileView({
                   </Link>
                 </div>
 
-                {/* Center Navigation Group (clean Feed link only) */}
+                {/* Center Navigation Group (Feed • Rankings) */}
                 <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <Link href="/feed" className="nav-btn cursor-pointer">
-                    Feed
-                  </Link>
+                  <span className="nav-group flex items-center gap-[0.6vw]">
+                    <Link href="/feed" className="nav-btn cursor-pointer">
+                      Feed
+                    </Link>
+                    <span className="text-secondary/35">•</span>
+                    <Link href="/rankings" className="nav-btn cursor-pointer">
+                      Rankings
+                    </Link>
+                  </span>
                 </div>
 
                 {/* Right Navbar Actions */}
@@ -525,34 +531,46 @@ export function ProfileView({
                         </button>
                       </div>
                     </>
-                  ) : (
-                    <>
-                      {!blocked && (
-                        <UserFollowButton
-                          targetUserId={user.id}
-                          initialFollowing={Boolean(isFollowing)}
-                          isLoggedIn={Boolean(isLoggedIn)}
-                          accentColor={activePalette.accent}
+                  ) : currentUser ? (
+                    <Link
+                      href={`/@${currentUser.username}`}
+                      className="flex items-center gap-[1.2vw] sm:gap-[0.45vw] bg-primary/90 hover:bg-primary border border-secondary/15 rounded-[0.3vw] px-[2.2vw] py-[0.8vw] sm:px-[0.75vw] sm:py-[0.3vw] drop-shadow transition-colors"
+                    >
+                      {currentUser.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={currentUser.avatarUrl}
+                          alt={currentUser.displayName}
+                          className="w-[4vw] h-[4vw] sm:w-[1.2vw] sm:h-[1.2vw] rounded-[0.2vw] object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <span
+                          className="w-[1.8vw] h-[1.8vw] sm:w-[0.45vw] sm:h-[0.45vw] rounded-full flex-shrink-0"
+                          style={{ backgroundColor: activePalette.accent }}
                         />
                       )}
-                      <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw] hidden sm:block">
-                        <Link
-                          href="/feed"
-                          className="main-btn smallText text-secondary transition-colors duration-500"
-                          style={{ backgroundColor: activePalette.accent }}
-                        >
-                          <span className="main-btn__icon" aria-hidden="true" />
-                          <span className="main-btn__label">
-                            <span className="main-btn__clip">
-                              <span className="main-btn__from">Feed</span>
-                              <span className="main-btn__to" aria-hidden="true">
-                                Feed
-                              </span>
+                      <span className="extraSmallText font-medium text-secondary">
+                        @{currentUser.username}
+                      </span>
+                    </Link>
+                  ) : (
+                    <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                      <Link
+                        href="/login"
+                        className="main-btn smallText text-secondary transition-colors duration-500"
+                        style={{ backgroundColor: activePalette.accent }}
+                      >
+                        <span className="main-btn__icon" aria-hidden="true" />
+                        <span className="main-btn__label">
+                          <span className="main-btn__clip">
+                            <span className="main-btn__from">Sign in</span>
+                            <span className="main-btn__to" aria-hidden="true">
+                              Sign in
                             </span>
                           </span>
-                        </Link>
-                      </div>
-                    </>
+                        </span>
+                      </Link>
+                    </div>
                   )}
                 </div>
               </div>
@@ -642,7 +660,7 @@ export function ProfileView({
                   className="w-full bg-transparent text-secondary pt-[24vw] sm:pt-[9.5vw] pb-[6vw] sm:pb-[4vw] relative z-10"
                 >
                   <div className="layout-grid w-full items-start">
-                    {/* Left 8 Columns: Giant Editorial Name (+ member since) & Bio */}
+                    {/* Left 8 Columns: Giant Editorial Name (+ member since), Bio & Visitor Actions */}
                     <div className="col-span-full sm:col-span-8 flex flex-col justify-between profile-hero-reveal">
                       <div className="flex flex-wrap items-baseline gap-x-[2vw] sm:gap-x-[1vw] gap-y-[1vw]">
                         <h1 className="largeText font-medium text-secondary tracking-[-0.05em] break-words">
@@ -658,9 +676,51 @@ export function ProfileView({
                           {bio}
                         </p>
                       )}
+
+                      {!isOwner && (
+                        <div className="flex flex-wrap items-center gap-[2vw] sm:gap-[0.75vw] mt-[4vw] sm:mt-[1.8vw]">
+                          {!blocked && (
+                            <UserFollowButton
+                              targetUserId={user.id}
+                              initialFollowing={Boolean(isFollowing)}
+                              isLoggedIn={Boolean(isLoggedIn)}
+                              accentColor={activePalette.accent}
+                            />
+                          )}
+
+                          {isLoggedIn && (
+                            <>
+                              <button
+                                type="button"
+                                disabled={moderationLoading}
+                                onClick={handleToggleMute}
+                                className={`extraSmallText px-[2.5vw] py-[1.1vw] sm:px-[0.9vw] sm:py-[0.45vw] rounded-[0.3vw] border transition-colors cursor-pointer ${
+                                  muted
+                                    ? "bg-secondary text-primary border-secondary"
+                                    : "bg-primary/90 hover:bg-primary border-secondary/20 hover:border-secondary/60 text-secondary/75 hover:text-secondary drop-shadow"
+                                }`}
+                              >
+                                {muted ? "muted" : "mute"}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={moderationLoading}
+                                onClick={handleToggleBlock}
+                                className={`extraSmallText px-[2.5vw] py-[1.1vw] sm:px-[0.9vw] sm:py-[0.45vw] rounded-[0.3vw] border transition-colors cursor-pointer ${
+                                  blocked
+                                    ? "bg-red-600 text-white border-red-600"
+                                    : "bg-primary/90 hover:bg-red-600/10 border-red-600/30 text-red-700 drop-shadow"
+                                }`}
+                              >
+                                {blocked ? "blocked" : "block"}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Right 4 Columns: Refined Compact Avatar Card & Visitor Moderation Controls */}
+                    {/* Right 4 Columns: Refined Compact Avatar Card */}
                     <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[2vw] sm:gap-[1vw] mt-[6vw] sm:mt-0 profile-hero-reveal">
                       <div className="w-[28vw] sm:w-[9.5vw] aspect-square rounded-[0.4vw] overflow-hidden drop-shadow-soft bg-secondary relative flex items-center justify-center group">
                         {avatarUrl ? (
@@ -740,36 +800,6 @@ export function ProfileView({
                             </button>
                           )}
                         </>
-                      )}
-
-                      {/* Visitor Moderation Controls */}
-                      {!isOwner && isLoggedIn && (
-                        <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
-                          <button
-                            type="button"
-                            disabled={moderationLoading}
-                            onClick={handleToggleMute}
-                            className={`detailText px-[2.5vw] py-[1vw] sm:px-[0.8vw] sm:py-[0.35vw] rounded-[0.25vw] border transition-colors cursor-pointer ${
-                              muted
-                                ? "bg-secondary text-primary border-secondary"
-                                : "border-secondary/20 hover:border-secondary/60 text-secondary/70"
-                            }`}
-                          >
-                            {muted ? "muted" : "mute"}
-                          </button>
-                          <button
-                            type="button"
-                            disabled={moderationLoading}
-                            onClick={handleToggleBlock}
-                            className={`detailText px-[2.5vw] py-[1vw] sm:px-[0.8vw] sm:py-[0.35vw] rounded-[0.25vw] border transition-colors cursor-pointer ${
-                              blocked
-                                ? "bg-red-600 text-white border-red-600"
-                                : "border-red-600/30 text-red-700 hover:bg-red-600/10"
-                            }`}
-                          >
-                            {blocked ? "blocked" : "block"}
-                          </button>
-                        </div>
                       )}
                     </div>
 

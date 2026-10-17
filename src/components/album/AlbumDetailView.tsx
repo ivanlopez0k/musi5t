@@ -114,30 +114,13 @@ export function AlbumDetailView({
 
                 {/* Center Navigation Group */}
                 <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex gap-[0.25vw]">
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#album-overview")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Overview,
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#curated")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Top 5,
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#discussions")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Discussions,
-                    </button>
+                  <span className="nav-group flex items-center gap-[0.5vw]">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
+                    </Link>
+                    <span className="text-secondary/35">•</span>
+                    <Link href="/rankings" className="nav-btn cursor-pointer">
+                      Rankings
                     </Link>
                   </span>
                 </div>

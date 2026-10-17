@@ -249,20 +249,14 @@ export function SettingsView({
 
                 {/* Center Navigation Group */}
                 <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex gap-[0.25vw]">
+                  <span className="nav-group flex items-center gap-[0.5vw]">
                     <Link href="/feed" className="nav-btn cursor-pointer">
-                      Feed,
+                      Feed
                     </Link>
-                    <Link href="/feed?type=global" className="nav-btn cursor-pointer">
-                      Explore,
+                    <span className="text-secondary/35">•</span>
+                    <Link href="/rankings" className="nav-btn cursor-pointer">
+                      Rankings
                     </Link>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#settings-top")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Settings
-                    </button>
                   </span>
                 </div>
 

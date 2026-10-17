@@ -722,7 +722,7 @@ export function FeedView({
 
                 {/* Center Navigation Group */}
                 <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex gap-[0.25vw]">
+                  <span className="nav-group flex items-center gap-[0.5vw]">
                     <button
                       type="button"
                       onClick={() => {
@@ -731,23 +731,11 @@ export function FeedView({
                       }}
                       className="nav-btn cursor-pointer"
                     >
-                      Feed,
+                      Feed
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        switchFeedType("global");
-                        scrollTo("#feed-top");
-                      }}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Explore,
-                    </button>
-                    <Link
-                      href={currentUser ? `/@${currentUser.username}` : "/#records"}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Records
+                    <span className="text-secondary/35">•</span>
+                    <Link href="/rankings" className="nav-btn cursor-pointer">
+                      Rankings
                     </Link>
                   </span>
                 </div>
