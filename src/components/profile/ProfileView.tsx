@@ -71,6 +71,8 @@ export function ProfileView({
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || "");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatarUrl);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -93,6 +95,7 @@ export function ProfileView({
   const recordsContainerRef = useRef<HTMLDivElement>(null);
   const albumCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const lateralOrbsRef = useRef<HTMLDivElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Active palette
   const activePalette =
@@ -229,6 +232,35 @@ export function ProfileView({
       });
     } catch (err) {
       console.error("Failed to save palette preference:", err);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/v1/users/avatar", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.avatarUrl) {
+        setAvatarUrl(data.avatarUrl);
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Failed to upload avatar:", err);
+    } finally {
+      setUploadingAvatar(false);
+      if (avatarInputRef.current) {
+        avatarInputRef.current.value = "";
+      }
     }
   };
 
@@ -661,10 +693,10 @@ export function ProfileView({
                     {/* Right 4 Columns: Refined Compact Avatar Card & Visitor Moderation Controls */}
                     <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[2vw] sm:gap-[1vw] mt-[6vw] sm:mt-0 profile-hero-reveal">
                       <div className="w-[28vw] sm:w-[9.5vw] aspect-square rounded-[0.4vw] overflow-hidden drop-shadow-soft bg-secondary relative flex items-center justify-center group">
-                        {user.avatarUrl ? (
+                        {avatarUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={user.avatarUrl}
+                            src={avatarUrl}
                             alt={displayName}
                             className="w-full h-full object-cover select-none transition-transform duration-700 group-hover:scale-105"
                           />
@@ -685,6 +717,24 @@ export function ProfileView({
                             </div>
                           </div>
                         )}
+
+                        {isOwner && isEditing && (
+                          <button
+                            type="button"
+                            disabled={uploadingAvatar}
+                            onClick={() => avatarInputRef.current?.click()}
+                            className="absolute inset-0 bg-black/55 hover:bg-black/65 text-primary flex flex-col items-center justify-center gap-[0.4vw] transition-colors cursor-pointer z-10"
+                          >
+                            <span className="extraSmallTextBold text-primary">
+                              {uploadingAvatar
+                                ? "Uploading..."
+                                : avatarUrl
+                                  ? "Change avatar"
+                                  : "Upload new photo"}
+                            </span>
+                          </button>
+                        )}
+
                         <div className="absolute bottom-0 left-0 w-full px-[1.5vw] py-[1vw] sm:px-[0.55vw] sm:py-[0.35vw] bg-gradient-to-t from-black/75 via-black/30 to-transparent text-primary flex items-center justify-between">
                           <span className="detailText text-primary/90 truncate">
                             @{user.username}
@@ -695,6 +745,32 @@ export function ProfileView({
                           />
                         </div>
                       </div>
+
+                      {isOwner && (
+                        <>
+                          <input
+                            ref={avatarInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/gif"
+                            onChange={handleAvatarUpload}
+                            className="hidden"
+                          />
+                          {isEditing && (
+                            <button
+                              type="button"
+                              disabled={uploadingAvatar}
+                              onClick={() => avatarInputRef.current?.click()}
+                              className="detailText px-[2.2vw] py-[0.8vw] sm:px-[0.75vw] sm:py-[0.3vw] rounded-[0.25vw] border border-secondary/20 hover:border-secondary/60 bg-primary/90 hover:bg-primary text-secondary transition-colors cursor-pointer drop-shadow"
+                            >
+                              {uploadingAvatar
+                                ? "Uploading..."
+                                : avatarUrl
+                                  ? "Change avatar"
+                                  : "Upload new photo"}
+                            </button>
+                          )}
+                        </>
+                      )}
 
                       {/* Visitor Moderation Controls */}
                       {!isOwner && isLoggedIn && (

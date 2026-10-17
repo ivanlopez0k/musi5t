@@ -40,6 +40,8 @@ export function SettingsView({
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || "");
   const [themeKey, setThemeKey] = useState(user.themeKey || "lima");
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [removingAvatar, setRemovingAvatar] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const [mutedUsers, setMutedUsers] = useState<ModeratedUserItem[]>(initialMutedUsers);
@@ -48,6 +50,7 @@ export function SettingsView({
 
   const mainRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const activePalette =
     PROFILE_PALETTES.find((p) => p.key === themeKey) || PROFILE_PALETTES[0];
@@ -88,6 +91,62 @@ export function SettingsView({
       lenis.scrollTo(hash, { duration: 1.2 });
     } else {
       document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    setStatusMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/v1/users/avatar", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.avatarUrl) {
+        setAvatarUrl(data.avatarUrl);
+        setStatusMessage("Profile photo uploaded.");
+        router.refresh();
+      } else {
+        setStatusMessage(data.error || "Failed to upload photo.");
+      }
+    } catch {
+      setStatusMessage("Failed to upload photo.");
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    setRemovingAvatar(true);
+    setStatusMessage(null);
+    try {
+      const res = await fetch("/api/v1/users/avatar", {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setAvatarUrl("");
+        setStatusMessage("Profile photo removed.");
+        router.refresh();
+      } else {
+        const data = await res.json();
+        setStatusMessage(data.error || "Failed to remove photo.");
+      }
+    } catch {
+      setStatusMessage("Failed to remove photo.");
+    } finally {
+      setRemovingAvatar(false);
     }
   };
 
@@ -320,16 +379,87 @@ export function SettingsView({
                           </div>
 
                           <div>
-                            <label className="block extraSmallTextBold text-secondary/70 lowercase mb-[1vw] sm:mb-[0.4vw]">
-                              avatar image url (optional)
+                            <label className="block extraSmallTextBold text-secondary/70 lowercase mb-[1.5vw] sm:mb-[0.6vw]">
+                              profile photo
                             </label>
-                            <input
-                              type="url"
-                              value={avatarUrl}
-                              onChange={(e) => setAvatarUrl(e.target.value)}
-                              placeholder="https://..."
-                              className="w-full bg-secondary/[0.04] border border-secondary/20 rounded-[0.35vw] px-[2.5vw] py-[1.8vw] sm:px-[1vw] sm:py-[0.65vw] smallText text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary transition-colors"
-                            />
+                            <div className="flex flex-wrap items-center gap-[3vw] sm:gap-[1.2vw] p-[2.5vw] sm:p-[1vw] rounded-[0.4vw] border border-secondary/15 bg-secondary/[0.02]">
+                              <div
+                                className="aspect-square rounded-[0.4vw] w-[14vw] sm:w-[4.5vw] drop-shadow-soft overflow-hidden flex items-center justify-center flex-shrink-0 transition-colors duration-500"
+                                style={{ backgroundColor: activePalette.accent }}
+                              >
+                                {avatarUrl ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={avatarUrl}
+                                    alt={displayName || user.displayName}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <span className="mediumText font-medium text-secondary select-none">
+                                    {(displayName || user.displayName || "U")
+                                      .slice(0, 2)
+                                      .toUpperCase()}
+                                  </span>
+                                )}
+                              </div>
+
+                              <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp,image/gif"
+                                onChange={handleAvatarFileChange}
+                                className="hidden"
+                              />
+
+                              <div className="flex flex-col gap-[1vw] sm:gap-[0.4vw]">
+                                <div className="flex flex-wrap items-center gap-[2vw] sm:gap-[0.8vw]">
+                                  <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                                    <button
+                                      type="button"
+                                      disabled={uploadingAvatar || removingAvatar}
+                                      onClick={() => fileInputRef.current?.click()}
+                                      className="main-btn smallText text-secondary disabled:opacity-50 cursor-pointer transition-colors duration-500"
+                                      style={{ backgroundColor: activePalette.accent }}
+                                    >
+                                      <span className="main-btn__icon" aria-hidden="true" />
+                                      <span className="main-btn__label">
+                                        <span className="main-btn__clip">
+                                          <span className="main-btn__from">
+                                            {uploadingAvatar
+                                              ? "Uploading..."
+                                              : avatarUrl
+                                                ? "Change photo"
+                                                : "Upload image"}
+                                          </span>
+                                          <span className="main-btn__to" aria-hidden="true">
+                                            {uploadingAvatar
+                                              ? "Uploading..."
+                                              : avatarUrl
+                                                ? "Change photo"
+                                                : "Upload image"}
+                                          </span>
+                                        </span>
+                                      </span>
+                                    </button>
+                                  </div>
+
+                                  {avatarUrl && (
+                                    <button
+                                      type="button"
+                                      disabled={removingAvatar || uploadingAvatar}
+                                      onClick={handleRemoveAvatar}
+                                      className="extraSmallText text-red-600/80 hover:text-red-600 underline transition-colors cursor-pointer disabled:opacity-50"
+                                    >
+                                      {removingAvatar ? "Removing..." : "Remove photo"}
+                                    </button>
+                                  )}
+                                </div>
+
+                                <span className="detailText text-secondary/45">
+                                  PNG, JPG, WEBP or GIF • Max 5MB
+                                </span>
+                              </div>
+                            </div>
                           </div>
 
                           <div className="pt-[1vw] sm:pt-[0.4vw]">
