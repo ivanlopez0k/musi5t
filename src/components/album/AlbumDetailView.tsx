@@ -102,16 +102,8 @@ export function AlbumDetailView({
             {/* Editorial Fixed Header */}
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
-                {/* Left: Brand Wordmark + Back Arrow */}
-                <div className="text-secondary mediumText col-span-3 flex justify-start items-center gap-[1.5vw] sm:gap-[0.75vw]">
-                  <button
-                    type="button"
-                    onClick={() => router.back()}
-                    className="extraSmallText text-secondary/60 hover:text-secondary bg-primary/90 hover:bg-primary border border-secondary/15 rounded-[0.3vw] px-[1.8vw] py-[0.5vw] sm:px-[0.6vw] sm:py-[0.2vw] drop-shadow transition-colors cursor-pointer"
-                    title="Go back"
-                  >
-                    ←
-                  </button>
+                {/* Left: Brand Wordmark */}
+                <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
                   <Link
                     href={currentUser ? "/feed" : "/"}
                     className="nav-btn cursor-pointer text-left"
@@ -212,9 +204,9 @@ export function AlbumDetailView({
                 <section
                   id="album-overview"
                   data-nav-color="secondary"
-                  className="w-full pt-[22vw] sm:pt-[9vw] pb-[6vw] sm:pb-[4vw]"
+                  className="w-full pt-[22vw] sm:pt-[9vw] pb-[5vw] sm:pb-[3vw]"
                 >
-                  <div className="layout-grid mb-[2.5vw] sm:mb-[1.2vw]">
+                  <div className="layout-grid mb-[2vw] sm:mb-[1vw]">
                     <div className="col-span-full">
                       <button
                         type="button"
@@ -229,9 +221,9 @@ export function AlbumDetailView({
                     </div>
                   </div>
 
-                  <div className="layout-grid items-end pb-[6vw] sm:pb-[3.5vw] border-b border-secondary/15">
-                    {/* Left: Album Sleeve Cover Card */}
-                    <div className="col-span-full sm:col-span-4 aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary mb-[4vw] sm:mb-0">
+                  <div className="layout-grid items-end pb-[5vw] sm:pb-[3vw] border-b border-secondary/15">
+                    {/* Left: Album Sleeve Cover Card (balanced size) */}
+                    <div className="col-span-full sm:col-span-3 max-w-[55vw] sm:max-w-none aspect-square rounded-[0.4vw] overflow-hidden drop-shadow-soft bg-secondary mb-[3.5vw] sm:mb-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={album.defaultCoverUrl || "/images/musi5t/vinyl_player.webp"}
@@ -241,7 +233,7 @@ export function AlbumDetailView({
                     </div>
 
                     {/* Right: Metadata Column */}
-                    <div className="col-span-full sm:col-span-8 flex flex-col justify-end gap-[2vw] sm:gap-[0.9vw] sm:pl-[2vw]">
+                    <div className="col-span-full sm:col-span-9 flex flex-col justify-end gap-[1.5vw] sm:gap-[0.7vw] sm:pl-[2.5vw]">
                       <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
                         <div className="drop-shadow rounded-[0.2vw]">
                           <div className="w-[3.5vw] h-[3.5vw] sm:w-[1vw] sm:h-[1vw] rounded-[0.15vw] bg-yellow" />
@@ -251,11 +243,12 @@ export function AlbumDetailView({
                         </span>
                       </div>
 
-                      <h1 className="largeText font-light text-secondary lowercase leading-tight">
+                      {/* Preserving official album title casing (no lowercase class) */}
+                      <h1 className="text-[6.5vw] sm:text-[2.6vw] font-light text-secondary leading-tight tracking-tight">
                         {album.title}
                       </h1>
 
-                      <p className="mediumText text-secondary/70">
+                      <p className="smallText sm:text-[1.25vw] text-secondary/70">
                         {album.artistName}
                         {album.releaseYear ? (
                           <span className="text-secondary/45">
@@ -265,7 +258,7 @@ export function AlbumDetailView({
                         ) : null}
                       </p>
 
-                      <div className="pt-[1.5vw] sm:pt-[0.6vw]">
+                      <div className="pt-[1.2vw] sm:pt-[0.5vw]">
                         <AlbumFollowButton
                           albumId={album.id}
                           initialFollowing={isFollowingAlbum}
