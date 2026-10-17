@@ -474,52 +474,22 @@ export function ProfileView({
                   </Link>
                 </div>
 
-                {/* Center Navigation Group */}
+                {/* Center Navigation Group (clean Feed link only) */}
                 <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex gap-[0.25vw]">
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#overview")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Overview,
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#records")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Records,
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#tracks")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Tracks,
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#discussions")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Notes,
-                    </button>
-                    <Link href="/feed" className="nav-btn cursor-pointer">
-                      Feed
-                    </Link>
-                  </span>
+                  <Link href="/feed" className="nav-btn cursor-pointer">
+                    Feed
+                  </Link>
                 </div>
 
-                {/* Right Navbar Actions + PaletteSelector */}
+                {/* Right Navbar Actions */}
                 <div className="col-span-4 sm:col-span-5 flex justify-end items-center gap-[1.8vw] sm:gap-[0.75vw]">
-                  <PaletteSelector
-                    selectedTheme={currentThemeKey}
-                    onSelect={handlePaletteChange}
-                  />
-
                   {isOwner ? (
                     <>
+                      {/* Palette selector only visible for the owner of this profile */}
+                      <PaletteSelector
+                        selectedTheme={currentThemeKey}
+                        onSelect={handlePaletteChange}
+                      />
                       <Link
                         href="/settings"
                         className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
