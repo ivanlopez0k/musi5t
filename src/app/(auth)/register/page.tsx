@@ -33,7 +33,6 @@ export default function RegisterPage() {
         throw new Error(data.error || "Ocurrió un error al registrarse.");
       }
 
-      // Successful registration -> redirect to feed
       router.push("/feed");
       router.refresh();
     } catch (err: unknown) {
@@ -48,123 +47,199 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="border border-white/10 bg-[#161614]/80 backdrop-blur-md rounded-2xl p-8 sm:p-10 shadow-2xl">
-        {/* Header tag */}
-        <div className="flex items-center gap-2 mb-6 text-xs text-[#FFE600] font-mono uppercase tracking-wider">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#FFE600] animate-pulse" />
-          <span>[ 01 / Registration ]</span>
+    <div className="layout-grid w-full items-center my-auto py-[4vw] sm:py-[2vw]">
+      {/* Left Column: Editorial Identity & Platform Pillars */}
+      <div className="col-span-full sm:col-span-6 flex flex-col justify-center mb-[8vw] sm:mb-0 sm:pr-[3vw]">
+        {/* Section Badge */}
+        <div className="inline-flex items-center gap-[1.5vw] sm:gap-[0.5vw] mb-[3vw] sm:mb-[1.2vw]">
+          <div className="drop-shadow rounded-[0.25vw]">
+            <div className="w-[3.5vw] h-[3.5vw] sm:w-[1.2vw] sm:h-[1.2vw] rounded-[0.5vw] sm:rounded-[0.2vw] bg-yellow" />
+          </div>
+          <span className="extraSmallText uppercase tracking-wider text-secondary/60 font-mono">
+            [ 02 / create account ]
+          </span>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-[#E6E5DF] mb-3">
-          Create Account
+        {/* Editorial Heading */}
+        <h1 className="largeText text-secondary mb-[1.5vw] sm:mb-[0.8vw] leading-none">
+          curate your 5.
         </h1>
-        <p className="text-sm text-[#E6E5DF]/60 mb-8 leading-relaxed">
-          Curate your essential Top 5 albums, discover kindred listeners, and talk records.
+        <p className="mediumText text-secondary/60 mb-[3vw] sm:mb-[1.5vw] leading-tight">
+          join the listeners.
         </p>
 
-        {error && (
-          <div className="mb-6 p-3.5 bg-red-950/40 border border-red-500/30 rounded-lg text-xs text-red-200">
-            {error}
-          </div>
-        )}
+        <p className="smallText text-secondary/70 leading-relaxed max-w-[90vw] sm:max-w-[34vw] mb-[4vw] sm:mb-[2.5vw]">
+          Build your personal vinyl shelf. Pick your 5 essential albums and songs, select your favorite
+          international pressings, and discover listeners with genuine taste-affinity.
+        </p>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-[#E6E5DF]/70 mb-2 font-mono">
-              Username
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#E6E5DF]/40 font-mono">
-                @
+        {/* 3 Editorial Pillars */}
+        <div className="hidden sm:flex flex-col gap-[1.2vw] max-w-[35vw]">
+          <div className="flex items-start gap-[1.2vw] p-[1.2vw] rounded-[0.4vw] bg-secondary/[0.03] border border-secondary/10 drop-shadow-soft">
+            <span className="extraSmallTextBold font-mono text-secondary/40 shrink-0 mt-[0.1vw]">
+              01
+            </span>
+            <div className="flex flex-col">
+              <span className="extraSmallTextBold text-secondary leading-tight">
+                Curate Essential Records & Pressings
               </span>
-              <input
-                type="text"
-                required
-                value={formData.username}
-                onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })
-                }
-                placeholder="radiohead_lover"
-                className="w-full bg-[#1F1F1D] border border-white/10 rounded-lg pl-8 pr-4 py-3 text-sm text-[#E6E5DF] placeholder:text-white/20 focus:outline-none focus:border-[#FFE600] focus:ring-1 focus:ring-[#FFE600] transition-colors font-mono"
-              />
+              <span className="detailText text-secondary/55 leading-tight mt-[0.2vw]">
+                Pick your definitive 5 albums and choose from Japanese, UK, and international editions.
+              </span>
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-[#E6E5DF]/70 mb-2 font-mono">
-              Display Name
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.displayName}
-              onChange={(e) =>
-                setFormData({ ...formData, displayName: e.target.value })
-              }
-              placeholder="Thom Yorke"
-              className="w-full bg-[#1F1F1D] border border-white/10 rounded-lg px-4 py-3 text-sm text-[#E6E5DF] placeholder:text-white/20 focus:outline-none focus:border-[#FFE600] focus:ring-1 focus:ring-[#FFE600] transition-colors"
-            />
+          <div className="flex items-start gap-[1.2vw] p-[1.2vw] rounded-[0.4vw] bg-secondary/[0.03] border border-secondary/10 drop-shadow-soft">
+            <span className="extraSmallTextBold font-mono text-secondary/40 shrink-0 mt-[0.1vw]">
+              02
+            </span>
+            <div className="flex flex-col">
+              <span className="extraSmallTextBold text-secondary leading-tight">
+                Organic Taste-Matched Feed
+              </span>
+              <span className="detailText text-secondary/55 leading-tight mt-[0.2vw]">
+                Your &apos;For You&apos; timeline is tuned automatically by the records in your Top 5. No clickbait.
+              </span>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-[#E6E5DF]/70 mb-2 font-mono">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              placeholder="you@domain.com"
-              className="w-full bg-[#1F1F1D] border border-white/10 rounded-lg px-4 py-3 text-sm text-[#E6E5DF] placeholder:text-white/20 focus:outline-none focus:border-[#FFE600] focus:ring-1 focus:ring-[#FFE600] transition-colors"
-            />
+          <div className="flex items-start gap-[1.2vw] p-[1.2vw] rounded-[0.4vw] bg-secondary/[0.03] border border-secondary/10 drop-shadow-soft">
+            <span className="extraSmallTextBold font-mono text-secondary/40 shrink-0 mt-[0.1vw]">
+              03
+            </span>
+            <div className="flex flex-col">
+              <span className="extraSmallTextBold text-secondary leading-tight">
+                Community Rankings & Reviews
+              </span>
+              <span className="detailText text-secondary/55 leading-tight mt-[0.2vw]">
+                Rate albums on a 1&ndash;10 scale, contribute to public rankings, and exchange listener notes.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Column: Editorial Registration Form Card */}
+      <div className="col-span-full sm:col-span-6 flex justify-center sm:justify-end items-center">
+        <div className="w-full max-w-[460px] bg-primary text-secondary border border-secondary/15 rounded-[1.5vw] sm:rounded-[0.5vw] p-[6vw] sm:p-[2.5vw] drop-shadow-soft">
+          {/* Card Header */}
+          <div className="mb-[5vw] sm:mb-[2vw]">
+            <h2 className="mediumText text-secondary mb-[0.4vw]">Create Account</h2>
+            <p className="extraSmallText text-secondary/55">
+              Set up your handle and profile to start curating.
+            </p>
           </div>
 
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-[#E6E5DF]/70 mb-2 font-mono">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-              placeholder="Min. 8 characters"
-              className="w-full bg-[#1F1F1D] border border-white/10 rounded-lg px-4 py-3 text-sm text-[#E6E5DF] placeholder:text-white/20 focus:outline-none focus:border-[#FFE600] focus:ring-1 focus:ring-[#FFE600] transition-colors"
-            />
-          </div>
+          {/* Error Banner */}
+          {error && (
+            <div className="mb-[4vw] sm:mb-[1.5vw] p-[3vw] sm:p-[0.9vw] bg-red-500/10 border border-red-500/25 rounded-[0.8vw] sm:rounded-[0.35vw] text-red-700 extraSmallText flex items-center gap-[2vw] sm:gap-[0.6vw]">
+              <span className="w-[2vw] h-[2vw] sm:w-[0.5vw] sm:h-[0.5vw] rounded-full bg-red-600 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex items-center justify-center gap-3 bg-[#FFE600] text-[#0E0E0E] hover:bg-[#F2DA00] py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md cursor-pointer"
-            >
-              <span
-                aria-hidden="true"
-                className="w-3.5 h-3.5 rounded-[2px] bg-[#0E0E0E] transition-all duration-400 ease-[cubic-bezier(0.165,0.84,0.44,1)] group-hover:rotate-45 group-hover:scale-75 group-hover:rounded-full"
+          <form onSubmit={handleSubmit} className="space-y-[3.5vw] sm:space-y-[1.2vw]">
+            <div>
+              <label className="block extraSmallTextBold uppercase tracking-wider text-secondary/70 mb-[1.5vw] sm:mb-[0.4vw] font-mono">
+                Username
+              </label>
+              <div className="relative">
+                <span className="absolute left-[3.5vw] sm:left-[1.2vw] top-1/2 -translate-y-1/2 smallText text-secondary/40 font-mono select-none">
+                  @
+                </span>
+                <input
+                  type="text"
+                  required
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""),
+                    })
+                  }
+                  placeholder="radiohead_lover"
+                  className="w-full bg-secondary/[0.03] border border-secondary/15 rounded-[0.8vw] sm:rounded-[0.35vw] pl-[8vw] sm:pl-[2.6vw] pr-[3.5vw] sm:pr-[1.2vw] py-[2.8vw] sm:py-[0.75vw] text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary focus:bg-primary transition-all smallText font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block extraSmallTextBold uppercase tracking-wider text-secondary/70 mb-[1.5vw] sm:mb-[0.4vw] font-mono">
+                Display Name
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.displayName}
+                onChange={(e) =>
+                  setFormData({ ...formData, displayName: e.target.value })
+                }
+                placeholder="Thom Yorke"
+                className="w-full bg-secondary/[0.03] border border-secondary/15 rounded-[0.8vw] sm:rounded-[0.35vw] px-[3.5vw] py-[2.8vw] sm:px-[1.2vw] sm:py-[0.75vw] text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary focus:bg-primary transition-all smallText"
               />
-              <span>{loading ? "Creating account..." : "Join musi5t"}</span>
-            </button>
-          </div>
-        </form>
+            </div>
 
-        <div className="mt-8 pt-6 border-t border-white/10 text-center">
-          <p className="text-xs text-[#E6E5DF]/60">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-[#FFE600] hover:underline font-medium transition-colors"
-            >
-              Sign in
-            </Link>
-          </p>
+            <div>
+              <label className="block extraSmallTextBold uppercase tracking-wider text-secondary/70 mb-[1.5vw] sm:mb-[0.4vw] font-mono">
+                Email
+              </label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                placeholder="you@domain.com"
+                className="w-full bg-secondary/[0.03] border border-secondary/15 rounded-[0.8vw] sm:rounded-[0.35vw] px-[3.5vw] py-[2.8vw] sm:px-[1.2vw] sm:py-[0.75vw] text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary focus:bg-primary transition-all smallText"
+              />
+            </div>
+
+            <div>
+              <label className="block extraSmallTextBold uppercase tracking-wider text-secondary/70 mb-[1.5vw] sm:mb-[0.4vw] font-mono">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                placeholder="Min. 8 characters"
+                className="w-full bg-secondary/[0.03] border border-secondary/15 rounded-[0.8vw] sm:rounded-[0.35vw] px-[3.5vw] py-[2.8vw] sm:px-[1.2vw] sm:py-[0.75vw] text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary focus:bg-primary transition-all smallText"
+              />
+            </div>
+
+            <div className="pt-[2vw] sm:pt-[0.6vw]">
+              <div className="drop-shadow rounded-[1vw] sm:rounded-[0.35vw]">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="main-btn w-full justify-center !py-[3.2vw] sm:!py-[0.85vw] !gap-[2.5vw] sm:!gap-[0.8vw] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="main-btn__icon !w-[5vw] !h-[5vw] sm:!w-[1.1vw] sm:!h-[1.1vw] !rounded-[1vw] sm:!rounded-[0.25vw]" />
+                  <span className="main-btn__label smallText font-medium text-secondary">
+                    {loading ? "Creating account..." : "Join musi5t"}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          {/* Footer Navigation */}
+          <div className="mt-[6vw] sm:mt-[2vw] pt-[4vw] sm:pt-[1.2vw] border-t border-secondary/10 text-center">
+            <p className="extraSmallText text-secondary/60">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-medium text-secondary underline hover:opacity-80 transition-opacity"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
