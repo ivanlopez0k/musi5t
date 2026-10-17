@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
-import { SidePlayer } from "@/components/landing/SidePlayer";
 import { PaletteSelector, PROFILE_PALETTES } from "./PaletteSelector";
 import { AlbumSearchModal } from "./AlbumSearchModal";
 import { SongSearchModal } from "./SongSearchModal";
@@ -68,11 +67,12 @@ export function ProfileView({
   userPosts = [],
 }: ProfileViewProps) {
   const router = useRouter();
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [currentThemeKey, setCurrentThemeKey] = useState(user.themeKey || "lima");
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || "");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatarUrl);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -95,6 +95,7 @@ export function ProfileView({
   const recordsContainerRef = useRef<HTMLDivElement>(null);
   const albumCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const lateralOrbsRef = useRef<HTMLDivElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Active palette
   const activePalette =
@@ -140,29 +141,6 @@ export function ProfileView({
       lenis.start();
     }
   }, [albumModalPos, songModalPos]);
-
-  // Keyboard shortcut: press 'm' to toggle player, 'Escape' to close
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement ||
-        albumModalPos !== null ||
-        songModalPos !== null
-      ) {
-        return;
-      }
-
-      if (e.key === "m" || e.key === "M") {
-        setIsPlayerOpen((prev) => !prev);
-      }
-      if (e.key === "Escape" && isPlayerOpen) {
-        setIsPlayerOpen(false);
-      }
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isPlayerOpen, albumModalPos, songModalPos]);
 
   // Hero entrance & Lateral Orbs floating GSAP animation
   useEffect(() => {
@@ -254,6 +232,35 @@ export function ProfileView({
       });
     } catch (err) {
       console.error("Failed to save palette preference:", err);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/v1/users/avatar", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.avatarUrl) {
+        setAvatarUrl(data.avatarUrl);
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Failed to upload avatar:", err);
+    } finally {
+      setUploadingAvatar(false);
+      if (avatarInputRef.current) {
+        avatarInputRef.current.value = "";
+      }
     }
   };
 
@@ -446,17 +453,7 @@ export function ProfileView({
   });
 
   return (
-    <div
-      className={`site-frame text-secondary ${
-        isPlayerOpen ? "panel-open" : ""
-      }`}
-    >
-      {/* 1:1 Sidejob Music Player Drawer */}
-      <SidePlayer
-        isOpen={isPlayerOpen}
-        onClose={() => setIsPlayerOpen(false)}
-      />
-
+    <div className="site-frame text-secondary">
       {/* Main Foreground Layout */}
       <div className="site-layout">
         <div
@@ -477,52 +474,28 @@ export function ProfileView({
                   </Link>
                 </div>
 
-                {/* Center Navigation Group */}
+                {/* Center Navigation Group (Feed • Rankings) */}
                 <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex gap-[0.25vw]">
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#overview")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Overview,
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#records")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Records,
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#tracks")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Tracks,
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo("#discussions")}
-                      className="nav-btn cursor-pointer"
-                    >
-                      Notes,
-                    </button>
+                  <span className="nav-group flex items-center gap-[0.6vw]">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
+                    </Link>
+                    <span className="text-secondary/35">•</span>
+                    <Link href="/rankings" className="nav-btn cursor-pointer">
+                      Rankings
                     </Link>
                   </span>
                 </div>
 
-                {/* Right Navbar Actions + PaletteSelector */}
+                {/* Right Navbar Actions */}
                 <div className="col-span-4 sm:col-span-5 flex justify-end items-center gap-[1.8vw] sm:gap-[0.75vw]">
-                  <PaletteSelector
-                    selectedTheme={currentThemeKey}
-                    onSelect={handlePaletteChange}
-                  />
-
                   {isOwner ? (
                     <>
+                      {/* Palette selector only visible for the owner of this profile */}
+                      <PaletteSelector
+                        selectedTheme={currentThemeKey}
+                        onSelect={handlePaletteChange}
+                      />
                       <Link
                         href="/settings"
                         className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
@@ -557,47 +530,64 @@ export function ProfileView({
                           </span>
                         </button>
                       </div>
+                      <Link
+                        href={`/@${user.username}`}
+                        className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
+                        title={`@${user.username}`}
+                      >
+                        {avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={avatarUrl}
+                            alt={displayName || user.username}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        ) : (
+                          <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
+                            {(displayName || user.username).slice(0, 2).toUpperCase()}
+                          </span>
+                        )}
+                      </Link>
                     </>
-                  ) : (
-                    <>
-                      {!blocked && (
-                        <UserFollowButton
-                          targetUserId={user.id}
-                          initialFollowing={Boolean(isFollowing)}
-                          isLoggedIn={Boolean(isLoggedIn)}
-                          accentColor={activePalette.accent}
+                  ) : currentUser ? (
+                    <Link
+                      href={`/@${currentUser.username}`}
+                      className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
+                      title={`@${currentUser.username}`}
+                    >
+                      {currentUser.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={currentUser.avatarUrl}
+                          alt={currentUser.displayName || currentUser.username}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
+                      ) : (
+                        <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
+                          {(currentUser.displayName || currentUser.username).slice(0, 2).toUpperCase()}
+                        </span>
                       )}
-                      <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw] hidden sm:block">
-                        <Link
-                          href="/feed"
-                          className="main-btn smallText text-secondary transition-colors duration-500"
-                          style={{ backgroundColor: activePalette.accent }}
-                        >
-                          <span className="main-btn__icon" aria-hidden="true" />
-                          <span className="main-btn__label">
-                            <span className="main-btn__clip">
-                              <span className="main-btn__from">Feed</span>
-                              <span className="main-btn__to" aria-hidden="true">
-                                Feed
-                              </span>
+                    </Link>
+                  ) : (
+                    <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                      <Link
+                        href="/login"
+                        className="main-btn smallText text-secondary transition-colors duration-500"
+                        style={{ backgroundColor: activePalette.accent }}
+                      >
+                        <span className="main-btn__icon" aria-hidden="true" />
+                        <span className="main-btn__label">
+                          <span className="main-btn__clip">
+                            <span className="main-btn__from">Sign in</span>
+                            <span className="main-btn__to" aria-hidden="true">
+                              Sign in
                             </span>
                           </span>
-                        </Link>
-                      </div>
-                    </>
+                        </span>
+                      </Link>
+                    </div>
                   )}
                 </div>
-
-                {/* Press 'm' trigger */}
-                <span
-                  onClick={() => setIsPlayerOpen(true)}
-                  className="text-[1vw] font-normal text-secondary/30 hover:text-secondary/70 duration-300 absolute bottom-[-1.75vw] sm:block hidden cursor-pointer"
-                >
-                  <span className="text-hover cursor-pointer w-fit">
-                    press &apos;m&apos; for player
-                  </span>
-                </span>
               </div>
             </header>
 
@@ -685,7 +675,7 @@ export function ProfileView({
                   className="w-full bg-transparent text-secondary pt-[24vw] sm:pt-[9.5vw] pb-[6vw] sm:pb-[4vw] relative z-10"
                 >
                   <div className="layout-grid w-full items-start">
-                    {/* Left 8 Columns: Giant Editorial Name (+ member since) & Bio */}
+                    {/* Left 8 Columns: Giant Editorial Name (+ member since), Bio & Visitor Actions */}
                     <div className="col-span-full sm:col-span-8 flex flex-col justify-between profile-hero-reveal">
                       <div className="flex flex-wrap items-baseline gap-x-[2vw] sm:gap-x-[1vw] gap-y-[1vw]">
                         <h1 className="largeText font-medium text-secondary tracking-[-0.05em] break-words">
@@ -701,15 +691,57 @@ export function ProfileView({
                           {bio}
                         </p>
                       )}
+
+                      {!isOwner && (
+                        <div className="flex flex-wrap items-center gap-[2vw] sm:gap-[0.75vw] mt-[4vw] sm:mt-[1.8vw]">
+                          {!blocked && (
+                            <UserFollowButton
+                              targetUserId={user.id}
+                              initialFollowing={Boolean(isFollowing)}
+                              isLoggedIn={Boolean(isLoggedIn)}
+                              accentColor={activePalette.accent}
+                            />
+                          )}
+
+                          {isLoggedIn && (
+                            <>
+                              <button
+                                type="button"
+                                disabled={moderationLoading}
+                                onClick={handleToggleMute}
+                                className={`extraSmallText px-[2.5vw] py-[1.1vw] sm:px-[0.9vw] sm:py-[0.45vw] rounded-[0.3vw] border transition-colors cursor-pointer ${
+                                  muted
+                                    ? "bg-secondary text-primary border-secondary"
+                                    : "bg-primary/90 hover:bg-primary border-secondary/20 hover:border-secondary/60 text-secondary/75 hover:text-secondary drop-shadow"
+                                }`}
+                              >
+                                {muted ? "muted" : "mute"}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={moderationLoading}
+                                onClick={handleToggleBlock}
+                                className={`extraSmallText px-[2.5vw] py-[1.1vw] sm:px-[0.9vw] sm:py-[0.45vw] rounded-[0.3vw] border transition-colors cursor-pointer ${
+                                  blocked
+                                    ? "bg-red-600 text-white border-red-600"
+                                    : "bg-primary/90 hover:bg-red-600/10 border-red-600/30 text-red-700 drop-shadow"
+                                }`}
+                              >
+                                {blocked ? "blocked" : "block"}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Right 4 Columns: Refined Compact Avatar Card & Visitor Moderation Controls */}
+                    {/* Right 4 Columns: Refined Compact Avatar Card */}
                     <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[2vw] sm:gap-[1vw] mt-[6vw] sm:mt-0 profile-hero-reveal">
                       <div className="w-[28vw] sm:w-[9.5vw] aspect-square rounded-[0.4vw] overflow-hidden drop-shadow-soft bg-secondary relative flex items-center justify-center group">
-                        {user.avatarUrl ? (
+                        {avatarUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={user.avatarUrl}
+                            src={avatarUrl}
                             alt={displayName}
                             className="w-full h-full object-cover select-none transition-transform duration-700 group-hover:scale-105"
                           />
@@ -730,6 +762,24 @@ export function ProfileView({
                             </div>
                           </div>
                         )}
+
+                        {isOwner && isEditing && (
+                          <button
+                            type="button"
+                            disabled={uploadingAvatar}
+                            onClick={() => avatarInputRef.current?.click()}
+                            className="absolute inset-0 bg-black/55 hover:bg-black/65 text-primary flex flex-col items-center justify-center gap-[0.4vw] transition-colors cursor-pointer z-10"
+                          >
+                            <span className="extraSmallTextBold text-primary">
+                              {uploadingAvatar
+                                ? "Uploading..."
+                                : avatarUrl
+                                  ? "Change avatar"
+                                  : "Upload new photo"}
+                            </span>
+                          </button>
+                        )}
+
                         <div className="absolute bottom-0 left-0 w-full px-[1.5vw] py-[1vw] sm:px-[0.55vw] sm:py-[0.35vw] bg-gradient-to-t from-black/75 via-black/30 to-transparent text-primary flex items-center justify-between">
                           <span className="detailText text-primary/90 truncate">
                             @{user.username}
@@ -741,34 +791,30 @@ export function ProfileView({
                         </div>
                       </div>
 
-                      {/* Visitor Moderation Controls */}
-                      {!isOwner && isLoggedIn && (
-                        <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
-                          <button
-                            type="button"
-                            disabled={moderationLoading}
-                            onClick={handleToggleMute}
-                            className={`detailText px-[2.5vw] py-[1vw] sm:px-[0.8vw] sm:py-[0.35vw] rounded-[0.25vw] border transition-colors cursor-pointer ${
-                              muted
-                                ? "bg-secondary text-primary border-secondary"
-                                : "border-secondary/20 hover:border-secondary/60 text-secondary/70"
-                            }`}
-                          >
-                            {muted ? "muted" : "mute"}
-                          </button>
-                          <button
-                            type="button"
-                            disabled={moderationLoading}
-                            onClick={handleToggleBlock}
-                            className={`detailText px-[2.5vw] py-[1vw] sm:px-[0.8vw] sm:py-[0.35vw] rounded-[0.25vw] border transition-colors cursor-pointer ${
-                              blocked
-                                ? "bg-red-600 text-white border-red-600"
-                                : "border-red-600/30 text-red-700 hover:bg-red-600/10"
-                            }`}
-                          >
-                            {blocked ? "blocked" : "block"}
-                          </button>
-                        </div>
+                      {isOwner && (
+                        <>
+                          <input
+                            ref={avatarInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/gif"
+                            onChange={handleAvatarUpload}
+                            className="hidden"
+                          />
+                          {isEditing && (
+                            <button
+                              type="button"
+                              disabled={uploadingAvatar}
+                              onClick={() => avatarInputRef.current?.click()}
+                              className="detailText px-[2.2vw] py-[0.8vw] sm:px-[0.75vw] sm:py-[0.3vw] rounded-[0.25vw] border border-secondary/20 hover:border-secondary/60 bg-primary/90 hover:bg-primary text-secondary transition-colors cursor-pointer drop-shadow"
+                            >
+                              {uploadingAvatar
+                                ? "Uploading..."
+                                : avatarUrl
+                                  ? "Change avatar"
+                                  : "Upload new photo"}
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
 

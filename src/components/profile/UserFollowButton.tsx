@@ -41,17 +41,37 @@ export function UserFollowButton({
     }
   };
 
+  const label = loading
+    ? "..."
+    : following
+      ? "✓ Following"
+      : "+ Follow";
+
   return (
-    <button
-      type="button"
-      disabled={loading}
-      onClick={handleToggle}
-      className={`text-xs uppercase tracking-wider font-mono px-4 py-1.5 rounded-full text-black font-medium transition-transform duration-300 hover:scale-105 cursor-pointer shadow-sm ${
-        following ? "bg-black/15 text-black border border-black/20" : ""
-      }`}
-      style={!following ? { backgroundColor: accentColor } : undefined}
-    >
-      {loading ? "..." : following ? "✓ Following" : "+ Follow"}
-    </button>
+    <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw] w-fit">
+      <button
+        type="button"
+        disabled={loading}
+        onClick={handleToggle}
+        className={`main-btn smallText cursor-pointer transition-colors duration-300 ${
+          following ? "!bg-secondary !text-primary" : "text-secondary"
+        }`}
+        style={!following ? { backgroundColor: accentColor } : undefined}
+      >
+        <span
+          className="main-btn__icon"
+          style={following ? { backgroundColor: accentColor } : undefined}
+          aria-hidden="true"
+        />
+        <span className="main-btn__label">
+          <span className="main-btn__clip">
+            <span className="main-btn__from">{label}</span>
+            <span className="main-btn__to" aria-hidden="true">
+              {label}
+            </span>
+          </span>
+        </span>
+      </button>
+    </div>
   );
 }

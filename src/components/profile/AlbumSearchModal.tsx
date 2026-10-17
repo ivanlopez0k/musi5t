@@ -5,15 +5,22 @@ import type { CatalogAlbum, AlbumEdition } from "@/lib/catalog/musicbrainz";
 
 interface AlbumSearchModalProps {
   isOpen: boolean;
-  position: number;
+  position?: number;
+  enableEditionSelection?: boolean;
   onClose: () => void;
-  onSelectAlbum: (albumId: string, coverUrl: string, coverReleaseMbid: string | null) => Promise<void>;
+  onSelectAlbum: (
+    albumId: string,
+    coverUrl: string,
+    coverReleaseMbid: string | null,
+    albumMeta?: { title: string; artistName: string }
+  ) => Promise<void>;
   accentColor: string;
 }
 
 export function AlbumSearchModal({
   isOpen,
   position,
+  enableEditionSelection = Boolean(position),
   onClose,
   onSelectAlbum,
   accentColor,
@@ -59,17 +66,36 @@ export function AlbumSearchModal({
     }, 350);
   };
 
-  // When an album is picked, fetch available editions
+  // When an album is picked: if edition selection is disabled, select immediately in 1 click
   const handlePickAlbum = async (album: CatalogAlbum) => {
+    if (!enableEditionSelection) {
+      setSubmitting(true);
+      try {
+        await onSelectAlbum(album.id, album.defaultCoverUrl, null, {
+          title: album.title,
+          artistName: album.artistName,
+        });
+        onClose();
+      } catch (err) {
+        console.error("Select album error:", err);
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    // Top 5 records flow: fetch available pressings and covers
     setSelectedAlbum(album);
-    setSelectedEdition({
+    const defaultEdition: AlbumEdition = {
       releaseMbid: album.mbid,
       title: "Standard Edition",
       country: null,
       year: album.releaseYear,
-      disambiguation: "Default Artwork",
+      disambiguation: "Official Cover Art",
       coverUrl: album.defaultCoverUrl,
-    });
+    };
+    setSelectedEdition(defaultEdition);
+    setEditions([defaultEdition]);
 
     setLoadingEditions(true);
     try {
@@ -97,7 +123,10 @@ export function AlbumSearchModal({
           ? selectedEdition.releaseMbid
           : null;
 
-      await onSelectAlbum(selectedAlbum.id, coverUrl, releaseMbid);
+      await onSelectAlbum(selectedAlbum.id, coverUrl, releaseMbid, {
+        title: selectedAlbum.title,
+        artistName: selectedAlbum.artistName,
+      });
       onClose();
     } catch (err) {
       console.error("Save top album error:", err);
@@ -108,33 +137,47 @@ export function AlbumSearchModal({
 
   if (!isOpen) return null;
 
+  const headerTitle = selectedAlbum
+    ? "choose edition & sleeve"
+    : position
+      ? `curate record #${position}`
+      : "tag record in discussion";
+
+  const confirmLabel = submitting
+    ? "Saving..."
+    : position
+      ? `Save selection`
+      : "Confirm album";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-[#141412] text-[#E6E5DF] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    <div
+      data-lenis-prevent
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+    >
+      <div className="relative w-full max-w-2xl bg-primary text-secondary border border-secondary/15 rounded-[0.6vw] drop-shadow-soft overflow-hidden flex flex-col max-h-[85vh]">
         {/* Modal Top Bar */}
-        <div className="p-6 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span
-              className="text-xs font-mono font-bold px-2.5 py-1 rounded-md text-black shadow-sm"
-              style={{ backgroundColor: accentColor }}
-            >
-              0{position}
-            </span>
-            <h2 className="text-xl font-normal tracking-tight">
-              {selectedAlbum ? "Choose Album Edition & Cover" : `Select Album for #${position}`}
-            </h2>
+        <div className="px-[4vw] py-[3vw] sm:px-[1.8vw] sm:py-[1.3vw] border-b border-secondary/15 flex items-center justify-between bg-primary">
+          <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
+            <div className="drop-shadow rounded-[0.25vw]">
+              <div
+                className="sm:w-[1.4vw] sm:h-[1.4vw] w-[4vw] h-[4vw] rounded-[0.2vw]"
+                style={{ backgroundColor: accentColor }}
+              />
+            </div>
+            <h2 className="mediumText lowercase">{headerTitle}</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-sm font-mono opacity-50 hover:opacity-100 transition-opacity px-2 py-1"
+            className="extraSmallText text-secondary/50 hover:text-secondary transition-colors px-[1vw] py-[0.5vw] sm:px-[0.5vw] sm:py-[0.25vw] cursor-pointer"
+            aria-label="Close modal"
           >
             ✕
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-[4vw] sm:p-[1.8vw] space-y-[3vw] sm:space-y-[1.4vw]">
           {!selectedAlbum ? (
             // Search Step
             <>
@@ -145,73 +188,88 @@ export function AlbumSearchModal({
                   value={query}
                   onChange={(e) => handleQueryChange(e.target.value)}
                   placeholder="Search album title or artist (e.g. OK Computer, The Strokes...)"
-                  className="w-full bg-[#1C1C19] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-[#E6E5DF] placeholder:text-white/30 focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-colors"
+                  className="w-full bg-secondary/[0.04] border border-secondary/20 rounded-[0.35vw] px-[3vw] py-[2vw] sm:px-[1.2vw] sm:py-[0.75vw] smallText text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary transition-colors"
                 />
               </div>
 
               {loading && (
-                <div className="text-center py-10 font-mono text-xs opacity-50 animate-pulse">
+                <div className="text-center py-[6vw] sm:py-[2.5vw] extraSmallText text-secondary/50 animate-pulse">
                   Searching catalog...
                 </div>
               )}
 
               {!loading && query && results.length === 0 && (
-                <div className="text-center py-12 text-sm opacity-50">
+                <div className="text-center py-[6vw] sm:py-[2.5vw] smallText text-secondary/50">
                   No albums found for &ldquo;{query}&rdquo;.
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {results.map((alb) => (
-                  <button
-                    key={alb.id}
-                    type="button"
-                    onClick={() => handlePickAlbum(alb)}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-white/5 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] transition-all text-left cursor-pointer group"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={alb.defaultCoverUrl}
-                      alt={alb.title}
-                      className="w-14 h-14 object-cover rounded-lg flex-shrink-0 shadow-md group-hover:scale-105 transition-transform"
-                    />
-                    <div className="overflow-hidden">
-                      <h4 className="font-medium text-sm truncate">{alb.title}</h4>
-                      <p className="text-xs opacity-60 truncate">
-                        {alb.artistName} {alb.releaseYear ? `• ${alb.releaseYear}` : ""}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              {!loading && !query && results.length === 0 && (
+                <div className="py-[4vw] sm:py-[1.8vw] text-center extraSmallText text-secondary/45">
+                  Type an album title or artist name to explore canonical records.
+                </div>
+              )}
+
+              {results.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-[2vw] sm:gap-[1vw]">
+                  {results.map((alb) => (
+                    <button
+                      key={alb.id}
+                      type="button"
+                      onClick={() => handlePickAlbum(alb)}
+                      className="bg-primary hover:bg-secondary/[0.03] border border-secondary/15 hover:border-secondary/40 rounded-[0.4vw] p-[2vw] sm:p-[0.9vw] flex items-center gap-[1.5vw] sm:gap-[0.8vw] drop-shadow-soft cursor-pointer transition-all group text-left"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={alb.defaultCoverUrl}
+                        alt={alb.title}
+                        className="aspect-square w-[14vw] sm:w-[4.2vw] rounded-[0.3vw] object-cover flex-shrink-0 drop-shadow group-hover:scale-105 transition-transform"
+                      />
+                      <div className="overflow-hidden flex-1">
+                        <h4 className="smallText font-medium text-secondary truncate">
+                          {alb.title}
+                        </h4>
+                        <p className="extraSmallText text-secondary/60 truncate">
+                          {alb.artistName}{" "}
+                          {alb.releaseYear ? `• ${alb.releaseYear}` : ""}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </>
           ) : (
-            // Edition Selection Step
-            <div className="space-y-6">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <div>
-                  <h3 className="text-lg font-medium">{selectedAlbum.title}</h3>
-                  <p className="text-xs opacity-60 font-mono">{selectedAlbum.artistName}</p>
+            // Edition / Pressing Selection Step
+            <div className="space-y-[3vw] sm:space-y-[1.4vw]">
+              <div className="flex items-center justify-between pb-[2.5vw] sm:pb-[1vw] border-b border-secondary/15">
+                <div className="overflow-hidden pr-[2vw]">
+                  <h3 className="mediumText text-secondary truncate">
+                    {selectedAlbum.title}
+                  </h3>
+                  <p className="extraSmallText text-secondary/60 truncate">
+                    {selectedAlbum.artistName}
+                  </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedAlbum(null)}
-                  className="text-xs font-mono underline opacity-70 hover:opacity-100"
+                  className="extraSmallText text-secondary/60 hover:text-secondary underline transition-colors cursor-pointer flex-shrink-0"
                 >
-                  ← Change Album
+                  ← change record
                 </button>
               </div>
 
               {loadingEditions ? (
-                <div className="text-center py-8 font-mono text-xs opacity-50 animate-pulse">
+                <div className="text-center py-[6vw] sm:py-[2.5vw] extraSmallText text-secondary/50 animate-pulse">
                   Fetching available pressings and covers...
                 </div>
               ) : (
                 <div>
-                  <p className="text-xs font-mono uppercase tracking-wider opacity-60 mb-3">
-                    Available Portadas / Pressings:
+                  <p className="detailText text-secondary/50 lowercase mb-[2vw] sm:mb-[0.8vw]">
+                    available pressings & sleeves
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-[2vw] sm:gap-[1vw]">
                     {editions.map((ed, idx) => {
                       const isSelected = selectedEdition?.coverUrl === ed.coverUrl;
                       return (
@@ -219,13 +277,13 @@ export function AlbumSearchModal({
                           key={`${ed.releaseMbid}-${idx}`}
                           type="button"
                           onClick={() => setSelectedEdition(ed)}
-                          className={`relative flex flex-col p-2 rounded-xl border transition-all text-left cursor-pointer ${
+                          className={`relative flex flex-col p-[1.5vw] sm:p-[0.75vw] rounded-[0.4vw] border cursor-pointer transition-all text-left ${
                             isSelected
-                              ? "border-white/80 bg-white/10 ring-2 ring-white/30"
-                              : "border-white/10 hover:border-white/30 bg-white/[0.02]"
+                              ? "border-secondary bg-secondary/[0.06] drop-shadow-soft"
+                              : "border-secondary/15 hover:border-secondary/40 bg-secondary/[0.02]"
                           }`}
                         >
-                          <div className="relative aspect-square w-full rounded-lg overflow-hidden mb-2 bg-black/40">
+                          <div className="relative aspect-square w-full rounded-[0.3vw] overflow-hidden mb-[1.5vw] sm:mb-[0.6vw] bg-secondary/10 drop-shadow">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={ed.coverUrl}
@@ -234,15 +292,17 @@ export function AlbumSearchModal({
                             />
                             {isSelected && (
                               <span
-                                className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-[10px] text-black font-bold"
+                                className="absolute top-[1vw] right-[1vw] sm:top-[0.4vw] sm:right-[0.4vw] w-[4.5vw] h-[4.5vw] sm:w-[1.3vw] sm:h-[1.3vw] rounded-full flex items-center justify-center detailText text-secondary font-bold drop-shadow"
                                 style={{ backgroundColor: accentColor }}
                               >
                                 ✓
                               </span>
                             )}
                           </div>
-                          <span className="text-xs font-medium truncate">{ed.title}</span>
-                          <span className="text-[10px] opacity-60 truncate">
+                          <span className="extraSmallTextBold text-secondary truncate">
+                            {ed.title}
+                          </span>
+                          <span className="detailText text-secondary/55 truncate">
                             {ed.disambiguation || ed.country || "Official Release"}
                           </span>
                         </button>
@@ -255,25 +315,35 @@ export function AlbumSearchModal({
           )}
         </div>
 
-        {/* Modal Bottom Bar */}
+        {/* Modal Bottom Confirmation Bar */}
         {selectedAlbum && (
-          <div className="p-5 border-t border-white/10 bg-[#11110F] flex items-center justify-end gap-3">
+          <div className="px-[4vw] py-[3vw] sm:px-[1.8vw] sm:py-[1.2vw] border-t border-secondary/15 bg-primary flex items-center justify-between gap-[2vw] sm:gap-[1vw]">
             <button
               type="button"
               onClick={() => setSelectedAlbum(null)}
-              className="text-xs font-mono uppercase px-4 py-2 opacity-60 hover:opacity-100"
+              className="extraSmallText text-secondary/60 hover:text-secondary transition-colors cursor-pointer"
             >
-              Back
+              ← Back to search
             </button>
-            <button
-              type="button"
-              disabled={submitting}
-              onClick={handleConfirm}
-              className="px-5 py-2.5 rounded-lg text-xs font-mono font-bold uppercase text-black shadow-lg transition-transform hover:scale-105 disabled:opacity-50 cursor-pointer"
-              style={{ backgroundColor: accentColor }}
-            >
-              {submitting ? "Saving..." : `Set as #${position}`}
-            </button>
+            <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={handleConfirm}
+                className="main-btn smallText text-secondary disabled:opacity-50 cursor-pointer"
+                style={{ backgroundColor: accentColor }}
+              >
+                <span className="main-btn__icon" aria-hidden="true" />
+                <span className="main-btn__label">
+                  <span className="main-btn__clip">
+                    <span className="main-btn__from">{confirmLabel}</span>
+                    <span className="main-btn__to" aria-hidden="true">
+                      {confirmLabel}
+                    </span>
+                  </span>
+                </span>
+              </button>
+            </div>
           </div>
         )}
       </div>

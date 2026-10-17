@@ -39,18 +39,37 @@ export function AlbumFollowButton({
     }
   };
 
+  const label = loading
+    ? "..."
+    : following
+      ? "✓ Following album"
+      : "+ Follow album";
+
   return (
-    <button
-      type="button"
-      disabled={loading}
-      onClick={handleToggleFollow}
-      className={`px-4 py-2 rounded-lg text-xs font-mono font-medium transition-all duration-300 cursor-pointer shadow-sm ${
-        following
-          ? "bg-white/10 text-white hover:bg-white/20 border border-white/20"
-          : "bg-[#FFE600] text-black hover:bg-[#F2DA00] hover:scale-105"
-      }`}
-    >
-      {loading ? "..." : following ? "✓ Following Album" : "+ Follow Album"}
-    </button>
+    <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw] w-fit">
+      <button
+        type="button"
+        disabled={loading}
+        onClick={handleToggleFollow}
+        className={`main-btn smallText cursor-pointer transition-colors duration-300 ${
+          following
+            ? "!bg-secondary !text-primary"
+            : "text-secondary"
+        }`}
+      >
+        <span
+          className={`main-btn__icon ${following ? "!bg-yellow" : ""}`}
+          aria-hidden="true"
+        />
+        <span className="main-btn__label">
+          <span className="main-btn__clip">
+            <span className="main-btn__from">{label}</span>
+            <span className="main-btn__to" aria-hidden="true">
+              {label}
+            </span>
+          </span>
+        </span>
+      </button>
+    </div>
   );
 }

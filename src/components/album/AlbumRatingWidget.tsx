@@ -69,39 +69,40 @@ export function AlbumRatingWidget({
   };
 
   return (
-    <div className="border border-white/10 bg-[#161614] rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+    <div className="bg-primary border border-secondary/15 rounded-[0.5vw] drop-shadow-soft p-[3.5vw] sm:p-[2vw] flex flex-col sm:flex-row sm:items-center justify-between gap-[3vw] sm:gap-[1.5vw]">
       {/* Community Score Display */}
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-[#FFE600] text-black flex flex-col items-center justify-center flex-shrink-0 shadow-lg">
-          <span className="text-2xl font-bold tracking-tight leading-none">
+      <div className="flex items-center gap-[3vw] sm:gap-[1.2vw]">
+        <div className="w-[16vw] h-[16vw] sm:w-[4.6vw] sm:h-[4.6vw] rounded-[0.4vw] bg-yellow text-secondary flex flex-col items-center justify-center flex-shrink-0 drop-shadow">
+          <span className="mediumText font-medium leading-none">
             {averageScore !== null ? averageScore.toFixed(1) : "—"}
           </span>
-          <span className="text-[9px] font-mono uppercase tracking-wider opacity-75 mt-0.5">
+          <span className="detailText text-secondary/70 mt-[0.5vw] sm:mt-[0.15vw]">
             / 10
           </span>
         </div>
-        <div>
-          <div className="text-xs font-mono uppercase tracking-wider text-[#FFE600] mb-0.5">
-            Community Rating
-          </div>
-          <div className="text-sm text-white/90 font-medium">
+
+        <div className="flex flex-col gap-[0.5vw] sm:gap-[0.2vw]">
+          <span className="extraSmallTextBold lowercase text-secondary/60">
+            community rating
+          </span>
+          <span className="smallText font-medium text-secondary">
             {ratingsCount === 0
               ? "No ratings yet"
               : `${ratingsCount} ${ratingsCount === 1 ? "listener rating" : "listener ratings"}`}
-          </div>
-          <div className="text-xs font-mono text-white/40 mt-0.5">
+          </span>
+          <span className="extraSmallText text-secondary/50">
             {userScore
               ? `Your rating: ${userScore}/10 (click ${userScore} again to clear)`
               : isLoggedIn
-              ? "Select 1–10 to rate this record"
-              : "Sign in to rate this record"}
-          </div>
+                ? "Select 1–10 to rate this record"
+                : "Sign in to rate this record"}
+          </span>
         </div>
       </div>
 
       {/* Interactive 1-10 Score Selector */}
-      <div className="flex flex-col items-start sm:items-end gap-2">
-        <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+      <div className="flex flex-col items-start sm:items-end">
+        <div className="flex items-center gap-[1.2vw] sm:gap-[0.4vw] flex-wrap">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => {
             const activeThreshold = hoveredScore ?? userScore ?? 0;
             const isHighlighted = num <= activeThreshold;
@@ -115,12 +116,12 @@ export function AlbumRatingWidget({
                 onMouseEnter={() => setHoveredScore(num)}
                 onMouseLeave={() => setHoveredScore(null)}
                 onClick={() => handleRate(num)}
-                className={`w-7 h-8 sm:w-8 sm:h-9 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer border ${
+                className={`w-[7.2vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.4vw] rounded-[0.3vw] extraSmallTextBold transition-all cursor-pointer border ${
                   isExactUserScore
-                    ? "bg-[#FFE600] text-black border-[#FFE600] scale-105 shadow-md"
+                    ? "bg-yellow text-secondary border-secondary/30 scale-105 drop-shadow"
                     : isHighlighted
-                    ? "bg-[#FFE600]/30 text-[#FFE600] border-[#FFE600]/50"
-                    : "bg-white/5 text-white/60 border-white/10 hover:border-white/30 hover:text-white"
+                      ? "bg-secondary text-primary border-secondary"
+                      : "bg-secondary/[0.03] text-secondary/65 border-secondary/15 hover:border-secondary/45 hover:text-secondary hover:scale-105"
                 }`}
                 title={`Rate ${num}/10`}
               >

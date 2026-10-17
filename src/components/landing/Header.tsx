@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { getLenis } from "@/lib/lenis-store";
 
-interface HeaderProps {
-  onOpenPlayer: () => void;
-}
-
-export function Header({ onOpenPlayer }: HeaderProps) {
+export function Header() {
   const scrollTo = (hash: string) => {
     const lenis = getLenis();
     if (lenis) {
@@ -91,17 +87,8 @@ export function Header({ onOpenPlayer }: HeaderProps) {
             </Link>
           </div>
         </div>
-
-        {/* Press 'm' trigger */}
-        <span
-          onClick={onOpenPlayer}
-          className="text-[1vw] font-normal text-secondary/30 hover:text-secondary/70 duration-300 absolute bottom-[-1.75vw] sm:block hidden cursor-pointer"
-        >
-          <span className="text-hover cursor-pointer w-fit">
-            press &apos;m&apos; for player
-          </span>
-        </span>
       </div>
     </header>
   );
 }
+

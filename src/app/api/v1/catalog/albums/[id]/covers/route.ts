@@ -27,7 +27,16 @@ export async function GET(
       album.artistName
     );
 
-    return NextResponse.json({ editions });
+    return NextResponse.json({
+      album: {
+        id: album.id,
+        title: album.title,
+        artistName: album.artistName,
+        releaseYear: album.releaseYear,
+        defaultCoverUrl: album.defaultCoverUrl,
+      },
+      editions,
+    });
   } catch (error: unknown) {
     if (error && typeof error === "object" && "digest" in error) {
       throw error;
