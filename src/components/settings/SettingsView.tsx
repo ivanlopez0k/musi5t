@@ -264,18 +264,21 @@ export function SettingsView({
                 <div className="col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
                   <Link
                     href={`/@${user.username}`}
-                    className="flex items-center gap-[1.2vw] sm:gap-[0.45vw] bg-primary/90 hover:bg-primary border border-secondary/15 rounded-[0.3vw] px-[2.2vw] py-[0.8vw] sm:px-[0.75vw] sm:py-[0.3vw] drop-shadow transition-colors"
+                    className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
+                    title={`@${user.username}`}
                   >
-                    <span
-                      className="w-[1.8vw] h-[1.8vw] sm:w-[0.45vw] sm:h-[0.45vw] rounded-full flex-shrink-0 transition-colors duration-500"
-                      style={{ backgroundColor: activePalette.accent }}
-                    />
-                    <span className="extraSmallText font-medium text-secondary">
-                      {displayName || user.displayName || `@${user.username}`}
-                    </span>
-                    <span className="detailText text-secondary/45 hidden md:inline">
-                      @{user.username}
-                    </span>
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={avatarUrl}
+                        alt={displayName || user.displayName || user.username}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
+                        {(displayName || user.displayName || user.username).slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
                   </Link>
                 </div>
               </div>

@@ -752,15 +752,21 @@ export function FeedView({
                       </Link>
                       <Link
                         href={`/@${currentUser.username}`}
-                        className="flex items-center gap-[1.2vw] sm:gap-[0.45vw] bg-primary/90 hover:bg-primary border border-secondary/15 rounded-[0.3vw] px-[2.2vw] py-[0.8vw] sm:px-[0.75vw] sm:py-[0.3vw] drop-shadow transition-colors"
+                        className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
+                        title={`@${currentUser.username}`}
                       >
-                        <span className="w-[1.8vw] h-[1.8vw] sm:w-[0.45vw] sm:h-[0.45vw] rounded-full bg-yellow flex-shrink-0" />
-                        <span className="extraSmallText font-medium text-secondary">
-                          {currentUser.displayName || `@${currentUser.username}`}
-                        </span>
-                        <span className="detailText text-secondary/45 hidden md:inline">
-                          @{currentUser.username}
-                        </span>
+                        {currentUser.avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={currentUser.avatarUrl}
+                            alt={currentUser.displayName || currentUser.username}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        ) : (
+                          <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
+                            {(currentUser.displayName || currentUser.username).slice(0, 2).toUpperCase()}
+                          </span>
+                        )}
                       </Link>
                     </>
                   ) : (
