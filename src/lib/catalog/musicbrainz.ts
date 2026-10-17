@@ -522,8 +522,54 @@ export async function searchAlbums(query: string): Promise<CatalogAlbum[]> {
   }
 }
 
+const MUSICBRAINZ_USER_AGENT =
+  process.env.MUSICBRAINZ_USER_AGENT || "musi5t/1.0.0 ( contact@musi5t.local )";
+
+const COUNTRY_NAMES: Record<string, string> = {
+  JP: "Japan",
+  GB: "UK",
+  UK: "UK",
+  US: "United States",
+  CA: "Canada",
+  DE: "Germany",
+  FR: "France",
+  IT: "Italy",
+  ES: "Spain",
+  AU: "Australia",
+  BR: "Brazil",
+  MX: "Mexico",
+  AR: "Argentina",
+  NL: "Netherlands",
+  SE: "Sweden",
+  XE: "Europe",
+  XW: "Worldwide",
+  ID: "Indonesia",
+  KR: "South Korea",
+};
+
+function formatPressingDisambiguation(
+  country: string | null,
+  disambiguation: string | null
+): string {
+  const cName = country ? COUNTRY_NAMES[country.toUpperCase()] || country : null;
+  if (disambiguation && cName) {
+    if (disambiguation.toLowerCase().includes(cName.toLowerCase())) {
+      return disambiguation;
+    }
+    return `${disambiguation} (${cName})`;
+  }
+  if (disambiguation) {
+    return disambiguation;
+  }
+  if (cName && country) {
+    return `${cName} Pressing`;
+  }
+  return "Special Pressing";
+}
+
 /**
- * Get official editions and artwork for an album from Apple Music / iTunes.
+ * Get official editions and artwork for an album from MusicBrainz / Cover Art Archive
+ * (physical international pressings from Japan, UK, US, etc.) and Apple Music / iTunes.
  */
 export async function getAlbumEditions(
   mbid: string,
@@ -546,54 +592,161 @@ export async function getAlbumEditions(
     return editions;
   }
 
+  const seenCovers = new Set<string>([defaultCover]);
+
+  // 1. MusicBrainz release-groups & Cover Art Archive (physical international pressings)
   try {
-    const term = `${artistName} ${title}`;
+    const cleanTitle = cleanDisplayAlbumTitle(title).replace(/["]/g, "").trim();
+    const cleanArtist = artistName.replace(/["]/g, "").trim();
+    const query = `releasegroup:"${cleanTitle}" AND artist:"${cleanArtist}"`;
+
+    const rgRes = await fetch(
+      `https://musicbrainz.org/ws/2/release-group/?query=${encodeURIComponent(query)}&fmt=json&limit=5`,
+      {
+        headers: { "User-Agent": MUSICBRAINZ_USER_AGENT },
+        next: { revalidate: 604800 }, // 7 days cache
+      }
+    );
+
+    if (rgRes.ok) {
+      const rgData = await rgRes.json();
+      const targetArtistNorm = normalizeText(artistName);
+      const targetTitleNorm = normalizeAlbumTitle(title);
+
+      const rgs: Array<{
+        id: string;
+        title: string;
+        "artist-credit"?: Array<{ name: string }>;
+      }> = Array.isArray(rgData["release-groups"]) ? rgData["release-groups"] : [];
+
+      const matchedRg =
+        rgs.find((item) => {
+          const itemTitleNorm = normalizeAlbumTitle(item.title || "");
+          const artistCreditNorm = normalizeText(
+            item["artist-credit"]?.map((a) => a.name).join(" ") || ""
+          );
+          return (
+            itemTitleNorm === targetTitleNorm &&
+            (artistCreditNorm.includes(targetArtistNorm) ||
+              targetArtistNorm.includes(artistCreditNorm))
+          );
+        }) || rgs[0];
+
+      if (matchedRg) {
+        const relRes = await fetch(
+          `https://musicbrainz.org/ws/2/release/?release-group=${matchedRg.id}&fmt=json&limit=60`,
+          {
+            headers: { "User-Agent": MUSICBRAINZ_USER_AGENT },
+            next: { revalidate: 604800 },
+          }
+        );
+
+        if (relRes.ok) {
+          const relData = await relRes.json();
+          const releases: Array<{
+            id: string;
+            title: string;
+            country?: string;
+            date?: string;
+            disambiguation?: string;
+            "cover-art-archive"?: { front?: boolean };
+          }> = Array.isArray(relData.releases) ? relData.releases : [];
+
+          // Group by country to ensure international pressings (JP, GB, US, CA, etc.) are highlighted
+          const countryBuckets = new Map<string, typeof releases>();
+
+          for (const r of releases) {
+            if (!r["cover-art-archive"]?.front) continue;
+            const country = r.country ? r.country.toUpperCase() : "OTHER";
+            if (!countryBuckets.has(country)) {
+              countryBuckets.set(country, []);
+            }
+            countryBuckets.get(country)!.push(r);
+          }
+
+          // Pick up to 2 distinct pressings per country
+          for (const [, rels] of countryBuckets.entries()) {
+            for (const r of rels.slice(0, 2)) {
+              const coverUrl = `https://coverartarchive.org/release/${r.id}/front-500`;
+              if (seenCovers.has(coverUrl)) continue;
+              seenCovers.add(coverUrl);
+
+              const year = r.date ? parseInt(r.date.slice(0, 4), 10) : null;
+              const country = r.country ? r.country.toUpperCase() : null;
+              const disambiguation = formatPressingDisambiguation(
+                country,
+                r.disambiguation || null
+              );
+
+              editions.push({
+                releaseMbid: r.id,
+                title: r.title,
+                country,
+                year: year && !Number.isNaN(year) ? year : null,
+                disambiguation,
+                coverUrl,
+              });
+
+              if (editions.length >= 14) break;
+            }
+            if (editions.length >= 14) break;
+          }
+        }
+      }
+    }
+  } catch (mbErr) {
+    console.error("[getAlbumEditions MusicBrainz error]:", mbErr);
+  }
+
+  // 2. Apple Music / iTunes (Digital Deluxe, Remastered, Anniversary editions)
+  try {
+    const term = `${artistName} ${cleanDisplayAlbumTitle(title)}`;
     const res = await fetch(
       `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=album&limit=15`,
       { next: { revalidate: 86400 } }
     );
 
-    if (!res.ok) return editions;
+    if (res.ok) {
+      const data = await res.json();
+      const rawResults: ItunesAlbumItem[] = Array.isArray(data.results) ? data.results : [];
+      const targetArtistNorm = normalizeText(artistName);
+      const targetAlbumNorm = normalizeAlbumTitle(title);
 
-    const data = await res.json();
-    const rawResults: ItunesAlbumItem[] = Array.isArray(data.results) ? data.results : [];
-    const targetArtistNorm = normalizeText(artistName);
-    const targetAlbumNorm = normalizeAlbumTitle(title);
+      for (const item of rawResults) {
+        if (item.wrapperType !== "collection" || item.collectionType !== "Album") continue;
+        if (!item.artistName || !item.collectionName || !item.artworkUrl100) continue;
 
-    const seenCovers = new Set<string>([defaultCover]);
+        if (normalizeText(item.artistName) !== targetArtistNorm) continue;
+        if (normalizeAlbumTitle(item.collectionName) !== targetAlbumNorm) continue;
 
-    for (const item of rawResults) {
-      if (item.wrapperType !== "collection" || item.collectionType !== "Album") continue;
-      if (!item.artistName || !item.collectionName || !item.artworkUrl100) continue;
+        const coverUrl = toHighResItunesCover(item.artworkUrl100);
+        if (seenCovers.has(coverUrl)) continue;
+        seenCovers.add(coverUrl);
 
-      if (normalizeText(item.artistName) !== targetArtistNorm) continue;
-      if (normalizeAlbumTitle(item.collectionName) !== targetAlbumNorm) continue;
+        const year = item.releaseDate ? parseInt(item.releaseDate.slice(0, 4), 10) : null;
+        const releaseMbid = canonicalUuid(
+          `edition:${item.collectionId || `${artistName}:${item.collectionName}`}`
+        );
 
-      const coverUrl = toHighResItunesCover(item.artworkUrl100);
-      if (seenCovers.has(coverUrl)) continue;
-      seenCovers.add(coverUrl);
+        const isDeluxe = EDITION_TAG_PATTERN.test(item.collectionName);
 
-      const year = item.releaseDate ? parseInt(item.releaseDate.slice(0, 4), 10) : null;
-      const releaseMbid = canonicalUuid(
-        `edition:${item.collectionId || `${artistName}:${item.collectionName}`}`
-      );
+        editions.push({
+          releaseMbid,
+          title: item.collectionName.trim(),
+          country: item.country || null,
+          year: year && !Number.isNaN(year) ? year : null,
+          disambiguation: isDeluxe ? "Deluxe / Digital Release" : "Digital Release",
+          coverUrl,
+        });
 
-      editions.push({
-        releaseMbid,
-        title: item.collectionName.trim(),
-        country: item.country || null,
-        year: year && !Number.isNaN(year) ? year : null,
-        disambiguation: null,
-        coverUrl,
-      });
-
-      if (editions.length >= 6) break;
+        if (editions.length >= 16) break;
+      }
     }
-
-    return editions;
-  } catch {
-    return editions;
+  } catch (itunesErr) {
+    console.error("[getAlbumEditions iTunes error]:", itunesErr);
   }
+
+  return editions;
 }
 
 /**

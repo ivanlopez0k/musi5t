@@ -316,9 +316,16 @@ export function AlbumSearchModal({
                           <span className="extraSmallTextBold text-secondary truncate">
                             {ed.title}
                           </span>
-                          <span className="detailText text-secondary/55 truncate">
-                            {ed.disambiguation || ed.country || "Official Release"}
-                          </span>
+                          <div className="flex items-center gap-[1vw] sm:gap-[0.35vw] overflow-hidden mt-[0.5vw] sm:mt-[0.2vw]">
+                            {ed.country && (
+                              <span className="detailText font-mono uppercase px-[1.2vw] sm:px-[0.35vw] py-[0.1vw] bg-secondary/10 rounded-[0.2vw] text-secondary font-semibold shrink-0">
+                                {ed.country}
+                              </span>
+                            )}
+                            <span className="detailText text-secondary/55 truncate">
+                              {ed.disambiguation || (ed.country ? `${ed.country} Pressing` : "Official Release")}
+                            </span>
+                          </div>
                         </button>
                       );
                     })}
