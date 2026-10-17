@@ -244,6 +244,20 @@ export function SettingsView({
                   <div className="layout-grid">
                     {/* Centered Settings Column */}
                     <div className="col-span-full sm:col-start-3 sm:col-span-8">
+                      {/* Back Navigation */}
+                      <div className="mb-[2.5vw] sm:mb-[1.2vw]">
+                        <button
+                          type="button"
+                          onClick={() => router.back()}
+                          className="inline-flex items-center gap-[1.2vw] sm:gap-[0.45vw] extraSmallText text-secondary/60 hover:text-secondary bg-primary hover:bg-secondary/[0.04] border border-secondary/15 hover:border-secondary/35 rounded-[0.3vw] px-[2.4vw] py-[1vw] sm:px-[0.85vw] sm:py-[0.35vw] drop-shadow-soft transition-all cursor-pointer group"
+                        >
+                          <span className="transition-transform group-hover:-translate-x-0.5">
+                            ←
+                          </span>
+                          <span>back</span>
+                        </button>
+                      </div>
+
                       {/* Hero / Title Section */}
                       <div className="flex flex-col gap-[1.5vw] sm:gap-[0.7vw] pb-[3.5vw] sm:pb-[1.8vw] mb-[4vw] sm:mb-[2.5vw] border-b border-secondary/15">
                         <div className="flex items-center gap-[2vw] sm:gap-[1vw]">
