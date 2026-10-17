@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Lenis from "lenis";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { setLenis, getLenis } from "@/lib/lenis-store";
 import { PaletteSelector, PROFILE_PALETTES } from "@/components/profile/PaletteSelector";
 
 export interface ModeratedUserItem {
@@ -43,8 +46,50 @@ export function SettingsView({
   const [blockedUsers, setBlockedUsers] = useState<ModeratedUserItem[]>(initialBlockedUsers);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
+  const mainRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
   const activePalette =
     PROFILE_PALETTES.find((p) => p.key === themeKey) || PROFILE_PALETTES[0];
+
+  // Lenis smooth scroll initialization (matching Home, Profile & Feed)
+  useEffect(() => {
+    const mainEl = mainRef.current;
+    const contentEl = contentRef.current;
+    if (!mainEl || !contentEl) return;
+
+    const lenis = new Lenis({
+      wrapper: mainEl,
+      content: contentEl,
+      lerp: 0.18,
+      wheelMultiplier: 1.05,
+      smoothWheel: true,
+    });
+    setLenis(lenis);
+
+    lenis.on("scroll", ScrollTrigger.update);
+
+    const rafHandler = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+    gsap.ticker.add(rafHandler);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      gsap.ticker.remove(rafHandler);
+      lenis.destroy();
+      setLenis(null);
+    };
+  }, []);
+
+  const scrollTo = (hash: string) => {
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.scrollTo(hash, { duration: 1.2 });
+    } else {
+      document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,222 +168,393 @@ export function SettingsView({
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#11110F] text-[#E6E5DF] font-sans selection:bg-[#FFE600] selection:text-black">
-      {/* Navbar */}
-      <header className="border-b border-white/10 backdrop-blur-md sticky top-0 z-30 bg-[#11110F]/80">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link
-            href="/feed"
-            className="flex items-center gap-2.5 font-medium tracking-tight text-sm hover:opacity-80 transition-opacity"
-          >
-            <span className="w-3 h-3 rounded-[2px] bg-[#FFE600]" />
-            <span>musi5t</span>
-          </Link>
+  const saveLabel = saving ? "Saving..." : "Save settings";
 
-          <div className="flex items-center gap-4">
-            <Link
-              href="/feed"
-              className="text-xs font-mono opacity-70 hover:opacity-100 transition-opacity"
+  return (
+    <div className="site-frame text-secondary">
+      <div className="site-layout">
+        <div
+          className="app transition-colors duration-700"
+          style={{ backgroundColor: activePalette.accent }}
+        >
+          <div className="route-surface">
+            {/* Editorial Fixed Header (matching Home, Profile & Feed) */}
+            <header className="header">
+              <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
+                {/* Brand Wordmark */}
+                <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
+                  <Link href="/feed" className="nav-btn cursor-pointer text-left">
+                    musi5t
+                  </Link>
+                </div>
+
+                {/* Center Navigation Group */}
+                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
+                  <span className="nav-group flex gap-[0.25vw]">
+                    <Link href="/feed" className="nav-btn cursor-pointer">
+                      Feed,
+                    </Link>
+                    <Link href="/feed?type=global" className="nav-btn cursor-pointer">
+                      Explore,
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#settings-top")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Settings
+                    </button>
+                  </span>
+                </div>
+
+                {/* Right Actions: User Profile Badge */}
+                <div className="col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
+                  <Link
+                    href={`/@${user.username}`}
+                    className="flex items-center gap-[1.2vw] sm:gap-[0.45vw] bg-primary/90 hover:bg-primary border border-secondary/15 rounded-[0.3vw] px-[2.2vw] py-[0.8vw] sm:px-[0.75vw] sm:py-[0.3vw] drop-shadow transition-colors"
+                  >
+                    <span
+                      className="w-[1.8vw] h-[1.8vw] sm:w-[0.45vw] sm:h-[0.45vw] rounded-full flex-shrink-0 transition-colors duration-500"
+                      style={{ backgroundColor: activePalette.accent }}
+                    />
+                    <span className="extraSmallText font-medium text-secondary">
+                      {displayName || user.displayName || `@${user.username}`}
+                    </span>
+                    <span className="detailText text-secondary/45 hidden md:inline">
+                      @{user.username}
+                    </span>
+                  </Link>
+                </div>
+              </div>
+            </header>
+
+            {/* Scrollable Container managed by Lenis */}
+            <main
+              id="swup"
+              ref={mainRef}
+              className="transition-swup hide-scrollbar bg-primary text-secondary"
+              tabIndex={-1}
             >
-              Feed
-            </Link>
-            <Link
-              href={`/@${user.username}`}
-              className="flex items-center gap-2 text-xs font-mono opacity-80 hover:opacity-100 transition-opacity border border-white/15 rounded-full px-3 py-1"
-            >
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-              <span>@{user.username}</span>
-            </Link>
+              <div ref={contentRef} className="layout-content bg-primary text-secondary">
+                <section
+                  id="settings-top"
+                  data-nav-color="secondary"
+                  className="w-full min-h-lvh pt-[22vw] sm:pt-[9vw] pb-[10vw] sm:pb-[6vw]"
+                >
+                  <div className="layout-grid">
+                    {/* Centered Settings Column */}
+                    <div className="col-span-full sm:col-start-3 sm:col-span-8">
+                      {/* Hero / Title Section */}
+                      <div className="flex flex-col gap-[1.5vw] sm:gap-[0.7vw] pb-[3.5vw] sm:pb-[1.8vw] mb-[4vw] sm:mb-[2.5vw] border-b border-secondary/15">
+                        <div className="flex items-center gap-[2vw] sm:gap-[1vw]">
+                          <div className="drop-shadow rounded-[0.25vw]">
+                            <div
+                              className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] transition-colors duration-500"
+                              style={{ backgroundColor: activePalette.accent }}
+                            />
+                          </div>
+                          <h1 className="largeText lowercase">settings</h1>
+                        </div>
+                        <p className="smallText text-secondary/60">
+                          account preferences, curated theme & privacy moderation
+                        </p>
+                      </div>
+
+                      {/* 1. Profile & Theme Section */}
+                      <section className="bg-primary border border-secondary/15 rounded-[0.5vw] drop-shadow-soft p-[3.5vw] sm:p-[2vw] mb-[3vw] sm:mb-[2vw]">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[1vw] pb-[2.5vw] sm:pb-[1.2vw] mb-[3vw] sm:mb-[1.5vw] border-b border-secondary/10">
+                          <h2 className="mediumText lowercase">profile & palette</h2>
+                          <span className="extraSmallText text-secondary/50">
+                            @{user.username} • {user.email}
+                          </span>
+                        </div>
+
+                        <form
+                          onSubmit={handleSaveProfile}
+                          className="space-y-[3vw] sm:space-y-[1.4vw]"
+                        >
+                          <div>
+                            <label className="block extraSmallTextBold text-secondary/70 lowercase mb-[1vw] sm:mb-[0.4vw]">
+                              display name
+                            </label>
+                            <input
+                              type="text"
+                              value={displayName}
+                              maxLength={60}
+                              onChange={(e) => setDisplayName(e.target.value)}
+                              className="w-full bg-secondary/[0.04] border border-secondary/20 rounded-[0.35vw] px-[2.5vw] py-[1.8vw] sm:px-[1vw] sm:py-[0.65vw] smallText text-secondary focus:outline-none focus:border-secondary transition-colors"
+                            />
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between mb-[1vw] sm:mb-[0.4vw]">
+                              <label className="block extraSmallTextBold text-secondary/70 lowercase">
+                                bio
+                              </label>
+                              <span className="detailText text-secondary/40">
+                                {bio.length}/250
+                              </span>
+                            </div>
+                            <textarea
+                              rows={3}
+                              value={bio}
+                              maxLength={250}
+                              onChange={(e) => setBio(e.target.value)}
+                              placeholder="Share a note about your record collection or favorite genres..."
+                              className="w-full bg-secondary/[0.04] border border-secondary/20 rounded-[0.35vw] px-[2.5vw] py-[1.8vw] sm:px-[1vw] sm:py-[0.65vw] smallText text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary transition-colors resize-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block extraSmallTextBold text-secondary/70 lowercase mb-[1vw] sm:mb-[0.4vw]">
+                              avatar image url (optional)
+                            </label>
+                            <input
+                              type="url"
+                              value={avatarUrl}
+                              onChange={(e) => setAvatarUrl(e.target.value)}
+                              placeholder="https://..."
+                              className="w-full bg-secondary/[0.04] border border-secondary/20 rounded-[0.35vw] px-[2.5vw] py-[1.8vw] sm:px-[1vw] sm:py-[0.65vw] smallText text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary transition-colors"
+                            />
+                          </div>
+
+                          <div className="pt-[1vw] sm:pt-[0.4vw]">
+                            <label className="block extraSmallTextBold text-secondary/70 lowercase mb-[1.5vw] sm:mb-[0.6vw]">
+                              curated profile color palette
+                            </label>
+                            <div className="flex items-center justify-between p-[2.5vw] sm:p-[1vw] rounded-[0.4vw] border border-secondary/15 bg-secondary/[0.02]">
+                              <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
+                                <span
+                                  className="w-[3.5vw] h-[3.5vw] sm:w-[1vw] sm:h-[1vw] rounded-[0.2vw] drop-shadow transition-colors duration-500"
+                                  style={{ backgroundColor: activePalette.accent }}
+                                />
+                                <span className="extraSmallText text-secondary/70">
+                                  Active theme:{" "}
+                                  <strong className="text-secondary font-medium">
+                                    {activePalette.label}
+                                  </strong>
+                                </span>
+                              </div>
+                              <PaletteSelector
+                                selectedTheme={themeKey}
+                                onSelect={(key) => setThemeKey(key)}
+                              />
+                            </div>
+                          </div>
+
+                          {statusMessage && (
+                            <div className="p-[2vw] sm:p-[0.8vw] rounded-[0.35vw] border border-secondary/15 bg-secondary/[0.04] extraSmallText text-secondary">
+                              {statusMessage}
+                            </div>
+                          )}
+
+                          <div className="pt-[1.5vw] sm:pt-[0.6vw] flex justify-end">
+                            <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                              <button
+                                type="submit"
+                                disabled={saving}
+                                className="main-btn smallText text-secondary disabled:opacity-50 cursor-pointer transition-colors duration-500"
+                                style={{ backgroundColor: activePalette.accent }}
+                              >
+                                <span className="main-btn__icon" aria-hidden="true" />
+                                <span className="main-btn__label">
+                                  <span className="main-btn__clip">
+                                    <span className="main-btn__from">{saveLabel}</span>
+                                    <span className="main-btn__to" aria-hidden="true">
+                                      {saveLabel}
+                                    </span>
+                                  </span>
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      </section>
+
+                      {/* 2. Muted Listeners Section */}
+                      <section className="bg-primary border border-secondary/15 rounded-[0.5vw] drop-shadow-soft p-[3.5vw] sm:p-[2vw] mb-[3vw] sm:mb-[2vw]">
+                        <div className="mb-[2.5vw] sm:mb-[1.2vw]">
+                          <h2 className="mediumText lowercase mb-[0.5vw] sm:mb-[0.25vw]">
+                            muted listeners
+                          </h2>
+                          <p className="extraSmallText text-secondary/50">
+                            posts and replies from muted listeners are hidden from your feeds.
+                          </p>
+                        </div>
+
+                        {mutedUsers.length === 0 ? (
+                          <div className="p-[3vw] sm:p-[1.2vw] rounded-[0.4vw] border border-secondary/10 bg-secondary/[0.02] extraSmallText text-secondary/45">
+                            You have not muted any listeners.
+                          </div>
+                        ) : (
+                          <div className="divide-y divide-secondary/10 border border-secondary/15 rounded-[0.4vw] overflow-hidden bg-primary">
+                            {mutedUsers.map((m) => (
+                              <div
+                                key={m.id}
+                                className="p-[2.5vw] sm:p-[1vw] flex items-center justify-between hover:bg-secondary/[0.02] transition-colors"
+                              >
+                                <Link
+                                  href={`/@${m.username}`}
+                                  className="flex items-center gap-[1.5vw] sm:gap-[0.6vw] group"
+                                >
+                                  <span className="smallText font-medium text-secondary group-hover:underline">
+                                    {m.displayName}
+                                  </span>
+                                  <span className="extraSmallText text-secondary/50">
+                                    @{m.username}
+                                  </span>
+                                </Link>
+                                <button
+                                  type="button"
+                                  onClick={() => handleUnmute(m.id)}
+                                  className="px-[2.5vw] py-[0.8vw] sm:px-[0.9vw] sm:py-[0.35vw] rounded-[0.3vw] extraSmallText text-secondary border border-secondary/20 hover:border-secondary hover:bg-secondary/5 transition-colors cursor-pointer"
+                                >
+                                  Unmute
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </section>
+
+                      {/* 3. Blocked Listeners Section */}
+                      <section className="bg-primary border border-secondary/15 rounded-[0.5vw] drop-shadow-soft p-[3.5vw] sm:p-[2vw] mb-[3vw] sm:mb-[2vw]">
+                        <div className="mb-[2.5vw] sm:mb-[1.2vw]">
+                          <h2 className="mediumText lowercase mb-[0.5vw] sm:mb-[0.25vw]">
+                            blocked listeners
+                          </h2>
+                          <p className="extraSmallText text-secondary/50">
+                            blocked listeners cannot view your profile, follow you, or interact with your posts.
+                          </p>
+                        </div>
+
+                        {blockedUsers.length === 0 ? (
+                          <div className="p-[3vw] sm:p-[1.2vw] rounded-[0.4vw] border border-secondary/10 bg-secondary/[0.02] extraSmallText text-secondary/45">
+                            You have not blocked any listeners.
+                          </div>
+                        ) : (
+                          <div className="divide-y divide-secondary/10 border border-secondary/15 rounded-[0.4vw] overflow-hidden bg-primary">
+                            {blockedUsers.map((b) => (
+                              <div
+                                key={b.id}
+                                className="p-[2.5vw] sm:p-[1vw] flex items-center justify-between hover:bg-secondary/[0.02] transition-colors"
+                              >
+                                <Link
+                                  href={`/@${b.username}`}
+                                  className="flex items-center gap-[1.5vw] sm:gap-[0.6vw] group"
+                                >
+                                  <span className="smallText font-medium text-secondary group-hover:underline">
+                                    {b.displayName}
+                                  </span>
+                                  <span className="extraSmallText text-secondary/50">
+                                    @{b.username}
+                                  </span>
+                                </Link>
+                                <button
+                                  type="button"
+                                  onClick={() => handleUnblock(b.id)}
+                                  className="px-[2.5vw] py-[0.8vw] sm:px-[0.9vw] sm:py-[0.35vw] rounded-[0.3vw] extraSmallText text-secondary border border-secondary/20 hover:border-secondary hover:bg-secondary/5 transition-colors cursor-pointer"
+                                >
+                                  Unblock
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </section>
+
+                      {/* 4. Danger Zone */}
+                      <section className="bg-primary border border-red-600/30 rounded-[0.5vw] drop-shadow-soft p-[3.5vw] sm:p-[2vw] mb-[3vw] sm:mb-[2vw]">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[3vw] sm:gap-[1.5vw]">
+                          <div>
+                            <h2 className="mediumText lowercase text-red-600 mb-[0.5vw] sm:mb-[0.25vw]">
+                              danger zone
+                            </h2>
+                            <p className="extraSmallText text-secondary/60">
+                              permanently delete your account and all associated data.
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={deletingAccount}
+                            onClick={handleDeleteAccount}
+                            className="px-[3vw] py-[1.5vw] sm:px-[1.2vw] sm:py-[0.55vw] rounded-[0.3vw] smallText text-primary bg-red-600 hover:bg-red-700 disabled:opacity-50 transition-colors cursor-pointer drop-shadow w-fit flex-shrink-0"
+                          >
+                            {deletingAccount ? "Deleting..." : "Delete account"}
+                          </button>
+                        </div>
+                      </section>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Editorial Dark Footer (matching Home, Profile & Feed) */}
+                <footer className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none">
+                  {/* Platform Links */}
+                  <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
+                    <span className="extraSmallText text-primary/40 font-mono">
+                      listener archive
+                    </span>
+                    <div className="flex flex-col gap-[0.5vw]">
+                      <Link
+                        href="/feed"
+                        className="footer-link-clip w-fit mediumText hover:text-yellow transition-colors duration-300"
+                      >
+                        community feed
+                      </Link>
+                      <Link
+                        href={`/@${user.username}`}
+                        className="footer-link-clip w-fit mediumText hover:text-yellow transition-colors duration-300"
+                      >
+                        @{user.username}
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Back to top button */}
+                  <div className="col-span-full sm:col-span-4 flex items-center justify-center mb-[8vw] sm:mb-0">
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#settings-top")}
+                      className="back-to-top extraSmallText text-primary/60 hover:text-primary cursor-pointer hover:scale-105 transition-transform"
+                    >
+                      <span className="back-to-top__clip">
+                        <span className="back-to-top__from">
+                          <span className="back-to-top__arrow mr-1">↑</span>
+                          <span className="back-to-top__label">back to top</span>
+                        </span>
+                        <span className="back-to-top__to" aria-hidden="true">
+                          <span className="back-to-top__arrow mr-1">↑</span>
+                          <span className="back-to-top__label">back to top</span>
+                        </span>
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Copyright & Legal */}
+                  <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[1vw]">
+                    <span className="detailText text-primary/40">
+                      © 2026 musi5t. The album-centric social network.
+                    </span>
+                    <div className="flex gap-[1vw] detailText text-primary/50">
+                      <Link href="/" className="hover:text-primary transition-colors">
+                        overview
+                      </Link>
+                      <span>,</span>
+                      <Link href="/feed" className="hover:text-primary transition-colors">
+                        discussions
+                      </Link>
+                      <span>,</span>
+                      <span className="opacity-40">@{user.username}</span>
+                    </div>
+                  </div>
+                </footer>
+              </div>
+            </main>
           </div>
         </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-6 py-12 space-y-12">
-        <div>
-          <span className="text-xs font-mono uppercase tracking-widest text-[#FFE600]">
-            [ Account & Preferences ]
-          </span>
-          <h1 className="text-3xl font-light tracking-tight mt-1">Settings</h1>
-        </div>
-
-        {/* Profile & Palette Settings */}
-        <section className="border border-white/10 bg-[#161614] rounded-2xl p-6">
-          <h2 className="text-lg font-medium mb-4">Profile & Theme</h2>
-          <form onSubmit={handleSaveProfile} className="space-y-4">
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-wider opacity-60 mb-1">
-                Username & Email
-              </label>
-              <p className="text-xs font-mono text-white/50">
-                @{user.username} • {user.email}
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-wider opacity-60 mb-1">
-                Display Name
-              </label>
-              <input
-                type="text"
-                value={displayName}
-                maxLength={60}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full bg-white/5 border border-white/15 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#FFE600]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-wider opacity-60 mb-1">
-                Bio (max 250 characters)
-              </label>
-              <textarea
-                rows={3}
-                value={bio}
-                maxLength={250}
-                onChange={(e) => setBio(e.target.value)}
-                className="w-full bg-white/5 border border-white/15 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#FFE600] resize-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-wider opacity-60 mb-1">
-                Avatar Image URL (optional)
-              </label>
-              <input
-                type="url"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://..."
-                className="w-full bg-white/5 border border-white/15 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#FFE600]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-wider opacity-60 mb-2">
-                Profile Color Palette
-              </label>
-              <PaletteSelector
-                selectedTheme={themeKey}
-                onSelect={(key) => setThemeKey(key)}
-              />
-            </div>
-
-            {statusMessage && (
-              <p className="text-xs font-mono text-[#FFE600]">{statusMessage}</p>
-            )}
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-5 py-2 rounded-lg text-xs font-mono uppercase font-bold bg-[#FFE600] text-black hover:bg-[#F2DA00] transition-transform hover:scale-105 cursor-pointer"
-              >
-                {saving ? "Saving..." : "Save Profile"}
-              </button>
-            </div>
-          </form>
-        </section>
-
-        {/* Muted Users */}
-        <section className="border border-white/10 bg-[#161614] rounded-2xl p-6">
-          <h2 className="text-lg font-medium mb-1">Muted Listeners</h2>
-          <p className="text-xs text-white/50 mb-4">
-            Posts and replies from muted listeners are hidden from your feeds.
-          </p>
-
-          {mutedUsers.length === 0 ? (
-            <p className="text-xs font-mono opacity-40 py-2">
-              You have not muted any users.
-            </p>
-          ) : (
-            <div className="divide-y divide-white/10">
-              {mutedUsers.map((m) => (
-                <div
-                  key={m.id}
-                  className="py-3 flex items-center justify-between"
-                >
-                  <Link
-                    href={`/@${m.username}`}
-                    className="text-sm font-medium hover:text-[#FFE600] transition-colors"
-                  >
-                    {m.displayName}{" "}
-                    <span className="text-xs font-mono opacity-50">
-                      @{m.username}
-                    </span>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => handleUnmute(m.id)}
-                    className="px-3 py-1 rounded-full text-xs font-mono border border-white/20 hover:border-white/50 cursor-pointer"
-                  >
-                    Unmute
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Blocked Users */}
-        <section className="border border-white/10 bg-[#161614] rounded-2xl p-6">
-          <h2 className="text-lg font-medium mb-1">Blocked Listeners</h2>
-          <p className="text-xs text-white/50 mb-4">
-            Blocked listeners cannot view your profile, follow you, or interact with your posts.
-          </p>
-
-          {blockedUsers.length === 0 ? (
-            <p className="text-xs font-mono opacity-40 py-2">
-              You have not blocked any users.
-            </p>
-          ) : (
-            <div className="divide-y divide-white/10">
-              {blockedUsers.map((b) => (
-                <div
-                  key={b.id}
-                  className="py-3 flex items-center justify-between"
-                >
-                  <Link
-                    href={`/@${b.username}`}
-                    className="text-sm font-medium hover:text-[#FFE600] transition-colors"
-                  >
-                    {b.displayName}{" "}
-                    <span className="text-xs font-mono opacity-50">
-                      @{b.username}
-                    </span>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => handleUnblock(b.id)}
-                    className="px-3 py-1 rounded-full text-xs font-mono border border-white/20 hover:border-white/50 cursor-pointer"
-                  >
-                    Unblock
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Danger Zone (RNF-09 Account Deletion) */}
-        <section className="border border-red-500/30 bg-red-950/15 rounded-2xl p-6">
-          <h2 className="text-lg font-medium text-red-400 mb-1">Danger Zone</h2>
-          <p className="text-xs text-white/60 mb-4">
-            Permanently delete your account and all associated data (Top 5 albums, Top 5 songs, posts, replies, and ratings).
-          </p>
-          <button
-            type="button"
-            disabled={deletingAccount}
-            onClick={handleDeleteAccount}
-            className="px-4 py-2 rounded-lg text-xs font-mono uppercase font-bold bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer"
-          >
-            {deletingAccount ? "Deleting Account..." : "Delete Account"}
-          </button>
-        </section>
-      </main>
+      </div>
     </div>
   );
 }
