@@ -47,18 +47,21 @@ export function WorkCarousel() {
     if (!container) return;
 
     const ctx = gsap.context(() => {
-      // Floating wave animation on album cards
-      cardRefs.current.forEach((el, i) => {
-        if (!el) return;
-        gsap.to(el, {
-          y: i % 2 === 0 ? -12 : 12,
-          duration: 2.5 + i * 0.3,
-          delay: i * 0.2,
-          yoyo: true,
-          repeat: -1,
-          ease: "sine.inOut",
+      // Floating wave animation on album cards (desktop only for smooth mobile swiping)
+      const isMobile = window.innerWidth < 640;
+      if (!isMobile) {
+        cardRefs.current.forEach((el, i) => {
+          if (!el) return;
+          gsap.to(el, {
+            y: i % 2 === 0 ? -10 : 10,
+            duration: 2.5 + i * 0.3,
+            delay: i * 0.2,
+            yoyo: true,
+            repeat: -1,
+            ease: "sine.inOut",
+          });
         });
-      });
+      }
     }, container);
 
     return () => ctx.revert();
@@ -86,20 +89,21 @@ export function WorkCarousel() {
       className="w-full h-full relative select-none pt-[4vw] pb-[6vw] bg-primary text-secondary"
     >
       <div className="layout-grid mb-[2vw]">
-        <div className="col-span-full flex justify-between items-center">
+        <div className="col-span-full flex items-center">
           <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
             <div className="drop-shadow rounded-[0.25vw]">
-              <div className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] bg-yellow" />
+              <div className="w-[5vw] h-[5vw] sm:w-[1.8vw] sm:h-[1.8vw] rounded-[1vw] sm:rounded-[0.2vw] bg-yellow" />
             </div>
-            <span className="mediumText">featured records</span>
+            <span className="mediumText text-[4.8vw] sm:text-inherit">featured records</span>
           </div>
-          <h2 className="mediumText">records</h2>
         </div>
       </div>
 
-      {/* 3D Horizontal Carousel */}
-      <div className="w-full overflow-x-auto hide-scrollbar py-[2vw] px-[var(--margin)]">
-        <div className="flex gap-[2.5vw] w-fit items-center [perspective:1400px]">
+      {/* 3D Horizontal Showcase (smooth native swipe on mobile, smooth scroll on desktop) */}
+      <div
+        className="w-full overflow-x-auto hide-scrollbar py-[2vw] px-[var(--margin)] touch-pan-x"
+      >
+        <div className="flex gap-[4vw] sm:gap-[2.5vw] w-fit items-center [perspective:1400px]">
           {FEATURED_ALBUMS.map((album, i) => (
             <div
               key={album.name}
@@ -108,7 +112,7 @@ export function WorkCarousel() {
               }}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              className="w-[32vw] sm:w-[22vw] aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary cursor-pointer shrink-0 will-change-transform relative group"
+              className="shrink-0 w-[72vw] sm:w-[22vw] aspect-square rounded-[1.5vw] sm:rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary cursor-pointer will-change-transform relative group"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -116,9 +120,9 @@ export function WorkCarousel() {
                 alt={`${album.artist} - ${album.name}`}
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 select-none"
               />
-              <div className="absolute bottom-0 left-0 w-full p-[1.5vw] bg-gradient-to-t from-black/80 via-black/40 to-transparent text-primary">
-                <span className="smallText font-medium block truncate">{album.name}</span>
-                <span className="extraSmallText text-primary/70 block truncate">{album.artist} · {album.year}</span>
+              <div className="absolute bottom-0 left-0 w-full p-[3.5vw] sm:p-[1.5vw] bg-gradient-to-t from-black/80 via-black/40 to-transparent text-primary">
+                <span className="smallText font-medium text-[4.2vw] sm:text-inherit block truncate">{album.name}</span>
+                <span className="extraSmallText text-primary/70 text-[3.2vw] sm:text-inherit block truncate">{album.artist} · {album.year}</span>
               </div>
             </div>
           ))}

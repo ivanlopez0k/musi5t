@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
+import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { PaletteSelector, PROFILE_PALETTES } from "./PaletteSelector";
 import { AlbumSearchModal } from "./AlbumSearchModal";
 import { SongSearchModal } from "./SongSearchModal";
@@ -118,6 +119,8 @@ export function ProfileView({
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    const cleanupNav = setupNavColorTriggers(mainEl);
+
     const rafHandler = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -125,6 +128,7 @@ export function ProfileView({
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      cleanupNav();
       gsap.ticker.remove(rafHandler);
       lenis.destroy();
       setLenis(null);
@@ -465,22 +469,22 @@ export function ProfileView({
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Brand Wordmark */}
-                <div className="text-secondary mediumText col-span-2 flex justify-start items-center gap-[0.8vw]">
+                <div className="mediumText col-span-2 flex justify-start items-center gap-[0.8vw]">
                   <Link
                     href={isLoggedIn ? "/feed" : "/"}
-                    className="nav-btn cursor-pointer text-left"
+                    className="nav-btn nav-blend cursor-pointer text-left"
                   >
                     musi5t
                   </Link>
                 </div>
 
                 {/* Center Navigation Group (Feed • Rankings) */}
-                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex items-center gap-[0.6vw]">
+                <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
+                  <span className="nav-group nav-blend flex items-center gap-[0.6vw]">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
                     </Link>
-                    <span className="text-secondary/35">•</span>
+                    <span className="opacity-35">•</span>
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>
@@ -498,7 +502,7 @@ export function ProfileView({
                       />
                       <Link
                         href="/settings"
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
@@ -506,7 +510,7 @@ export function ProfileView({
                         type="button"
                         onClick={handleLogout}
                         disabled={isLoggingOut}
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors cursor-pointer"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer"
                       >
                         {isLoggingOut ? "..." : "Logout"}
                       </button>
@@ -1298,7 +1302,10 @@ export function ProfileView({
                 </section>
 
                 {/* 5. DARK EDITORIAL FOOTER (matching src/app/page.tsx) */}
-                <footer className="w-full bg-secondary text-primary layout-grid pt-[6vw] pb-[4vw] border-t border-primary/10 select-none relative z-10">
+                <footer
+                  data-nav-color="primary"
+                  className="w-full bg-secondary text-primary layout-grid pt-[6vw] pb-[4vw] border-t border-primary/10 select-none relative z-10"
+                >
                   {/* Profile & Platform Links */}
                   <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
                     <span className="extraSmallText text-primary/40 font-mono">

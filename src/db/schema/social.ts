@@ -1,4 +1,4 @@
-import { pgTable, primaryKey, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { albums } from "./albums";
 
@@ -65,3 +65,18 @@ export const blocks = pgTable(
     primaryKey({ columns: [table.blockerId, table.blockedId] }),
   ]
 );
+
+export const artistFollows = pgTable(
+  "artist_follows",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    artistName: text("artist_name").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.artistName] }),
+  ]
+);
+

@@ -136,12 +136,34 @@ body {
 }
 
 .route-surface > .header {
-  z-index: 100;
   width: 100%;
   position: fixed;
   top: 0;
   left: 0;
+  pointer-events: none;
 }
+
+.route-surface > .header.header-blend {
+  z-index: 100;
+  mix-blend-mode: difference;
+  color: #ffffff !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.route-surface > .header.header-blend * {
+  color: inherit;
+}
+
+.route-surface > .header.header-actions {
+  z-index: 101;
+}
+
+.route-surface > .header .layout-fixed {
+  pointer-events: auto;
+}
+
+
 
 .route-surface > main {
   z-index: 2;

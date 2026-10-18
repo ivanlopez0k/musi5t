@@ -174,14 +174,14 @@ export function Services() {
         <div>
           <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
             <div className="drop-shadow rounded-[0.25vw]">
-              <div className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] bg-yellow" />
+              <div className="w-[5vw] h-[5vw] sm:w-[1.8vw] sm:h-[1.8vw] rounded-[1vw] sm:rounded-[0.2vw] bg-yellow" />
             </div>
             <div>
-              <span className="mediumText">how it connects</span>
+              <span className="mediumText text-[4.8vw] sm:text-inherit">how it connects</span>
             </div>
           </div>
         </div>
-        <h2 className="mediumText">features</h2>
+        <h2 className="mediumText text-[4.8vw] sm:text-inherit">features</h2>
       </div>
 
       {/* Features List with Hover Dock */}
@@ -191,6 +191,10 @@ export function Services() {
             key={feat.title}
             ref={(el) => {
               rowRefs.current[i] = el;
+            }}
+            onClick={() => {
+              setActiveIndex(i);
+              setIsHovered(true);
             }}
             onPointerEnter={() => {
               setActiveIndex(i);
@@ -204,7 +208,7 @@ export function Services() {
               ref={(el) => {
                 textRefs.current[i] = el;
               }}
-              className={`inline-block pointer-events-none text-[10vw] tracking-[-0.03em] will-change-transform transition-colors duration-300 ease-out font-medium ${
+              className={`inline-block pointer-events-none text-[7.5vw] sm:text-[10vw] tracking-[-0.03em] leading-[1.05] will-change-transform transition-colors duration-300 ease-out font-medium ${
                 i === activeIndex && isHovered
                   ? "text-yellow"
                   : "text-secondary hover:text-secondary/70"
@@ -218,12 +222,12 @@ export function Services() {
         {/* Hover Photo Dock: flanking the active row */}
         <div
           ref={dockRef}
-          className="absolute left-0 w-full pointer-events-none -translate-y-1/2 flex justify-between px-[5vw] z-0"
+          className="absolute left-0 w-full pointer-events-none -translate-y-1/2 flex justify-between px-[3vw] sm:px-[5vw] z-0"
         >
           {/* Left Floating Album Artwork */}
           <div
             ref={leftPhotoRef}
-            className="w-[18vw] h-[18vw] rounded-[0.4vw] overflow-hidden drop-shadow-soft opacity-0 will-change-transform rotate-[-10deg] bg-secondary"
+            className="w-[32vw] h-[32vw] sm:w-[18vw] sm:h-[18vw] rounded-[1.5vw] sm:rounded-[0.4vw] overflow-hidden drop-shadow-soft opacity-0 will-change-transform rotate-[-10deg] bg-secondary"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -236,7 +240,7 @@ export function Services() {
           {/* Right Floating Album Artwork */}
           <div
             ref={rightPhotoRef}
-            className="w-[19vw] h-[19vw] rounded-[0.4vw] overflow-hidden drop-shadow-soft opacity-0 will-change-transform rotate-[8deg] bg-secondary"
+            className="w-[33vw] h-[33vw] sm:w-[19vw] sm:h-[19vw] rounded-[1.5vw] sm:rounded-[0.4vw] overflow-hidden drop-shadow-soft opacity-0 will-change-transform rotate-[8deg] bg-secondary"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

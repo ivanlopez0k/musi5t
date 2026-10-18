@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
+import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { AlbumFollowButton } from "./AlbumFollowButton";
 import { AlbumRatingWidget } from "./AlbumRatingWidget";
 import {
@@ -13,6 +14,7 @@ import {
   type CurrentUserSummary,
 } from "@/components/feed/FeedView";
 import type { FeedPost } from "@/lib/feed/visibility";
+import type { AlbumTracklist } from "@/lib/catalog/tracks";
 
 export interface TopListenerItem {
   position: number;
@@ -39,6 +41,7 @@ interface AlbumDetailViewProps {
   ratingsCount: number;
   topListeners: TopListenerItem[];
   albumPosts: FeedPost[];
+  tracklist: AlbumTracklist;
 }
 
 export function AlbumDetailView({
@@ -50,6 +53,7 @@ export function AlbumDetailView({
   ratingsCount,
   topListeners,
   albumPosts,
+  tracklist,
 }: AlbumDetailViewProps) {
   const router = useRouter();
   const mainRef = useRef<HTMLElement>(null);
@@ -72,6 +76,8 @@ export function AlbumDetailView({
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    const cleanupNav = setupNavColorTriggers(mainEl);
+
     const rafHandler = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -79,6 +85,7 @@ export function AlbumDetailView({
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      cleanupNav();
       gsap.ticker.remove(rafHandler);
       lenis.destroy();
       setLenis(null);
@@ -103,22 +110,22 @@ export function AlbumDetailView({
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Left: Brand Wordmark */}
-                <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
+                <div className="mediumText col-span-3 flex justify-start items-center">
                   <Link
                     href={currentUser ? "/feed" : "/"}
-                    className="nav-btn cursor-pointer text-left"
+                    className="nav-btn nav-blend cursor-pointer text-left"
                   >
                     musi5t
                   </Link>
                 </div>
 
                 {/* Center Navigation Group */}
-                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex items-center gap-[0.5vw]">
+                <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
+                  <span className="nav-group nav-blend flex items-center gap-[0.5vw]">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
                     </Link>
-                    <span className="text-secondary/35">•</span>
+                    <span className="opacity-35">•</span>
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>
@@ -131,7 +138,7 @@ export function AlbumDetailView({
                     <>
                       <Link
                         href="/settings"
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
@@ -158,7 +165,7 @@ export function AlbumDetailView({
                     <>
                       <Link
                         href="/login"
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Sign in
                       </Link>
@@ -228,7 +235,7 @@ export function AlbumDetailView({
                           <div className="w-[3.5vw] h-[3.5vw] sm:w-[1vw] sm:h-[1vw] rounded-[0.15vw] bg-yellow" />
                         </div>
                         <span className="extraSmallText text-secondary/60">
-                          [ record detail ]
+                          record detail
                         </span>
                       </div>
 
@@ -238,7 +245,12 @@ export function AlbumDetailView({
                       </h1>
 
                       <p className="smallText sm:text-[1.25vw] text-secondary/70">
-                        {album.artistName}
+                        <Link
+                          href={`/artist/${encodeURIComponent(album.artistName)}`}
+                          className="hover:underline transition-colors hover:text-secondary"
+                        >
+                          {album.artistName}
+                        </Link>
                         {album.releaseYear ? (
                           <span className="text-secondary/45">
                             {" "}
@@ -269,6 +281,69 @@ export function AlbumDetailView({
                         initialRatingsCount={ratingsCount}
                         isLoggedIn={Boolean(currentUser)}
                       />
+                    </div>
+                  </div>
+                </section>
+
+                {/* TRACKLIST SECTION */}
+                <section
+                  id="tracklist"
+                  data-nav-color="secondary"
+                  className="w-full py-[6vw] sm:py-[4vw] border-t border-secondary/15"
+                >
+                  <div className="layout-grid mb-[4vw] sm:mb-[2.2vw]">
+                    <div className="col-span-full flex items-center justify-between">
+                      <div className="flex items-center gap-[2vw] sm:gap-[1vw]">
+                        <div className="drop-shadow rounded-[0.25vw]">
+                          <div className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] bg-yellow drop-shadow" />
+                        </div>
+                        <h2 className="mediumText lowercase">tracklist</h2>
+                      </div>
+                      <span className="extraSmallText text-secondary/50">
+                        [ {tracklist.totalTracks} tracks
+                        {tracklist.totalDurationFormatted
+                          ? ` • ${tracklist.totalDurationFormatted}`
+                          : ""} ]
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="layout-grid">
+                    <div className="col-span-full">
+                      {tracklist.tracks.length === 0 ? (
+                        <div className="p-[6vw] sm:p-[3vw] border border-secondary/15 rounded-[0.5vw] bg-primary drop-shadow-soft flex flex-col items-start gap-[0.8vw]">
+                          <span className="smallText font-medium text-secondary">
+                            Tracklist details are not yet indexed for this release.
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          className={`grid grid-cols-1 ${
+                            tracklist.tracks.length >= 8
+                              ? "sm:grid-cols-2 gap-x-[4vw]"
+                              : "sm:max-w-[50%]"
+                          } gap-y-0`}
+                        >
+                          {tracklist.tracks.map((track, idx) => (
+                            <div
+                              key={`${track.position}-${track.title}-${idx}`}
+                              className="flex items-center justify-between py-[2.2vw] sm:py-[0.85vw] border-b border-secondary/10 hover:bg-secondary/[0.02] px-[1vw] rounded-[0.2vw] transition-colors group"
+                            >
+                              <div className="flex items-center min-w-0">
+                                <span className="px-[0.8vw] py-[0.2vw] sm:px-[0.35vw] sm:py-[0.1vw] rounded-[0.2vw] bg-secondary/5 text-secondary/50 detailText font-mono mr-[2vw] sm:mr-[1vw] group-hover:bg-yellow group-hover:text-secondary transition-colors shrink-0">
+                                  {String(track.position).padStart(2, "0")}
+                                </span>
+                                <span className="smallText font-medium text-secondary truncate max-w-[55vw] sm:max-w-[28vw] group-hover:underline">
+                                  {track.title}
+                                </span>
+                              </div>
+                              <span className="extraSmallText text-secondary/45 font-mono ml-[2vw] sm:ml-[1vw] shrink-0">
+                                {track.durationFormatted}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </section>
@@ -431,7 +506,10 @@ export function AlbumDetailView({
                 </section>
 
                 {/* 5. EDITORIAL DARK FOOTER */}
-                <footer className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none">
+                <footer
+                  data-nav-color="primary"
+                  className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none"
+                >
                   {/* Platform Links */}
                   <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
                     <span className="extraSmallText text-primary/40 font-mono">
@@ -482,6 +560,17 @@ export function AlbumDetailView({
                       <Link href="/" className="hover:text-primary transition-colors">
                         overview
                       </Link>
+                      <span>,</span>
+                      <a
+                        href="#tracklist"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          scrollTo("#tracklist");
+                        }}
+                        className="hover:text-primary transition-colors cursor-pointer"
+                      >
+                        tracklist
+                      </a>
                       <span>,</span>
                       <Link href="/feed" className="hover:text-primary transition-colors">
                         discussions

@@ -85,17 +85,17 @@ export function HeroPhotos() {
       );
 
       // Initial offscreen positions for quadratic Bezier fly-in
-      const centerStartY = isDesktop ? 75 : 58;
-      const centerStartZ = isDesktop ? 140 : 80;
-      const centerCtrlZ = isDesktop ? -200 : -120;
+      const centerStartY = isDesktop ? 75 : 52;
+      const centerStartZ = isDesktop ? 140 : 70;
+      const centerCtrlZ = isDesktop ? -200 : -80;
 
-      const leftStartY = isDesktop ? 78 : 64;
-      const leftStartZ = isDesktop ? 170 : 100;
-      const leftCtrlZ = isDesktop ? -260 : -150;
+      const leftStartY = isDesktop ? 78 : 56;
+      const leftStartZ = isDesktop ? 170 : 80;
+      const leftCtrlZ = isDesktop ? -260 : -100;
 
-      const rightStartY = isDesktop ? 75 : 61;
-      const rightStartZ = isDesktop ? 160 : 90;
-      const rightCtrlZ = isDesktop ? -230 : -135;
+      const rightStartY = isDesktop ? 75 : 54;
+      const rightStartZ = isDesktop ? 160 : 75;
+      const rightCtrlZ = isDesktop ? -230 : -90;
 
       gsap.set(centerFloat, {
         y: `${centerStartY}vh`,
@@ -118,8 +118,11 @@ export function HeroPhotos() {
         rotateZ: 16,
       });
 
+      // Reveal root container now that cards are armed in their starting offscreen positions
+      gsap.set(root, { opacity: 1 });
+
       // Fly-in timeline with quadratic Bezier trajectory and elastic settle
-      const flyTl = gsap.timeline();
+      const flyTl = gsap.timeline({ delay: 0.05 });
 
       flyTl.to(
         centerFloat,
@@ -128,14 +131,14 @@ export function HeroPhotos() {
           z: 0,
           rotationX: 0,
           rotation: 0,
-          duration: 1.7,
+          duration: 1.6,
           ease: "elastic.out(0.5, 0.75)",
           modifiers: {
             y: bezier(centerStartY, centerStartY * 0.55, "vh"),
             z: bezier(centerStartZ, centerCtrlZ, "px"),
           },
         },
-        0.52
+        0
       );
 
       flyTl.to(
@@ -145,14 +148,14 @@ export function HeroPhotos() {
           z: 0,
           rotationX: 0,
           rotation: -8,
-          duration: 1.7,
+          duration: 1.6,
           ease: "elastic.out(0.5, 0.75)",
           modifiers: {
             y: bezier(leftStartY, leftStartY * 0.55, "vh"),
             z: bezier(leftStartZ, leftCtrlZ, "px"),
           },
         },
-        0.58
+        0.06
       );
 
       flyTl.to(
@@ -162,19 +165,19 @@ export function HeroPhotos() {
           z: 0,
           rotationX: 0,
           rotation: 7,
-          duration: 1.7,
+          duration: 1.6,
           ease: "elastic.out(0.5, 0.75)",
           modifiers: {
             y: bezier(rightStartY, rightStartY * 0.55, "vh"),
             z: bezier(rightStartZ, rightCtrlZ, "px"),
           },
         },
-        0.64
+        0.12
       );
 
       // Continuous Idle Floating Bob
       gsap.to(centerBob, {
-        y: isDesktop ? 14 : 8,
+        y: isDesktop ? 14 : 6,
         rotateZ: "+=1.6",
         duration: 2.2,
         delay: 0.8,
@@ -184,7 +187,7 @@ export function HeroPhotos() {
       });
 
       gsap.to(leftBob, {
-        y: isDesktop ? 22 : 12,
+        y: isDesktop ? 22 : 9,
         rotateZ: "-=1.4",
         duration: 3.1,
         delay: 1.2,
@@ -194,7 +197,7 @@ export function HeroPhotos() {
       });
 
       gsap.to(rightBob, {
-        y: isDesktop ? 18 : 10,
+        y: isDesktop ? 18 : 8,
         rotateZ: "+=1.2",
         duration: 2.6,
         delay: 1.6,
@@ -218,7 +221,7 @@ export function HeroPhotos() {
         .to(
           centerScroll,
           {
-            y: isDesktop ? "-18vw" : "-12vw",
+            y: isDesktop ? "-18vw" : "-10vw",
             scale: 1.04,
             rotate: 1.5,
             rotateX: -45,
@@ -229,12 +232,12 @@ export function HeroPhotos() {
         .to(
           leftScroll,
           {
-            y: isDesktop ? "-28vw" : "-18vw",
-            x: isDesktop ? "-8vw" : "-4vw",
-            rotate: isDesktop ? -10 : -6,
+            y: isDesktop ? "-28vw" : "-14vw",
+            x: isDesktop ? "-8vw" : "-3vw",
+            rotate: isDesktop ? -10 : -5,
             scale: 0.92,
             rotateX: -45,
-            rotateY: 95,
+            rotateY: isDesktop ? 95 : 40,
             ease: "none",
           },
           0
@@ -242,12 +245,12 @@ export function HeroPhotos() {
         .to(
           rightScroll,
           {
-            y: isDesktop ? "-22vw" : "-14vw",
-            x: isDesktop ? "10vw" : "5vw",
+            y: isDesktop ? "-22vw" : "-12vw",
+            x: isDesktop ? "10vw" : "4vw",
             rotate: isDesktop ? 9 : 5,
             scale: 0.94,
             rotateX: -35,
-            rotateY: -65,
+            rotateY: isDesktop ? -65 : -35,
             ease: "none",
           },
           0
@@ -260,9 +263,9 @@ export function HeroPhotos() {
   return (
     <div
       ref={rootRef}
-      className="w-fit h-fit z-10 absolute top-[calc(28%+10vw)] left-1/2 -translate-x-1/2 [perspective:1600px] pointer-events-none select-none"
+      className="w-fit h-fit z-10 absolute top-[calc(26%+10vw)] sm:top-[calc(28%+8vw)] left-1/2 -translate-x-1/2 [perspective:1600px] pointer-events-none select-none opacity-0"
     >
-      {/* Center Card — Tame Impala: Currents */}
+      {/* Center Card — Tame Impala: Currents (1:1 Square Album Cover) */}
       <div
         ref={centerScrollRef}
         className="will-change-transform [transform-style:preserve-3d]"
@@ -279,7 +282,7 @@ export function HeroPhotos() {
               ref={centerBobRef}
               className="will-change-transform [transform-style:preserve-3d]"
             >
-              <div className="drop-shadow-soft w-[38vw] h-[25vw] rounded-[0.5vw] overflow-hidden bg-yellow">
+              <div className="drop-shadow-soft w-[64vw] sm:w-[26vw] aspect-square rounded-[2vw] sm:rounded-[0.5vw] overflow-hidden bg-yellow">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/images/musi5t/hero_center.webp"
@@ -292,8 +295,8 @@ export function HeroPhotos() {
         </div>
       </div>
 
-      {/* Left Card — Kendrick Lamar: GKMC */}
-      <div className="w-[14vw] h-[9vw] absolute top-1/2 -left-1/3 -translate-x-1/3 -translate-y-1/2 [transform-style:preserve-3d]">
+      {/* Left Card — Kendrick Lamar: GKMC (1:1 Square Album Cover) */}
+      <div className="w-[24vw] sm:w-[12vw] aspect-square absolute top-1/2 -left-[10%] sm:-left-[30%] -translate-y-1/2 translate-x-0 sm:-translate-x-[20%] [transform-style:preserve-3d]">
         <div
           ref={leftScrollRef}
           className="w-full h-full will-change-transform [transform-style:preserve-3d]"
@@ -310,7 +313,7 @@ export function HeroPhotos() {
                 ref={leftBobRef}
                 className="w-full h-full will-change-transform [transform-style:preserve-3d]"
               >
-                <div className="drop-shadow-soft w-full h-full rounded-[0.2vw] overflow-hidden">
+                <div className="drop-shadow-soft w-full h-full rounded-[1vw] sm:rounded-[0.3vw] overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/images/musi5t/hero_left.webp"
@@ -324,8 +327,8 @@ export function HeroPhotos() {
         </div>
       </div>
 
-      {/* Right Card — Daft Punk: Random Access Memories */}
-      <div className="w-[15vw] h-[10vw] absolute top-4/5 right-[-25%] translate-x-[25%] -translate-y-4/5 [transform-style:preserve-3d]">
+      {/* Right Card — Daft Punk: Random Access Memories (1:1 Square Album Cover) */}
+      <div className="w-[26vw] sm:w-[13vw] aspect-square absolute top-3/4 sm:top-4/5 right-[-10%] sm:right-[-25%] translate-x-0 sm:translate-x-[20%] -translate-y-3/4 sm:-translate-y-4/5 [transform-style:preserve-3d]">
         <div
           ref={rightScrollRef}
           className="w-full h-full will-change-transform [transform-style:preserve-3d]"
@@ -342,7 +345,7 @@ export function HeroPhotos() {
                 ref={rightBobRef}
                 className="w-full h-full will-change-transform [transform-style:preserve-3d]"
               >
-                <div className="drop-shadow-soft w-full h-full rounded-[0.2vw] overflow-hidden">
+                <div className="drop-shadow-soft w-full h-full rounded-[1vw] sm:rounded-[0.3vw] overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/images/musi5t/hero_right.webp"

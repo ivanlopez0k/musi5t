@@ -1,42 +1,113 @@
-import Link from "next/link";
 import React from "react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth/session";
 
-export default function AuthLayout({
+export const instant = false;
+
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const currentUser = await getCurrentUser();
+  if (currentUser) {
+    redirect("/feed");
+  }
+
   return (
-    <div className="relative min-h-screen bg-[#11110F] text-[#E6E5DF] flex flex-col justify-between selection:bg-[#FFE600] selection:text-black">
-      {/* Top Bar with musi5t logo */}
-      <header className="w-full max-w-6xl mx-auto px-6 py-8 flex justify-between items-center z-10">
-        <Link
-          href="/"
-          className="text-lg font-medium tracking-tight text-[#E6E5DF] hover:opacity-80 transition-opacity flex items-center gap-2"
-        >
-          <span className="w-2.5 h-2.5 bg-[#FFE600] rounded-sm inline-block" />
-          musi5t
-        </Link>
-        <span className="text-xs uppercase tracking-widest text-[#E6E5DF]/40 font-mono">
-          album-first social
-        </span>
-      </header>
+    <div className="site-frame text-secondary">
+      <div className="site-layout">
+        <div className="app">
+          <div className="route-surface">
+            {/* Unauthenticated Navbar matching Feed & Rankings */}
+            <header className="header">
+              <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
+                {/* Brand Wordmark */}
+                <div className="mediumText col-span-3 flex justify-start items-center">
+                  <Link href="/" className="nav-btn cursor-pointer text-left nav-blend">
+                    musi5t
+                  </Link>
+                </div>
 
-      {/* Main Form Content */}
-      <main className="flex-1 flex items-center justify-center px-4 py-12 z-10">
-        {children}
-      </main>
+                {/* Center Navigation Group (Feed • Rankings) */}
+                <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
+                  <span className="nav-group flex items-center gap-[0.5vw] nav-blend">
+                    <Link href="/feed" className="nav-btn cursor-pointer">
+                      Feed
+                    </Link>
+                    <span className="opacity-35">•</span>
+                    <Link href="/rankings" className="nav-btn cursor-pointer">
+                      Rankings
+                    </Link>
+                  </span>
+                </div>
 
-      {/* Subtle bottom footer */}
-      <footer className="w-full max-w-6xl mx-auto px-6 py-6 text-center text-xs text-[#E6E5DF]/30">
-        musi5t &copy; 2026 — Curate your 5. Connect through records.
-      </footer>
+                {/* Right Actions: Sign in + Join musi5t */}
+                <div className="col-span-9 sm:col-span-4 flex justify-end items-center gap-[2.5vw] sm:gap-[1vw]">
+                  <Link
+                    href="/login"
+                    className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                  >
+                    Sign in
+                  </Link>
+                  <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                    <Link
+                      href="/register"
+                      className="main-btn !px-[3vw] sm:!px-[1vw] !py-[1.2vw] sm:!py-[0.4vw] !gap-[1.5vw] sm:!gap-[0.5vw]"
+                    >
+                      <div className="main-btn__icon !w-[3vw] !h-[3vw] sm:!w-[0.9vw] sm:!h-[0.9vw] !rounded-[0.6vw] sm:!rounded-[0.2vw]" />
+                      <span className="main-btn__label text-[3vw] sm:text-[0.8vw] font-medium text-secondary">
+                        Join musi5t
+                      </span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </header>
 
-      {/* Ambient background blur circles */}
-      <div
-        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#FFE600]/5 rounded-full blur-[140px]"
-        aria-hidden="true"
-      />
+            {/* Scrollable Main Area */}
+            <main className="overflow-y-auto">
+              {/* Subtle ambient lighting */}
+              <div
+                className="pointer-events-none fixed -top-[12vw] -right-[12vw] w-[40vw] h-[40vw] rounded-full bg-yellow/20 blur-[9vw]"
+                aria-hidden="true"
+              />
+              <div
+                className="pointer-events-none fixed -bottom-[12vw] -left-[12vw] w-[40vw] h-[40vw] rounded-full bg-yellow/15 blur-[9vw]"
+                aria-hidden="true"
+              />
+
+              <div className="relative z-10 w-full min-h-screen flex flex-col justify-between pt-[18vw] sm:pt-[7.5vw] pb-[6vw] sm:pb-[2.5vw]">
+                {/* Form Content */}
+                <div className="flex-1 flex items-center justify-center my-auto">
+                  {children}
+                </div>
+
+                {/* Editorial Footer */}
+                <footer className="layout-grid pt-[6vw] sm:pt-[3vw] text-secondary/40 detailText text-center sm:text-left mt-auto">
+                  <div className="col-span-full sm:col-span-6">
+                    musi5t &copy; 2026 &mdash; Curate your essential 5. Connect through records.
+                  </div>
+                  <div className="col-span-full sm:col-span-6 flex justify-center sm:justify-end gap-[3vw] sm:gap-[1vw] mt-[2vw] sm:mt-0">
+                    <Link href="/" className="hover:text-secondary transition-colors">
+                      Home
+                    </Link>
+                    <span>&bull;</span>
+                    <Link href="/feed" className="hover:text-secondary transition-colors">
+                      Feed
+                    </Link>
+                    <span>&bull;</span>
+                    <Link href="/rankings" className="hover:text-secondary transition-colors">
+                      Rankings
+                    </Link>
+                  </div>
+                </footer>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

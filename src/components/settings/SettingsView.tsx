@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
+import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { PaletteSelector, PROFILE_PALETTES } from "@/components/profile/PaletteSelector";
 
 export interface ModeratedUserItem {
@@ -72,6 +73,8 @@ export function SettingsView({
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    const cleanupNav = setupNavColorTriggers(mainEl);
+
     const rafHandler = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -79,6 +82,7 @@ export function SettingsView({
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      cleanupNav();
       gsap.ticker.remove(rafHandler);
       lenis.destroy();
       setLenis(null);
@@ -241,19 +245,19 @@ export function SettingsView({
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Brand Wordmark */}
-                <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
-                  <Link href="/feed" className="nav-btn cursor-pointer text-left">
+                <div className="mediumText col-span-3 flex justify-start items-center">
+                  <Link href="/feed" className="nav-btn cursor-pointer text-left nav-blend">
                     musi5t
                   </Link>
                 </div>
 
                 {/* Center Navigation Group */}
-                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex items-center gap-[0.5vw]">
+                <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
+                  <span className="nav-group flex items-center gap-[0.5vw] nav-blend">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
                     </Link>
-                    <span className="text-secondary/35">•</span>
+                    <span className="opacity-35">•</span>
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>
@@ -264,7 +268,7 @@ export function SettingsView({
                 <div className="col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
                   <Link
                     href={`/@${user.username}`}
-                    className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
+                    className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
                     title={`@${user.username}`}
                   >
                     {avatarUrl ? (
@@ -631,7 +635,10 @@ export function SettingsView({
                 </section>
 
                 {/* Editorial Dark Footer (matching Home, Profile & Feed) */}
-                <footer className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none">
+                <footer
+                  data-nav-color="primary"
+                  className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none"
+                >
                   {/* Platform Links */}
                   <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
                     <span className="extraSmallText text-primary/40 font-mono">

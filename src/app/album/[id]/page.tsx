@@ -5,6 +5,7 @@ import { albums, userTopAlbums, users, albumFollows, albumRatings } from "@/db/s
 import { getCurrentUser } from "@/lib/auth/session";
 import { and, eq, sql } from "drizzle-orm";
 import { getAlbumVisiblePosts } from "@/lib/feed/visibility";
+import { getAlbumTracklist } from "@/lib/catalog/tracks";
 import { AlbumDetailView } from "@/components/album/AlbumDetailView";
 
 export const instant = false;
@@ -96,12 +97,15 @@ export default async function AlbumDetailPage({ params }: PageProps) {
     .orderBy(userTopAlbums.position)
     .limit(12);
 
-  // Fetch posts tagged with this album
-  const albumPosts = await getAlbumVisiblePosts({
-    albumId: album.id,
-    viewerUserId: currentUser?.id || null,
-    limit: 20,
-  });
+  // Fetch posts tagged with this album & tracklist
+  const [albumPosts, tracklist] = await Promise.all([
+    getAlbumVisiblePosts({
+      albumId: album.id,
+      viewerUserId: currentUser?.id || null,
+      limit: 20,
+    }),
+    getAlbumTracklist(album.artistName, album.title),
+  ]);
 
   return (
     <AlbumDetailView
@@ -119,6 +123,7 @@ export default async function AlbumDetailPage({ params }: PageProps) {
       ratingsCount={ratingsCount}
       topListeners={topListeners}
       albumPosts={albumPosts}
+      tracklist={tracklist}
     />
   );
 }

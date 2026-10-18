@@ -16,6 +16,31 @@ if (process.env.NODE_ENV !== "production") globalForDb.conn = conn;
 
 export const db = drizzle(conn, { schema });
 
+export async function ensureArtistTables(): Promise<void> {
+  try {
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS artist_follows (
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        artist_name text NOT NULL,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        PRIMARY KEY (user_id, artist_name)
+      );
+    `);
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS artist_ratings (
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        artist_name text NOT NULL,
+        score smallint NOT NULL CHECK (score >= 1 AND score <= 10),
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now(),
+        PRIMARY KEY (user_id, artist_name)
+      );
+    `);
+  } catch {
+    // Ignore if DB is offline during build/static analysis
+  }
+}
+
 export async function ensurePhase3Tables(): Promise<void> {
   if (globalForDb.phase3Initialized) return;
   try {
@@ -39,6 +64,7 @@ export async function ensurePhase3Tables(): Promise<void> {
         PRIMARY KEY (user_id, album_id)
       );
     `);
+    await ensureArtistTables();
     globalForDb.phase3Initialized = true;
   } catch {
     // Ignore if DB is offline during build/static analysis

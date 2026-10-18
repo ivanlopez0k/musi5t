@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
+import { setupNavColorTriggers } from "@/lib/nav-theme";
 import type { FeedPost } from "@/lib/feed/visibility";
 import { AlbumSearchModal } from "@/components/profile/AlbumSearchModal";
 
@@ -548,6 +549,8 @@ export function FeedView({
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    const cleanupNav = setupNavColorTriggers(mainEl);
+
     const rafHandler = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -555,6 +558,7 @@ export function FeedView({
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      cleanupNav();
       gsap.ticker.remove(rafHandler);
       lenis.destroy();
       setLenis(null);
@@ -711,18 +715,18 @@ export function FeedView({
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Brand Wordmark */}
-                <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
+                <div className="mediumText col-span-3 flex justify-start items-center">
                   <Link
                     href={currentUser ? "/feed" : "/"}
-                    className="nav-btn cursor-pointer text-left"
+                    className="nav-btn nav-blend cursor-pointer text-left"
                   >
                     musi5t
                   </Link>
                 </div>
 
                 {/* Center Navigation Group */}
-                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex items-center gap-[0.5vw]">
+                <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
+                  <span className="nav-group nav-blend flex items-center gap-[0.5vw]">
                     <button
                       type="button"
                       onClick={() => {
@@ -733,7 +737,7 @@ export function FeedView({
                     >
                       Feed
                     </button>
-                    <span className="text-secondary/35">•</span>
+                    <span className="opacity-35">•</span>
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>
@@ -746,7 +750,7 @@ export function FeedView({
                     <>
                       <Link
                         href="/settings"
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
@@ -1068,7 +1072,10 @@ export function FeedView({
                 </section>
 
                 {/* Editorial Dark Footer (matching Home and Profile) */}
-                <footer className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none">
+                <footer
+                  data-nav-color="primary"
+                  className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none"
+                >
                   {/* Platform Links */}
                   <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
                     <span className="extraSmallText text-primary/40 font-mono">
