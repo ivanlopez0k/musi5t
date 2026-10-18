@@ -77,3 +77,21 @@ export const albumRatings = pgTable(
   ]
 );
 
+export const artistRatings = pgTable(
+  "artist_ratings",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    artistName: text("artist_name").notNull(),
+    score: smallint("score").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.artistName] }),
+    check("valid_artist_rating_score", sql`${table.score} >= 1 AND ${table.score} <= 10`),
+  ]
+);
+
+

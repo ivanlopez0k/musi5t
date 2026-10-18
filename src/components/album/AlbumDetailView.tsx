@@ -238,7 +238,12 @@ export function AlbumDetailView({
                       </h1>
 
                       <p className="smallText sm:text-[1.25vw] text-secondary/70">
-                        {album.artistName}
+                        <Link
+                          href={`/artist/${encodeURIComponent(album.artistName)}`}
+                          className="hover:underline transition-colors hover:text-secondary"
+                        >
+                          {album.artistName}
+                        </Link>
                         {album.releaseYear ? (
                           <span className="text-secondary/45">
                             {" "}

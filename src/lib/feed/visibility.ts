@@ -150,6 +150,13 @@ export async function getFeedPosts({
                 JOIN album_follows af ON af.album_id = pa.album_id AND af.user_id = ${me}::uuid
                 WHERE pa.post_id = p.id
               )
+              OR EXISTS (
+                SELECT 1 FROM post_albums pa
+                JOIN albums a ON a.id = pa.album_id
+                JOIN artist_follows art_f ON art_f.user_id = ${me}::uuid 
+                  AND LOWER(TRIM(a.artist_name)) = LOWER(TRIM(art_f.artist_name))
+                WHERE pa.post_id = p.id
+              )
             )
           `
       }
@@ -234,9 +241,88 @@ export async function getUserVisiblePosts({
                 JOIN album_follows af ON af.album_id = pa.album_id AND af.user_id = ${me}::uuid
                 WHERE pa.post_id = p.id
               )
+              OR EXISTS (
+                SELECT 1 FROM post_albums pa
+                JOIN albums a ON a.id = pa.album_id
+                JOIN artist_follows art_f ON art_f.user_id = ${me}::uuid 
+                  AND LOWER(TRIM(a.artist_name)) = LOWER(TRIM(art_f.artist_name))
+                WHERE pa.post_id = p.id
+              )
             )
           `
           : sql`AND p.is_public = true`
+      }
+    GROUP BY p.id, u.id
+    ORDER BY p.created_at DESC
+    LIMIT ${limit};
+  `);
+
+  return mapRawPostRows(rows);
+}
+
+export async function getArtistVisiblePosts({
+  artistName,
+  viewerUserId,
+  limit = 20,
+}: {
+  artistName: string;
+  viewerUserId?: string | null;
+  limit?: number;
+}): Promise<FeedPost[]> {
+  await ensurePhase3Tables();
+  const me = viewerUserId || null;
+
+  const rows = await db.execute<RawPostRow>(sql`
+    SELECT 
+      p.id,
+      p.body,
+      p.is_public,
+      p.created_at,
+      u.id AS author_id,
+      u.username AS author_username,
+      u.display_name AS author_display_name,
+      u.avatar_url AS author_avatar_url,
+      u.theme_key AS author_theme_key,
+      COUNT(DISTINCT pl.user_id)::text AS likes_count,
+      CASE 
+        WHEN ${me}::uuid IS NOT NULL THEN 
+          EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = ${me}::uuid)
+        ELSE false
+      END AS liked_by_me,
+      COUNT(DISTINCT pr.id)::text AS replies_count,
+      (
+        SELECT json_agg(json_build_object(
+          'id', a.id,
+          'title', a.title,
+          'artistName', a.artist_name,
+          'defaultCoverUrl', a.default_cover_url
+        ))
+        FROM post_albums pa2
+        JOIN albums a ON a.id = pa2.album_id
+        WHERE pa2.post_id = p.id
+      ) AS albums_json
+    FROM post_albums pa
+    JOIN albums a_filter ON a_filter.id = pa.album_id
+    JOIN posts p ON p.id = pa.post_id
+    JOIN users u ON u.id = p.author_id
+    LEFT JOIN post_likes pl ON pl.post_id = p.id
+    LEFT JOIN post_replies pr ON pr.post_id = p.id AND pr.deleted_at IS NULL
+    WHERE LOWER(TRIM(a_filter.artist_name)) = LOWER(TRIM(${artistName}))
+      AND p.deleted_at IS NULL
+      ${
+        me
+          ? sql`
+            AND NOT EXISTS (
+              SELECT 1 FROM blocks b
+              WHERE (b.blocker_id = ${me}::uuid AND b.blocked_id = p.author_id)
+                 OR (b.blocker_id = p.author_id AND b.blocked_id = ${me}::uuid)
+            )
+            AND NOT EXISTS (
+              SELECT 1 FROM mutes m
+              WHERE m.muter_id = ${me}::uuid AND m.muted_id = p.author_id
+            )
+          `
+          : sql``
       }
     GROUP BY p.id, u.id
     ORDER BY p.created_at DESC
