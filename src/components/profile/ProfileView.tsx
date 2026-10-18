@@ -472,7 +472,7 @@ export function ProfileView({
                 <div className="mediumText col-span-2 flex justify-start items-center gap-[0.8vw]">
                   <Link
                     href={isLoggedIn ? "/feed" : "/"}
-                    className="nav-btn cursor-pointer text-left"
+                    className="nav-btn nav-blend cursor-pointer text-left"
                   >
                     musi5t
                   </Link>
@@ -480,7 +480,7 @@ export function ProfileView({
 
                 {/* Center Navigation Group (Feed • Rankings) */}
                 <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex items-center gap-[0.6vw]">
+                  <span className="nav-group nav-blend flex items-center gap-[0.6vw]">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
                     </Link>
@@ -502,7 +502,7 @@ export function ProfileView({
                       />
                       <Link
                         href="/settings"
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
@@ -510,7 +510,7 @@ export function ProfileView({
                         type="button"
                         onClick={handleLogout}
                         disabled={isLoggingOut}
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors cursor-pointer"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer"
                       >
                         {isLoggingOut ? "..." : "Logout"}
                       </button>

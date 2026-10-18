@@ -141,35 +141,29 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  color: rgb(var(--rgb-secondary));
-  transition: color 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+  pointer-events: none;
 }
 
-.route-surface > .header[data-nav-theme="light"],
-.route-surface > .header.theme-light {
-  color: rgb(var(--rgb-primary));
+.route-surface > .header .layout-fixed {
+  pointer-events: auto;
 }
 
-.route-surface > .header[data-nav-theme="light"] :not(.main-btn):not(.main-btn *) > .text-secondary,
-.route-surface > .header[data-nav-theme="light"] .text-secondary:not(.main-btn):not(.main-btn *) {
-  color: rgb(var(--rgb-primary));
+/* Pixel-level sub-element negative inversion:
+   When text is over light/white backgrounds, it inverts to dark ink.
+   When text is over dark/black backgrounds, it inverts to light/white.
+   If half of a letter is over a black box and half over white,
+   each pixel inverts independently on the GPU compositor. */
+.nav-blend {
+  mix-blend-mode: difference;
+  color: #ffffff !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.route-surface > .header[data-nav-theme="light"] .text-secondary\/60 {
-  color: rgba(var(--rgb-primary), 0.7);
+.nav-blend * {
+  color: inherit;
 }
 
-.route-surface > .header[data-nav-theme="light"] .text-secondary\/35 {
-  color: rgba(var(--rgb-primary), 0.35);
-}
-
-.route-surface > .header[data-nav-theme="light"] .border-secondary\/25 {
-  border-color: rgba(var(--rgb-primary), 0.3);
-}
-
-.route-surface > .header[data-nav-theme="light"] .border-secondary {
-  border-color: rgba(var(--rgb-primary), 0.8);
-}
 
 
 .route-surface > main {

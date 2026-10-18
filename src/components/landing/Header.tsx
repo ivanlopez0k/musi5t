@@ -22,7 +22,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => scrollTo("#hero")}
-            className="nav-btn cursor-pointer text-left"
+            className="nav-btn nav-blend cursor-pointer text-left"
           >
             musi5t
           </button>
@@ -30,7 +30,7 @@ export function Header() {
 
         {/* Navigation Group */}
         <div className="smallText col-span-6 justify-center items-center hidden sm:flex">
-          <span className="nav-group flex gap-[0.25vw]">
+          <span className="nav-group nav-blend flex gap-[0.25vw]">
             <button
               type="button"
               onClick={() => scrollTo("#about")}
@@ -69,7 +69,7 @@ export function Header() {
         <div className="col-span-3 flex justify-end items-center gap-4">
           <Link
             href="/login"
-            className="opacity-70 hover:opacity-100 text-[1.1vw] sm:text-[0.85vw] font-medium transition-opacity"
+            className="nav-blend opacity-70 hover:opacity-100 text-[1.1vw] sm:text-[0.85vw] font-medium transition-opacity"
           >
             Sign in
           </Link>

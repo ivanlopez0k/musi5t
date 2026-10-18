@@ -718,7 +718,7 @@ export function FeedView({
                 <div className="mediumText col-span-3 flex justify-start items-center">
                   <Link
                     href={currentUser ? "/feed" : "/"}
-                    className="nav-btn cursor-pointer text-left"
+                    className="nav-btn nav-blend cursor-pointer text-left"
                   >
                     musi5t
                   </Link>
@@ -726,7 +726,7 @@ export function FeedView({
 
                 {/* Center Navigation Group */}
                 <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex items-center gap-[0.5vw]">
+                  <span className="nav-group nav-blend flex items-center gap-[0.5vw]">
                     <button
                       type="button"
                       onClick={() => {
@@ -750,13 +750,13 @@ export function FeedView({
                     <>
                       <Link
                         href="/settings"
-                        className="opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
                       <Link
                         href={`/@${currentUser.username}`}
-                        className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
+                        className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
                         title={`@${currentUser.username}`}
                       >
                         {currentUser.avatarUrl ? (

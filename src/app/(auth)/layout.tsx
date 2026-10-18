@@ -24,19 +24,19 @@ export default async function AuthLayout({
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Brand Wordmark */}
-                <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
-                  <Link href="/" className="nav-btn cursor-pointer text-left">
+                <div className="mediumText col-span-3 flex justify-start items-center">
+                  <Link href="/" className="nav-btn cursor-pointer text-left nav-blend">
                     musi5t
                   </Link>
                 </div>
 
                 {/* Center Navigation Group (Feed • Rankings) */}
-                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex items-center gap-[0.5vw]">
+                <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
+                  <span className="nav-group flex items-center gap-[0.5vw] nav-blend">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
                     </Link>
-                    <span className="text-secondary/35">•</span>
+                    <span className="opacity-35">•</span>
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>
@@ -47,7 +47,7 @@ export default async function AuthLayout({
                 <div className="col-span-9 sm:col-span-4 flex justify-end items-center gap-[2.5vw] sm:gap-[1vw]">
                   <Link
                     href="/login"
-                    className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                    className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                   >
                     Sign in
                   </Link>

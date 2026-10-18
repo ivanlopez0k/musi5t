@@ -87,7 +87,7 @@ export function RankingsView({
                 <div className="mediumText col-span-3 flex justify-start items-center">
                   <Link
                     href={currentUser ? "/feed" : "/"}
-                    className="nav-btn cursor-pointer text-left"
+                    className="nav-btn cursor-pointer text-left nav-blend"
                   >
                     musi5t
                   </Link>
@@ -95,7 +95,7 @@ export function RankingsView({
 
                 {/* Center Navigation Group (Feed • Rankings) */}
                 <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex items-center gap-[0.5vw]">
+                  <span className="nav-group flex items-center gap-[0.5vw] nav-blend">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
                     </Link>
@@ -116,7 +116,7 @@ export function RankingsView({
                     <>
                       <Link
                         href="/settings"
-                        className="opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
@@ -143,7 +143,7 @@ export function RankingsView({
                     <>
                       <Link
                         href="/login"
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Sign in
                       </Link>

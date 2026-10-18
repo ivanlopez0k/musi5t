@@ -246,14 +246,14 @@ export function SettingsView({
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Brand Wordmark */}
                 <div className="mediumText col-span-3 flex justify-start items-center">
-                  <Link href="/feed" className="nav-btn cursor-pointer text-left">
+                  <Link href="/feed" className="nav-btn cursor-pointer text-left nav-blend">
                     musi5t
                   </Link>
                 </div>
 
                 {/* Center Navigation Group */}
                 <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group flex items-center gap-[0.5vw]">
+                  <span className="nav-group flex items-center gap-[0.5vw] nav-blend">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
                     </Link>
