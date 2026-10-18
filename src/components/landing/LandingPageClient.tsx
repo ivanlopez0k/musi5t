@@ -116,20 +116,6 @@ export function LandingPageClient() {
         });
       }
 
-      // FAQ Section Scroll Scrub
-      if (faqContainerRef.current) {
-        gsap.to(faqContainerRef.current, {
-          y: "10svh",
-          ease: "none",
-          scrollTrigger: {
-            trigger: faqContainerRef.current,
-            scroller: scroller,
-            start: "center center",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      }
     }, mainRef);
 
     return () => ctx.revert();
@@ -402,7 +388,7 @@ export function LandingPageClient() {
                 <div
                   id="cta"
                   data-nav-color="primary"
-                  className="w-full bg-secondary text-primary py-[12vw] sm:py-[8vw] layout-grid select-none"
+                  className="w-full bg-secondary text-primary py-[14vw] sm:py-[8vw] layout-grid select-none relative z-10"
                 >
                   <div className="col-span-full flex flex-col items-center justify-center text-center gap-[3vw]">
                     <h2 className="largeText font-light text-[7.5vw] sm:text-inherit">
