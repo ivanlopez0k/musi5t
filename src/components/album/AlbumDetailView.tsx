@@ -13,6 +13,7 @@ import {
   type CurrentUserSummary,
 } from "@/components/feed/FeedView";
 import type { FeedPost } from "@/lib/feed/visibility";
+import type { AlbumTracklist } from "@/lib/catalog/tracks";
 
 export interface TopListenerItem {
   position: number;
@@ -39,6 +40,7 @@ interface AlbumDetailViewProps {
   ratingsCount: number;
   topListeners: TopListenerItem[];
   albumPosts: FeedPost[];
+  tracklist: AlbumTracklist;
 }
 
 export function AlbumDetailView({
@@ -50,6 +52,7 @@ export function AlbumDetailView({
   ratingsCount,
   topListeners,
   albumPosts,
+  tracklist,
 }: AlbumDetailViewProps) {
   const router = useRouter();
   const mainRef = useRef<HTMLElement>(null);
@@ -278,6 +281,69 @@ export function AlbumDetailView({
                   </div>
                 </section>
 
+                {/* TRACKLIST SECTION */}
+                <section
+                  id="tracklist"
+                  data-nav-color="secondary"
+                  className="w-full py-[6vw] sm:py-[4vw] border-t border-secondary/15"
+                >
+                  <div className="layout-grid mb-[4vw] sm:mb-[2.2vw]">
+                    <div className="col-span-full flex items-center justify-between">
+                      <div className="flex items-center gap-[2vw] sm:gap-[1vw]">
+                        <div className="drop-shadow rounded-[0.25vw]">
+                          <div className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] bg-yellow drop-shadow" />
+                        </div>
+                        <h2 className="mediumText lowercase">tracklist</h2>
+                      </div>
+                      <span className="extraSmallText text-secondary/50">
+                        [ {tracklist.totalTracks} tracks
+                        {tracklist.totalDurationFormatted
+                          ? ` • ${tracklist.totalDurationFormatted}`
+                          : ""} ]
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="layout-grid">
+                    <div className="col-span-full">
+                      {tracklist.tracks.length === 0 ? (
+                        <div className="p-[6vw] sm:p-[3vw] border border-secondary/15 rounded-[0.5vw] bg-primary drop-shadow-soft flex flex-col items-start gap-[0.8vw]">
+                          <span className="smallText font-medium text-secondary">
+                            Tracklist details are not yet indexed for this release.
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          className={`grid grid-cols-1 ${
+                            tracklist.tracks.length >= 8
+                              ? "sm:grid-cols-2 gap-x-[4vw]"
+                              : "sm:max-w-[50%]"
+                          } gap-y-0`}
+                        >
+                          {tracklist.tracks.map((track, idx) => (
+                            <div
+                              key={`${track.position}-${track.title}-${idx}`}
+                              className="flex items-center justify-between py-[2.2vw] sm:py-[0.85vw] border-b border-secondary/10 hover:bg-secondary/[0.02] px-[1vw] rounded-[0.2vw] transition-colors group"
+                            >
+                              <div className="flex items-center min-w-0">
+                                <span className="px-[0.8vw] py-[0.2vw] sm:px-[0.35vw] sm:py-[0.1vw] rounded-[0.2vw] bg-secondary/5 text-secondary/50 detailText font-mono mr-[2vw] sm:mr-[1vw] group-hover:bg-yellow group-hover:text-secondary transition-colors shrink-0">
+                                  {String(track.position).padStart(2, "0")}
+                                </span>
+                                <span className="smallText font-medium text-secondary truncate max-w-[55vw] sm:max-w-[28vw] group-hover:underline">
+                                  {track.title}
+                                </span>
+                              </div>
+                              <span className="extraSmallText text-secondary/45 font-mono ml-[2vw] sm:ml-[1vw] shrink-0">
+                                {track.durationFormatted}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </section>
+
                 {/* 3. CURATED IN TOP 5 SECTION */}
                 <section
                   id="curated"
@@ -487,6 +553,17 @@ export function AlbumDetailView({
                       <Link href="/" className="hover:text-primary transition-colors">
                         overview
                       </Link>
+                      <span>,</span>
+                      <a
+                        href="#tracklist"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          scrollTo("#tracklist");
+                        }}
+                        className="hover:text-primary transition-colors cursor-pointer"
+                      >
+                        tracklist
+                      </a>
                       <span>,</span>
                       <Link href="/feed" className="hover:text-primary transition-colors">
                         discussions
