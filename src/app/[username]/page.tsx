@@ -36,6 +36,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${user.displayName} (@${user.username}) — musi5t`,
     description: user.bio || `Explore ${user.displayName}'s Top 5 essential albums and songs on musi5t.`,
+    openGraph: {
+      title: `${user.displayName}'s Top 5 Albums — musi5t`,
+      description: user.bio || `Explore ${user.displayName}'s Top 5 essential albums on musi5t.`,
+      images: [
+        {
+          url: `/api/v1/users/${username}/og`,
+          width: 1200,
+          height: 630,
+          alt: `${user.displayName}'s Top 5 Albums on musi5t`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${user.displayName}'s Top 5 Albums — musi5t`,
+      description: user.bio || `Explore ${user.displayName}'s Top 5 essential albums on musi5t.`,
+      images: [`/api/v1/users/${username}/og`],
+    },
   };
 }
 
