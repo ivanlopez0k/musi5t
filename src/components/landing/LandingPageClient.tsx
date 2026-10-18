@@ -89,17 +89,26 @@ export function LandingPageClient() {
     if (!scroller) return;
 
     const ctx = gsap.context(() => {
-      // Hero wordmark 3D char flip on entrance
-      gsap.from(".hero-char", {
-        yPercent: -125,
-        rotateX: -50,
-        scaleY: 1.4,
-        opacity: 0,
-        duration: 1.3,
-        delay: 0.35,
-        stagger: { each: 0.025, from: "edges" },
-        ease: "elastic.out(0.5, 0.7)",
-      });
+      // Hero wordmark 3D char flip on entrance (fromTo to eliminate FOUC on F5)
+      gsap.fromTo(
+        ".hero-char",
+        {
+          yPercent: -125,
+          rotateX: -50,
+          scaleY: 1.4,
+          opacity: 0,
+        },
+        {
+          yPercent: 0,
+          rotateX: 0,
+          scaleY: 1,
+          opacity: 1,
+          duration: 1.2,
+          delay: 0.05,
+          stagger: { each: 0.025, from: "edges" },
+          ease: "elastic.out(0.5, 0.7)",
+        }
+      );
 
       // About Section Scroll Scrub
       if (aboutRef.current) {
@@ -159,7 +168,7 @@ export function LandingPageClient() {
                     {"musi5t".split("").map((char, i) => (
                       <span
                         key={i}
-                        className="hero-char inline-block will-change-transform [transform-style:preserve-3d]"
+                        className="hero-char inline-block will-change-transform opacity-0 [transform-style:preserve-3d]"
                         style={{ transformOrigin: "50% 100%" }}
                       >
                         {char}
