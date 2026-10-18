@@ -20,7 +20,7 @@ export function Header() {
       <header className="header header-blend">
         <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
           {/* Brand Wordmark */}
-          <div className="mediumText col-span-3 flex justify-start items-center">
+          <div className="mediumText col-span-3 sm:col-span-3 flex justify-start items-center">
             <button
               type="button"
               onClick={() => scrollTo("#hero")}
@@ -68,16 +68,16 @@ export function Header() {
           </div>
 
           {/* CTA Links */}
-          <div className="col-span-3 flex justify-end items-center gap-4">
+          <div className="col-span-3 sm:col-span-3 flex justify-end items-center gap-2 sm:gap-4">
             <Link
               href="/login"
-              className="opacity-70 hover:opacity-100 text-[1.1vw] sm:text-[0.85vw] font-medium transition-opacity"
+              className="text-[3.5vw] sm:text-[0.85vw] font-medium opacity-70 hover:opacity-100 transition-opacity"
             >
               Sign in
             </Link>
             {/* Structural spacer matching Join button dimensions */}
             <div
-              className="invisible pointer-events-none select-none main-btn smallText !opacity-0"
+              className="invisible pointer-events-none select-none main-btn smallText !opacity-0 !px-[3vw] sm:!px-[0.6vw] !py-[1.5vw] sm:!py-[0.25vw] !gap-[1.5vw] sm:!gap-[0.5vw]"
               aria-hidden="true"
             >
               <span className="main-btn__icon" />
@@ -90,10 +90,13 @@ export function Header() {
       {/* 2. Normal Stacking UI Header (keeps yellow button un-blended) */}
       <header className="header header-actions">
         <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-none select-none">
-          <div className="col-span-9" />
-          <div className="col-span-3 flex justify-end items-center pointer-events-auto">
+          <div className="col-span-3 sm:col-span-9" />
+          <div className="col-span-3 sm:col-span-3 flex justify-end items-center pointer-events-auto">
             <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
-              <Link href="/register" className="main-btn smallText">
+              <Link
+                href="/register"
+                className="main-btn smallText !px-[3vw] sm:!px-[0.6vw] !py-[1.5vw] sm:!py-[0.25vw] !gap-[1.5vw] sm:!gap-[0.5vw]"
+              >
                 <span className="main-btn__icon" aria-hidden="true" />
                 <span className="main-btn__label">
                   <span className="main-btn__clip">

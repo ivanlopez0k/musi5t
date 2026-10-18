@@ -11,7 +11,7 @@ function SimulatedCursor({ isClicking }: { isClicking?: boolean }) {
       }`}
     >
       <svg
-        className="w-[1.4vw] min-w-[16px] h-[1.4vw] min-h-[16px] drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] filter"
+        className="w-[4vw] sm:w-[1.4vw] min-w-[14px] h-[4vw] sm:h-[1.4vw] min-h-[14px] drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] filter"
         viewBox="0 0 24 24"
         fill="none"
       >
@@ -139,7 +139,7 @@ export function StepCurateCollage() {
   return (
     <div
       ref={containerRef}
-      className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
+      className="w-full aspect-auto min-h-[220px] sm:aspect-[16/10] bg-[#141412] rounded-[2vw] sm:rounded-[0.5vw] p-[3.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
     >
       {/* Simulated Animated Cursor */}
       <div
@@ -151,19 +151,19 @@ export function StepCurateCollage() {
 
       {/* Header bar */}
       <div className="flex items-center justify-between z-10">
-        <div className="flex items-center gap-[0.6vw]">
-          <span className="w-[0.5vw] h-[0.5vw] rounded-full bg-yellow" />
-          <span className="detailText font-mono text-primary/70">
+        <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
+          <span className="w-[1.8vw] h-[1.8vw] sm:w-[0.5vw] sm:h-[0.5vw] rounded-full bg-yellow" />
+          <span className="detailText font-mono text-primary/70 text-[2.8vw] sm:text-inherit">
             @mateo&apos;s Top 5
           </span>
         </div>
-        <span className="detailText text-primary/40 font-mono">
+        <span className="detailText text-primary/40 font-mono text-[2.6vw] sm:text-inherit">
           edition: 1st vinyl press
         </span>
       </div>
 
       {/* 5 Album Covers */}
-      <div className="grid grid-cols-5 gap-[0.8vw] my-auto items-center z-10 pt-[0.5vw]">
+      <div className="grid grid-cols-5 gap-[1.5vw] sm:gap-[0.8vw] my-auto items-center z-10 pt-[0.5vw]">
         {albums.map((album) => {
           const isActive = activeCard === album.rank;
           return (
@@ -175,7 +175,7 @@ export function StepCurateCollage() {
               }`}
             >
               <div
-                className={`relative aspect-square w-full rounded-[0.3vw] overflow-hidden drop-shadow border transition-colors duration-300 bg-secondary ${
+                className={`relative aspect-square w-full rounded-[1vw] sm:rounded-[0.3vw] overflow-hidden drop-shadow border transition-colors duration-300 bg-secondary ${
                   isActive ? "border-yellow" : "border-white/10"
                 }`}
               >
@@ -186,18 +186,18 @@ export function StepCurateCollage() {
                   className="w-full h-full object-cover select-none"
                 />
                 <span
-                  className={`absolute top-[0.3vw] left-[0.3vw] text-[0.65vw] px-[0.3vw] py-[0.1vw] rounded-[0.15vw] font-mono font-bold transition-colors ${
+                  className={`absolute top-[0.5vw] left-[0.5vw] sm:top-[0.3vw] sm:left-[0.3vw] text-[2.6vw] sm:text-[0.65vw] px-[1.2vw] py-[0.4vw] sm:px-[0.3vw] sm:py-[0.1vw] rounded-[0.5vw] sm:rounded-[0.15vw] font-mono font-bold transition-colors ${
                     isActive ? "bg-yellow text-secondary" : "bg-black/80 text-yellow"
                   }`}
                 >
                   0{album.rank}
                 </span>
               </div>
-              <div className="mt-[0.5vw] text-center w-full overflow-hidden">
-                <span className="detailText font-medium text-primary block truncate">
+              <div className="mt-[1vw] sm:mt-[0.5vw] text-center w-full overflow-hidden">
+                <span className="detailText font-medium text-primary block truncate text-[2.6vw] sm:text-inherit">
                   {album.title}
                 </span>
-                <span className="detailText text-primary/50 text-[0.65vw] block truncate">
+                <span className="detailText text-primary/50 text-[2.4vw] sm:text-[0.65vw] block truncate">
                   {album.artist}
                 </span>
               </div>
@@ -208,10 +208,10 @@ export function StepCurateCollage() {
 
       {/* Footer hint */}
       <div className="flex justify-between items-center z-10 pt-[0.2vw] border-t border-white/5">
-        <span className="detailText text-yellow/80 font-mono text-[0.7vw]">
+        <span className="detailText text-yellow/80 font-mono text-[2.8vw] sm:text-[0.7vw]">
           ★ Drag &amp; reorder enabled
         </span>
-        <span className="detailText text-primary/40 text-[0.7vw]">
+        <span className="detailText text-primary/40 text-[2.8vw] sm:text-[0.7vw]">
           5 / 5 slots filled
         </span>
       </div>
@@ -299,7 +299,7 @@ export function StepConnectAnimation() {
   return (
     <div
       ref={containerRef}
-      className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
+      className="w-full aspect-auto min-h-[220px] sm:aspect-[16/10] bg-[#141412] rounded-[2vw] sm:rounded-[0.5vw] p-[3.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
     >
       {/* Simulated Animated Cursor */}
       <div
@@ -311,33 +311,33 @@ export function StepConnectAnimation() {
 
       {/* Top Header */}
       <div className="flex items-center justify-between z-10">
-        <div className="flex items-center gap-[0.6vw]">
-          <span className="w-[0.5vw] h-[0.5vw] rounded-full bg-yellow" />
-          <span className="detailText font-mono text-primary/70">
+        <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
+          <span className="w-[1.8vw] h-[1.8vw] sm:w-[0.5vw] sm:h-[0.5vw] rounded-full bg-yellow" />
+          <span className="detailText font-mono text-primary/70 text-[2.8vw] sm:text-inherit">
             Taste Match Network
           </span>
         </div>
-        <span className="detailText text-yellow font-mono text-[0.7vw]">
+        <span className="detailText text-yellow font-mono text-[2.8vw] sm:text-[0.7vw]">
           ● Live connection
         </span>
       </div>
 
       {/* User Match Card */}
-      <div className="bg-white/5 rounded-[0.4vw] p-[1vw] flex items-center justify-between border border-white/10 my-auto">
-        <div className="flex items-center gap-[1vw]">
-          <div className="w-[3.2vw] h-[3.2vw] rounded-full bg-gradient-to-tr from-yellow to-amber-500 flex items-center justify-center font-bold text-secondary text-[1.2vw]">
+      <div className="bg-white/5 rounded-[1.5vw] sm:rounded-[0.4vw] p-[2.5vw] sm:p-[1vw] flex items-center justify-between border border-white/10 my-auto">
+        <div className="flex items-center gap-[2vw] sm:gap-[1vw]">
+          <div className="w-[8vw] h-[8vw] sm:w-[3.2vw] sm:h-[3.2vw] rounded-full bg-gradient-to-tr from-yellow to-amber-500 flex items-center justify-center font-bold text-secondary text-[4vw] sm:text-[1.2vw]">
             J
           </div>
           <div className="flex flex-col">
-            <div className="flex items-center gap-[0.5vw]">
-              <span className="smallText font-medium text-primary">
+            <div className="flex items-center gap-[1.5vw] sm:gap-[0.5vw]">
+              <span className="smallText font-medium text-primary text-[3.4vw] sm:text-inherit">
                 @julian.wav
               </span>
-              <span className="bg-yellow/15 text-yellow text-[0.65vw] px-[0.4vw] py-[0.1vw] rounded-[0.15vw] font-mono">
+              <span className="bg-yellow/15 text-yellow text-[2.6vw] sm:text-[0.65vw] px-[1.5vw] py-[0.4vw] sm:px-[0.4vw] sm:py-[0.1vw] rounded-[0.5vw] sm:rounded-[0.15vw] font-mono">
                 94% match
               </span>
             </div>
-            <span className="detailText text-primary/50 text-[0.75vw] mt-[0.1vw]">
+            <span className="detailText text-primary/50 text-[2.8vw] sm:text-[0.75vw] mt-[0.1vw]">
               Shared in Top 5: Currents &amp; In Rainbows
             </span>
           </div>
@@ -346,7 +346,7 @@ export function StepConnectAnimation() {
         {/* Animated Follow Button */}
         <div
           ref={followBtnRef}
-          className={`px-[1.2vw] py-[0.4vw] rounded-[0.25vw] text-[0.85vw] font-medium transition-all duration-300 flex items-center gap-[0.3vw] ${
+          className={`px-[2.5vw] py-[1vw] sm:px-[1.2vw] sm:py-[0.4vw] rounded-[1vw] sm:rounded-[0.25vw] text-[3.2vw] sm:text-[0.85vw] font-medium transition-all duration-300 flex items-center gap-[1vw] sm:gap-[0.3vw] ${
             isFollowing
               ? "bg-yellow text-secondary scale-105 shadow-sm"
               : "bg-white/10 text-primary"
@@ -354,7 +354,7 @@ export function StepConnectAnimation() {
         >
           {isFollowing ? (
             <>
-              <svg width="0.8vw" height="0.8vw" viewBox="0 0 24 24" fill="none">
+              <svg className="w-[3vw] h-[3vw] sm:w-[0.8vw] sm:h-[0.8vw]" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M20 6L9 17L4 12"
                   stroke="currentColor"
@@ -372,9 +372,9 @@ export function StepConnectAnimation() {
       </div>
 
       {/* Album Follow Pill */}
-      <div className="bg-white/5 rounded-[0.4vw] px-[1vw] py-[0.6vw] flex items-center justify-between border border-white/10">
-        <div className="flex items-center gap-[0.8vw]">
-          <div className="w-[1.8vw] h-[1.8vw] rounded-[0.2vw] overflow-hidden bg-secondary shrink-0">
+      <div className="bg-white/5 rounded-[1.5vw] sm:rounded-[0.4vw] px-[2.5vw] py-[1.8vw] sm:px-[1vw] sm:py-[0.6vw] flex items-center justify-between border border-white/10">
+        <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
+          <div className="w-[7vw] h-[7vw] sm:w-[1.8vw] sm:h-[1.8vw] rounded-[0.8vw] sm:rounded-[0.2vw] overflow-hidden bg-secondary shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/musi5t/hero_center.webp"
@@ -383,10 +383,10 @@ export function StepConnectAnimation() {
             />
           </div>
           <div className="flex flex-col">
-            <span className="detailText font-medium text-primary leading-tight">
+            <span className="detailText font-medium text-primary leading-tight text-[2.8vw] sm:text-inherit">
               Tame Impala · Currents
             </span>
-            <span className="detailText text-primary/40 text-[0.65vw] font-mono">
+            <span className="detailText text-primary/40 text-[2.6vw] sm:text-[0.65vw] font-mono">
               1,420 listeners follow this record
             </span>
           </div>
@@ -395,7 +395,7 @@ export function StepConnectAnimation() {
         <button
           ref={trackBtnRef}
           type="button"
-          className={`text-[0.7vw] font-mono transition-colors duration-200 ${
+          className={`text-[2.8vw] sm:text-[0.7vw] font-mono transition-colors duration-200 ${
             isFollowingAlbum ? "text-yellow font-bold" : "text-primary/70"
           }`}
         >
@@ -480,7 +480,7 @@ export function StepDiscussPost() {
   return (
     <div
       ref={containerRef}
-      className="w-full aspect-[16/10] bg-[#141412] rounded-[0.5vw] p-[1.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
+      className="w-full aspect-auto min-h-[220px] sm:aspect-[16/10] bg-[#141412] rounded-[2vw] sm:rounded-[0.5vw] p-[3.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
     >
       {/* Simulated Animated Cursor with exact bounding-box tracking */}
       <div
@@ -492,60 +492,58 @@ export function StepDiscussPost() {
 
       {/* Top Header */}
       <div className="flex items-center justify-between z-10">
-        <div className="flex items-center gap-[0.6vw]">
-          <span className="w-[0.5vw] h-[0.5vw] rounded-full bg-yellow" />
-          <span className="detailText font-mono text-primary/70">
+        <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
+          <span className="w-[1.8vw] h-[1.8vw] sm:w-[0.5vw] sm:h-[0.5vw] rounded-full bg-yellow" />
+          <span className="detailText font-mono text-primary/70 text-[2.8vw] sm:text-inherit">
             Feed Discussion
           </span>
         </div>
-        <span className="detailText text-primary/40 font-mono text-[0.7vw]">
+        <span className="detailText text-primary/40 font-mono text-[2.8vw] sm:text-[0.7vw]">
           audience: #Currents
         </span>
       </div>
 
       {/* Main Post Card */}
-      <div className="bg-white/5 rounded-[0.4vw] p-[1.2vw] border border-white/10 my-auto flex flex-col gap-[0.8vw]">
+      <div className="bg-white/5 rounded-[1.5vw] sm:rounded-[0.4vw] p-[3vw] sm:p-[1.2vw] border border-white/10 my-auto flex flex-col gap-[2.5vw] sm:gap-[0.8vw]">
         {/* Post Author Bar */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-[0.8vw]">
-            <div className="w-[2.2vw] h-[2.2vw] rounded-full bg-yellow/20 text-yellow flex items-center justify-center font-bold text-[0.9vw]">
+          <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
+            <div className="w-[6vw] h-[6vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full bg-yellow/20 text-yellow flex items-center justify-center font-bold text-[3.6vw] sm:text-[0.9vw]">
               S
             </div>
             <div className="flex flex-col">
-              <span className="detailText font-medium text-primary leading-tight">
+              <span className="detailText font-medium text-primary leading-tight text-[2.8vw] sm:text-inherit">
                 @sofia.music
               </span>
-              <span className="detailText text-primary/40 text-[0.65vw]">
+              <span className="detailText text-primary/40 text-[2.6vw] sm:text-[0.65vw]">
                 12m ago
               </span>
             </div>
           </div>
-          <span className="bg-yellow text-secondary font-mono text-[0.65vw] px-[0.4vw] py-[0.1vw] rounded-[0.15vw] font-bold">
+          <span className="bg-yellow text-secondary font-mono text-[2.6vw] sm:text-[0.65vw] px-[1.5vw] py-[0.4vw] sm:px-[0.4vw] sm:py-[0.1vw] rounded-[0.5vw] sm:rounded-[0.15vw] font-bold">
             #Currents
           </span>
         </div>
 
         {/* Post Content */}
-        <p className="extraSmallText text-primary/90 leading-snug">
+        <p className="extraSmallText text-primary/90 leading-snug text-[3.4vw] sm:text-inherit">
           &ldquo;The synth bassline on &apos;The Less I Know The Better&apos; into &apos;Past Life&apos; is unmatched. Still one of the best A-sides of the decade.&rdquo;
         </p>
 
         {/* Actions bar (Like & Comments) */}
-        <div className="flex items-center gap-[1.5vw] pt-[0.4vw] border-t border-white/5">
+        <div className="flex items-center gap-[4vw] sm:gap-[1.5vw] pt-[1.5vw] sm:pt-[0.4vw] border-t border-white/5">
           <div
             ref={heartBtnRef}
-            className={`flex items-center gap-[0.35vw] text-[0.8vw] font-mono transition-all duration-200 ${
+            className={`flex items-center gap-[1.2vw] sm:gap-[0.35vw] text-[3.2vw] sm:text-[0.8vw] font-mono transition-all duration-200 ${
               hasLiked ? "text-red-400 font-bold scale-105" : "text-primary/60"
             }`}
           >
             <svg
-              width="0.9vw"
-              height="0.9vw"
+              className="w-[3.6vw] h-[3.6vw] sm:w-[0.9vw] sm:h-[0.9vw]"
               viewBox="0 0 24 24"
               fill={hasLiked ? "currentColor" : "none"}
               stroke="currentColor"
               strokeWidth="2"
-              className={hasLiked ? "scale-125 transition-transform" : ""}
             >
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
@@ -554,11 +552,10 @@ export function StepDiscussPost() {
 
           <div
             ref={commentsBtnRef}
-            className="flex items-center gap-[0.35vw] text-primary/50 text-[0.8vw] font-mono"
+            className="flex items-center gap-[1.2vw] sm:gap-[0.35vw] text-primary/50 text-[3.2vw] sm:text-[0.8vw] font-mono"
           >
             <svg
-              width="0.9vw"
-              height="0.9vw"
+              className="w-[3.6vw] h-[3.6vw] sm:w-[0.9vw] sm:h-[0.9vw]"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -572,7 +569,7 @@ export function StepDiscussPost() {
       </div>
 
       {/* Mini live reply ticker */}
-      <div className="flex items-center gap-[0.5vw] text-primary/50 detailText text-[0.7vw] truncate">
+      <div className="flex items-center gap-[1.5vw] sm:gap-[0.5vw] text-primary/50 detailText text-[2.8vw] sm:text-[0.7vw] truncate">
         <span className="text-yellow font-bold">@nico:</span>
         <span className="truncate">&ldquo;Agreed, the analog warmth on vinyl hits completely different.&rdquo;</span>
       </div>
