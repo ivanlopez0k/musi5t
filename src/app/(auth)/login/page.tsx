@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useRotatingArtistPlaceholder } from "@/lib/catalog/placeholders";
 
 export default function LoginPage() {
   const router = useRouter();
+  const artistPlaceholder = useRotatingArtistPlaceholder(3500);
   const [formData, setFormData] = useState({
     identifier: "",
     password: "",
@@ -115,7 +117,7 @@ export default function LoginPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, identifier: e.target.value })
                 }
-                placeholder="you@domain.com or username"
+                placeholder={`you@domain.com or @${artistPlaceholder.username}`}
                 className="w-full bg-secondary/[0.03] border border-secondary/15 rounded-[0.8vw] sm:rounded-[0.35vw] px-[3.5vw] py-[2.8vw] sm:px-[1.2vw] sm:py-[0.8vw] text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary focus:bg-primary transition-all smallText"
               />
             </div>
