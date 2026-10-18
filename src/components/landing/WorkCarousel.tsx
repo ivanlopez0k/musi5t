@@ -39,7 +39,6 @@ const FEATURED_ALBUMS: Project[] = [
 
 export function WorkCarousel() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -82,20 +81,6 @@ export function WorkCarousel() {
     });
   }, [hoveredIndex]);
 
-  const scrollPrev = () => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = scrollContainerRef.current.clientWidth * 0.75;
-      scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-    }
-  };
-
-  const scrollNext = () => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = scrollContainerRef.current.clientWidth * 0.75;
-      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  };
-
   return (
     <div
       ref={containerRef}
@@ -104,44 +89,19 @@ export function WorkCarousel() {
       className="w-full h-full relative select-none pt-[4vw] pb-[6vw] bg-primary text-secondary"
     >
       <div className="layout-grid mb-[2vw]">
-        <div className="col-span-full flex justify-between items-center">
+        <div className="col-span-full flex items-center">
           <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
             <div className="drop-shadow rounded-[0.25vw]">
               <div className="w-[5vw] h-[5vw] sm:w-[1.8vw] sm:h-[1.8vw] rounded-[1vw] sm:rounded-[0.2vw] bg-yellow" />
             </div>
             <span className="mediumText text-[4.8vw] sm:text-inherit">featured records</span>
           </div>
-          <div className="flex items-center gap-[3vw] sm:gap-[1.5vw]">
-            <h2 className="hidden sm:block text-secondary/40 extraSmallText font-mono">
-              curated showcase
-            </h2>
-            <div className="flex items-center gap-[1.5vw] sm:gap-[0.5vw]">
-              <button
-                type="button"
-                onClick={scrollPrev}
-                aria-label="Previous albums"
-                className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full border border-secondary/20 flex items-center justify-center hover:bg-secondary/10 active:scale-95 transition-all text-[3.8vw] sm:text-[1vw] text-secondary cursor-pointer"
-              >
-                ←
-              </button>
-              <button
-                type="button"
-                onClick={scrollNext}
-                aria-label="Next albums"
-                className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full border border-secondary/20 flex items-center justify-center hover:bg-secondary/10 active:scale-95 transition-all text-[3.8vw] sm:text-[1vw] text-secondary cursor-pointer"
-              >
-                →
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* 3D Horizontal Carousel with Native Touch Swiping & Snap */}
+      {/* 3D Horizontal Showcase (smooth native swipe on mobile, smooth scroll on desktop) */}
       <div
-        ref={scrollContainerRef}
-        data-lenis-prevent
-        className="w-full overflow-x-auto hide-scrollbar py-[2vw] px-[var(--margin)] touch-pan-x overscroll-x-contain snap-x snap-mandatory scroll-smooth"
+        className="w-full overflow-x-auto hide-scrollbar py-[2vw] px-[var(--margin)] touch-pan-x"
       >
         <div className="flex gap-[4vw] sm:gap-[2.5vw] w-fit items-center [perspective:1400px]">
           {FEATURED_ALBUMS.map((album, i) => (
@@ -152,7 +112,7 @@ export function WorkCarousel() {
               }}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              className="snap-start sm:snap-align-none shrink-0 w-[75vw] sm:w-[22vw] aspect-square rounded-[2vw] sm:rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary cursor-pointer will-change-transform relative group"
+              className="shrink-0 w-[72vw] sm:w-[22vw] aspect-square rounded-[1.5vw] sm:rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary cursor-pointer will-change-transform relative group"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -166,17 +126,6 @@ export function WorkCarousel() {
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Mobile Swipe Cue */}
-      <div className="layout-grid mt-[1.5vw]">
-        <div className="col-span-full flex justify-between items-center text-secondary/40 extraSmallText font-mono">
-          <span className="sm:hidden flex items-center gap-[1.5vw] text-[3.2vw]">
-            <span>← swipe to explore →</span>
-          </span>
-          <span className="hidden sm:inline">curated catalogue</span>
-          <span className="text-[3vw] sm:text-inherit">0{FEATURED_ALBUMS.length} records</span>
         </div>
       </div>
     </div>
