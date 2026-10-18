@@ -124,7 +124,7 @@ export default function RegisterPage() {
                       username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""),
                     })
                   }
-                  placeholder="radiohead_lover"
+                  placeholder="vinyl_curator"
                   className="w-full bg-secondary/[0.03] border border-secondary/15 rounded-[0.8vw] sm:rounded-[0.35vw] pl-[8vw] sm:pl-[2.6vw] pr-[3.5vw] sm:pr-[1.2vw] py-[2.8vw] sm:py-[0.75vw] text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary focus:bg-primary transition-all smallText font-mono"
                 />
               </div>
@@ -141,7 +141,7 @@ export default function RegisterPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, displayName: e.target.value })
                 }
-                placeholder="Thom Yorke"
+                placeholder="David Bowie"
                 className="w-full bg-secondary/[0.03] border border-secondary/15 rounded-[0.8vw] sm:rounded-[0.35vw] px-[3.5vw] py-[2.8vw] sm:px-[1.2vw] sm:py-[0.75vw] text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary focus:bg-primary transition-all smallText"
               />
             </div>

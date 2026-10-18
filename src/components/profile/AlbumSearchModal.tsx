@@ -373,7 +373,7 @@ export function AlbumSearchModal({
                     required
                     value={registerTitle}
                     onChange={(e) => setRegisterTitle(e.target.value)}
-                    placeholder="e.g. In Rainbows, The Dark Side of the Moon..."
+                    placeholder="e.g. Abbey Road, The Dark Side of the Moon..."
                     className="w-full bg-secondary/[0.04] border border-secondary/20 rounded-[0.35vw] px-[3vw] py-[2vw] sm:px-[1.2vw] sm:py-[0.75vw] smallText text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary transition-colors"
                   />
                 </div>
@@ -387,7 +387,7 @@ export function AlbumSearchModal({
                     required
                     value={registerArtist}
                     onChange={(e) => setRegisterArtist(e.target.value)}
-                    placeholder="e.g. Radiohead, Pink Floyd..."
+                    placeholder="e.g. The Beatles, Pink Floyd, Daft Punk..."
                     className="w-full bg-secondary/[0.04] border border-secondary/20 rounded-[0.35vw] px-[3vw] py-[2vw] sm:px-[1.2vw] sm:py-[0.75vw] smallText text-secondary placeholder:text-secondary/35 focus:outline-none focus:border-secondary transition-colors"
                   />
                 </div>
