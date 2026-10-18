@@ -136,7 +136,6 @@ body {
 }
 
 .route-surface > .header {
-  z-index: 100;
   width: 100%;
   position: fixed;
   top: 0;
@@ -144,24 +143,24 @@ body {
   pointer-events: none;
 }
 
-.route-surface > .header .layout-fixed {
-  pointer-events: auto;
-}
-
-/* Pixel-level sub-element negative inversion:
-   When text is over light/white backgrounds, it inverts to dark ink.
-   When text is over dark/black backgrounds, it inverts to light/white.
-   If half of a letter is over a black box and half over white,
-   each pixel inverts independently on the GPU compositor. */
-.nav-blend {
+.route-surface > .header.header-blend {
+  z-index: 100;
   mix-blend-mode: difference;
   color: #ffffff !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.nav-blend * {
+.route-surface > .header.header-blend * {
   color: inherit;
+}
+
+.route-surface > .header.header-actions {
+  z-index: 101;
+}
+
+.route-surface > .header .layout-fixed {
+  pointer-events: auto;
 }
 
 
