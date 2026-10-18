@@ -228,7 +228,7 @@ export function AlbumDetailView({
                           <div className="w-[3.5vw] h-[3.5vw] sm:w-[1vw] sm:h-[1vw] rounded-[0.15vw] bg-yellow" />
                         </div>
                         <span className="extraSmallText text-secondary/60">
-                          [ record detail ]
+                          record detail
                         </span>
                       </div>
 
