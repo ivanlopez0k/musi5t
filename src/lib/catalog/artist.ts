@@ -1,7 +1,12 @@
 import { db, ensureArtistTables } from "@/db";
 import { albums, albumRatings, artistRatings, artistFollows } from "@/db/schema";
-import { and, eq, or, sql } from "drizzle-orm";
-import { canonicalUuid, cleanDisplayAlbumTitle, normalizeText } from "./musicbrainz";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
+import {
+  cleanDisplayAlbumTitle,
+  getCanonicalAlbumMbid,
+  normalizeAlbumTitle,
+  normalizeText,
+} from "./musicbrainz";
 
 export interface ArtistAlbumItem {
   id: string;
@@ -109,12 +114,11 @@ export async function getArtistData(
       ? deezerArtist.name
       : cleanArtistName;
 
-  // 2. If local albums count is small (< 3) and Deezer artist was found,
-  // query Deezer's artist albums to enrich discography
-  if (localAlbums.length < 3 && deezerArtist?.id) {
+  // 2. Fetch official discography from Deezer if artist was found
+  if (deezerArtist?.id) {
     try {
       const albumsRes = await fetch(
-        `https://api.deezer.com/artist/${deezerArtist.id}/albums?limit=25`,
+        `https://api.deezer.com/artist/${deezerArtist.id}/albums?limit=100`,
         { next: { revalidate: 86400 } }
       );
 
@@ -138,7 +142,7 @@ export async function getArtistData(
 
           const rawTitle = item.title.trim();
           const cleanTitle = cleanDisplayAlbumTitle(rawTitle);
-          const titleKey = normalizeText(cleanTitle);
+          const titleKey = normalizeAlbumTitle(cleanTitle);
 
           const year = item.release_date
             ? parseInt(item.release_date.slice(0, 4), 10)
@@ -166,55 +170,50 @@ export async function getArtistData(
           }
         }
 
-        // Upsert canonical albums into DB
+        // Identify which albums from Deezer are not yet in localAlbums
+        const existingTitleKeys = new Set(
+          localAlbums.map((a) => normalizeAlbumTitle(a.title))
+        );
+
+        const newAlbumsToInsert = [];
         for (const [key, item] of grouped.entries()) {
-          const deterministicMbid = canonicalUuid(`album:${normalizedArtist}:${key}`);
-
-          const [existingRow] = await db
-            .select({ id: albums.id })
-            .from(albums)
-            .where(
-              or(
-                eq(albums.mbid, deterministicMbid),
-                and(
-                  sql`LOWER(TRIM(${albums.artistName})) = LOWER(TRIM(${displayName}))`,
-                  sql`LOWER(TRIM(${albums.title})) = LOWER(TRIM(${item.cleanTitle}))`
-                )
-              )
-            )
-            .limit(1);
-
-          if (!existingRow) {
-            await db
-              .insert(albums)
-              .values({
-                mbid: deterministicMbid,
-                title: item.cleanTitle,
-                artistName: displayName,
-                releaseYear: item.year,
-                defaultCoverUrl: item.coverUrl,
-              })
-              .onConflictDoNothing();
+          if (!existingTitleKeys.has(key)) {
+            const mbid = getCanonicalAlbumMbid(displayName, item.cleanTitle);
+            newAlbumsToInsert.push({
+              mbid,
+              title: item.cleanTitle,
+              artistName: displayName,
+              releaseYear: item.year,
+              defaultCoverUrl: item.coverUrl,
+            });
           }
         }
 
-        // Re-query local albums with enriched records
-        localAlbums = await db
-          .select({
-            id: albums.id,
-            title: albums.title,
-            artistName: albums.artistName,
-            releaseYear: albums.releaseYear,
-            defaultCoverUrl: albums.defaultCoverUrl,
-          })
-          .from(albums)
-          .where(
-            or(
-              sql`LOWER(TRIM(${albums.artistName})) = LOWER(TRIM(${cleanArtistName}))`,
-              sql`LOWER(TRIM(${albums.artistName})) = LOWER(TRIM(${displayName}))`
+        // Batch insert missing albums
+        if (newAlbumsToInsert.length > 0) {
+          await db
+            .insert(albums)
+            .values(newAlbumsToInsert)
+            .onConflictDoNothing();
+
+          // Re-query local albums with enriched records
+          localAlbums = await db
+            .select({
+              id: albums.id,
+              title: albums.title,
+              artistName: albums.artistName,
+              releaseYear: albums.releaseYear,
+              defaultCoverUrl: albums.defaultCoverUrl,
+            })
+            .from(albums)
+            .where(
+              or(
+                sql`LOWER(TRIM(${albums.artistName})) = LOWER(TRIM(${cleanArtistName}))`,
+                sql`LOWER(TRIM(${albums.artistName})) = LOWER(TRIM(${displayName}))`
+              )
             )
-          )
-          .orderBy(sql`${albums.releaseYear} ASC NULLS LAST`);
+            .orderBy(sql`${albums.releaseYear} ASC NULLS LAST`);
+        }
       }
     } catch (err) {
       console.error("[getArtistData deezer albums enrich error]:", err);
@@ -224,7 +223,7 @@ export async function getArtistData(
   // Deduplicate local albums by normalized title
   const uniqueAlbumsMap = new Map<string, typeof localAlbums[number]>();
   for (const album of localAlbums) {
-    const key = normalizeText(album.title);
+    const key = normalizeAlbumTitle(album.title);
     if (!uniqueAlbumsMap.has(key)) {
       uniqueAlbumsMap.set(key, album);
     } else {
@@ -255,7 +254,7 @@ export async function getArtistData(
         ratingsCount: sql<string>`COUNT(*)::text`,
       })
       .from(albumRatings)
-      .where(sql`${albumRatings.albumId} IN ${albumIds}`)
+      .where(inArray(albumRatings.albumId, albumIds))
       .groupBy(albumRatings.albumId);
 
     for (const r of statsRows) {
