@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Standard precision simulated OS cursor
+// Standard precision simulated OS cursor matching musi5t ink theme
 function SimulatedCursor({ isClicking }: { isClicking?: boolean }) {
   return (
     <div
@@ -11,14 +11,14 @@ function SimulatedCursor({ isClicking }: { isClicking?: boolean }) {
       }`}
     >
       <svg
-        className="w-[4vw] sm:w-[1.4vw] min-w-[14px] h-[4vw] sm:h-[1.4vw] min-h-[14px] drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] filter"
+        className="w-[3.6vw] sm:w-[1.2vw] min-w-[14px] h-[3.6vw] sm:h-[1.2vw] min-h-[14px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)] filter"
         viewBox="0 0 24 24"
         fill="none"
       >
         <path
           d="M4 2L19 13.5L11.5 14.5L8 21.5L5 20.5L8 14.5L4 11V2Z"
           fill="#FFFFFF"
-          stroke="#11110F"
+          stroke="#0E0E0E"
           strokeWidth="1.8"
           strokeLinejoin="round"
         />
@@ -27,13 +27,12 @@ function SimulatedCursor({ isClicking }: { isClicking?: boolean }) {
   );
 }
 
-// STEP 1: Top 5 Albums Collage with Simulated Cursor
+// STEP 1: Real Top 5 Records Showcase matching ProfileView.tsx
 export function StepCurateCollage() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const album1Ref = useRef<HTMLDivElement>(null);
-  const album3Ref = useRef<HTMLDivElement>(null);
+  const slot1Ref = useRef<HTMLDivElement>(null);
 
-  const [activeCard, setActiveCard] = useState<number | null>(null);
+  const [activeSlot, setActiveSlot] = useState<number | null>(null);
   const [cursorPos, setCursorPos] = useState({ x: 80, y: 75 });
   const [isClicking, setIsClicking] = useState(false);
 
@@ -75,193 +74,33 @@ export function StepCurateCollage() {
 
     const runCycle = () => {
       const container = containerRef.current;
-      const a1 = album1Ref.current;
-      const a3 = album3Ref.current;
+      const s1 = slot1Ref.current;
 
-      // 1. Move to album 1 with bounding rect calculation
-      if (container && a1) {
+      if (container && s1) {
         const cRect = container.getBoundingClientRect();
-        const aRect = a1.getBoundingClientRect();
-        const targetX = ((aRect.left + aRect.width * 0.4 - cRect.left) / cRect.width) * 100;
-        const targetY = ((aRect.top + aRect.height * 0.4 - cRect.top) / cRect.height) * 100;
+        const sRect = s1.getBoundingClientRect();
+        const targetX = ((sRect.left + sRect.width * 0.5 - cRect.left) / cRect.width) * 100;
+        const targetY = ((sRect.top + sRect.height * 0.5 - cRect.top) / cRect.height) * 100;
         setCursorPos({ x: targetX, y: targetY });
 
         timeouts.push(
           setTimeout(() => {
             setIsClicking(true);
-            setActiveCard(1);
+            setActiveSlot(1);
             timeouts.push(setTimeout(() => setIsClicking(false), 200));
           }, 1200)
         );
       }
 
-      // 2. Move to album 3 with bounding rect calculation
       timeouts.push(
         setTimeout(() => {
-          if (container && a3) {
-            const cRect = container.getBoundingClientRect();
-            const aRect = a3.getBoundingClientRect();
-            const targetX = ((aRect.left + aRect.width * 0.4 - cRect.left) / cRect.width) * 100;
-            const targetY = ((aRect.top + aRect.height * 0.4 - cRect.top) / cRect.height) * 100;
-            setCursorPos({ x: targetX, y: targetY });
-
-            timeouts.push(
-              setTimeout(() => {
-                setIsClicking(true);
-                setActiveCard(3);
-                timeouts.push(setTimeout(() => setIsClicking(false), 200));
-              }, 1100)
-            );
-          }
-        }, 2200)
-      );
-
-      // 3. Move away and reset
-      timeouts.push(
-        setTimeout(() => {
-          setCursorPos({ x: 88, y: 80 });
-          setActiveCard(null);
-        }, 4800)
-      );
-    };
-
-    // Small delay for initial render bounding rect
-    const initTimer = setTimeout(runCycle, 300);
-    const interval = setInterval(runCycle, 6000);
-
-    return () => {
-      clearTimeout(initTimer);
-      clearInterval(interval);
-      timeouts.forEach(clearTimeout);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={containerRef}
-      className="w-full aspect-auto min-h-[220px] sm:aspect-[16/10] bg-[#141412] rounded-[2vw] sm:rounded-[0.5vw] p-[3.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
-    >
-      {/* Simulated Animated Cursor */}
-      <div
-        className="absolute z-30 transition-all duration-700 ease-out"
-        style={{ left: `${cursorPos.x}%`, top: `${cursorPos.y}%` }}
-      >
-        <SimulatedCursor isClicking={isClicking} />
-      </div>
-
-      {/* Header bar */}
-      <div className="flex items-center justify-between z-10">
-        <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
-          <span className="w-[1.8vw] h-[1.8vw] sm:w-[0.5vw] sm:h-[0.5vw] rounded-full bg-yellow" />
-          <span className="detailText font-mono text-primary/70 text-[2.8vw] sm:text-inherit">
-            @mateo&apos;s Top 5
-          </span>
-        </div>
-        <span className="detailText text-primary/40 font-mono text-[2.6vw] sm:text-inherit">
-          edition: 1st vinyl press
-        </span>
-      </div>
-
-      {/* 5 Album Covers */}
-      <div className="grid grid-cols-5 gap-[1.5vw] sm:gap-[0.8vw] my-auto items-center z-10 pt-[0.5vw]">
-        {albums.map((album) => {
-          const isActive = activeCard === album.rank;
-          return (
-            <div
-              key={album.rank}
-              ref={album.rank === 1 ? album1Ref : album.rank === 3 ? album3Ref : undefined}
-              className={`flex flex-col items-center transition-all duration-300 ${
-                isActive ? "-translate-y-2 scale-105" : "translate-y-0 scale-100"
-              }`}
-            >
-              <div
-                className={`relative aspect-square w-full rounded-[1vw] sm:rounded-[0.3vw] overflow-hidden drop-shadow border transition-colors duration-300 bg-secondary ${
-                  isActive ? "border-yellow" : "border-white/10"
-                }`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={album.image}
-                  alt={album.title}
-                  className="w-full h-full object-cover select-none"
-                />
-                <span
-                  className={`absolute top-[0.5vw] left-[0.5vw] sm:top-[0.3vw] sm:left-[0.3vw] text-[2.6vw] sm:text-[0.65vw] px-[1.2vw] py-[0.4vw] sm:px-[0.3vw] sm:py-[0.1vw] rounded-[0.5vw] sm:rounded-[0.15vw] font-mono font-bold transition-colors ${
-                    isActive ? "bg-yellow text-secondary" : "bg-black/80 text-yellow"
-                  }`}
-                >
-                  0{album.rank}
-                </span>
-              </div>
-              <div className="mt-[1vw] sm:mt-[0.5vw] text-center w-full overflow-hidden">
-                <span className="detailText font-medium text-primary block truncate text-[2.6vw] sm:text-inherit">
-                  {album.title}
-                </span>
-                <span className="detailText text-primary/50 text-[2.4vw] sm:text-[0.65vw] block truncate">
-                  {album.artist}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Footer hint */}
-      <div className="flex justify-between items-center z-10 pt-[0.2vw] border-t border-white/5">
-        <span className="detailText text-yellow/80 font-mono text-[2.8vw] sm:text-[0.7vw]">
-          ★ Drag &amp; reorder enabled
-        </span>
-        <span className="detailText text-primary/40 text-[2.8vw] sm:text-[0.7vw]">
-          5 / 5 slots filled
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// STEP 2: Follow & Music Taste Match with Simulated Cursor
-export function StepConnectAnimation() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const followBtnRef = useRef<HTMLDivElement>(null);
-
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [cursorPos, setCursorPos] = useState({ x: 30, y: 80 });
-  const [isClicking, setIsClicking] = useState(false);
-
-  useEffect(() => {
-    const timeouts: NodeJS.Timeout[] = [];
-
-    const runCycle = () => {
-      const container = containerRef.current;
-      const followBtn = followBtnRef.current;
-
-      // 1. Move exactly to "+ Follow" button using getBoundingClientRect
-      if (container && followBtn) {
-        const cRect = container.getBoundingClientRect();
-        const fRect = followBtn.getBoundingClientRect();
-        const targetX = ((fRect.left + fRect.width * 0.4 - cRect.left) / cRect.width) * 100;
-        const targetY = ((fRect.top + fRect.height * 0.4 - cRect.top) / cRect.height) * 100;
-        setCursorPos({ x: targetX, y: targetY });
-
-        timeouts.push(
-          setTimeout(() => {
-            setIsClicking(true);
-            setIsFollowing(true);
-            timeouts.push(setTimeout(() => setIsClicking(false), 200));
-          }, 1300)
-        );
-      }
-
-      // 2. Move away and reset
-      timeouts.push(
-        setTimeout(() => {
-          setCursorPos({ x: 25, y: 78 });
-          setIsFollowing(false);
+          setCursorPos({ x: 85, y: 80 });
+          setActiveSlot(null);
         }, 4500)
       );
     };
 
-    const initTimer = setTimeout(runCycle, 300);
+    const initTimer = setTimeout(runCycle, 400);
     const interval = setInterval(runCycle, 5500);
 
     return () => {
@@ -274,9 +113,9 @@ export function StepConnectAnimation() {
   return (
     <div
       ref={containerRef}
-      className="w-full aspect-auto min-h-[220px] sm:aspect-[16/10] bg-[#141412] rounded-[2vw] sm:rounded-[0.5vw] p-[3.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
+      className="w-full aspect-auto min-h-[220px] sm:aspect-[16/10] bg-primary text-secondary rounded-[1.5vw] sm:rounded-[0.5vw] p-[3.5vw] sm:p-[1.8vw] flex flex-col justify-between border border-secondary/15 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
     >
-      {/* Simulated Animated Cursor */}
+      {/* Simulated Cursor */}
       <div
         className="absolute z-30 transition-all duration-700 ease-out"
         style={{ left: `${cursorPos.x}%`, top: `${cursorPos.y}%` }}
@@ -284,47 +123,182 @@ export function StepConnectAnimation() {
         <SimulatedCursor isClicking={isClicking} />
       </div>
 
-      {/* Top Header */}
+      {/* Header matching real musi5t */}
       <div className="flex items-center justify-between z-10">
         <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
-          <span className="w-[1.8vw] h-[1.8vw] sm:w-[0.5vw] sm:h-[0.5vw] rounded-full bg-yellow" />
-          <span className="detailText font-mono text-primary/70 text-[2.8vw] sm:text-inherit">
-            Taste Match Network
-          </span>
+          <div className="drop-shadow rounded-[0.2vw]">
+            <div className="w-[3.5vw] h-[3.5vw] sm:w-[1vw] sm:h-[1vw] rounded-[0.15vw] bg-yellow" />
+          </div>
+          <span className="extraSmallText text-secondary/70">top 5 records</span>
         </div>
-        <span className="detailText text-yellow font-mono text-[2.8vw] sm:text-[0.7vw]">
-          ● Live connection
-        </span>
+        <span className="detailText text-secondary/50">curated (5/5)</span>
       </div>
 
-      {/* User Match Card */}
-      <div className="bg-white/5 rounded-[1.5vw] sm:rounded-[0.4vw] p-[3vw] sm:p-[1.2vw] flex items-center justify-between border border-white/10 my-auto">
-        <div className="flex items-center gap-[2.5vw] sm:gap-[1vw]">
-          <div className="w-[10vw] h-[10vw] sm:w-[3.2vw] sm:h-[3.2vw] rounded-full bg-gradient-to-tr from-yellow to-amber-500 flex items-center justify-center font-bold text-secondary text-[4vw] sm:text-[1.2vw] shrink-0">
-            J
+      {/* 5 Slots Row */}
+      <div className="grid grid-cols-5 gap-[1.5vw] sm:gap-[0.8vw] my-auto items-start z-10 pt-[0.5vw]">
+        {albums.map((album) => {
+          const isActive = activeSlot === album.rank;
+          return (
+            <div
+              key={album.rank}
+              ref={album.rank === 1 ? slot1Ref : undefined}
+              className={`flex flex-col transition-all duration-300 ${
+                isActive ? "-translate-y-2 scale-105" : "translate-y-0 scale-100"
+              }`}
+            >
+              <div
+                className={`relative aspect-square w-full rounded-[0.8vw] sm:rounded-[0.3vw] overflow-hidden drop-shadow-soft bg-secondary transition-all duration-300 ${
+                  isActive ? "ring-2 ring-yellow shadow-md" : "border border-secondary/10"
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={album.image}
+                  alt={album.title}
+                  className="w-full h-full object-cover select-none"
+                />
+                <span
+                  className={`absolute top-[0.8vw] left-[0.8vw] sm:top-[0.3vw] sm:left-[0.3vw] text-[2.4vw] sm:text-[0.6vw] px-[1.2vw] py-[0.3vw] sm:px-[0.35vw] sm:py-[0.1vw] rounded-[0.15vw] font-medium transition-colors ${
+                    isActive ? "bg-yellow text-secondary" : "bg-black/75 text-primary"
+                  }`}
+                >
+                  0{album.rank}
+                </span>
+              </div>
+              <div className="mt-[1vw] sm:mt-[0.4vw] w-full overflow-hidden">
+                <span className="detailText font-medium text-secondary block truncate text-[2.6vw] sm:text-inherit">
+                  {album.title}
+                </span>
+                <span className="detailText text-secondary/50 block truncate text-[2.4vw] sm:text-[0.65vw]">
+                  {album.artist}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Footer matching real musi5t */}
+      <div className="flex justify-between items-center z-10 pt-[1vw] border-t border-secondary/10 text-secondary/60 detailText text-[2.6vw] sm:text-[0.7vw]">
+        <span>
+          {activeSlot ? "Selected · #01 Currents by Tame Impala" : "Click to curate or reorder"}
+        </span>
+        <span className="text-secondary/40">5 slots filled</span>
+      </div>
+    </div>
+  );
+}
+
+// STEP 2: Real Album Detail & Follow matching AlbumDetailView.tsx
+export function StepConnectAnimation() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const followBtnRef = useRef<HTMLDivElement>(null);
+
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: 25, y: 75 });
+  const [isClicking, setIsClicking] = useState(false);
+
+  useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
+
+    const runCycle = () => {
+      const container = containerRef.current;
+      const followBtn = followBtnRef.current;
+
+      if (container && followBtn) {
+        const cRect = container.getBoundingClientRect();
+        const fRect = followBtn.getBoundingClientRect();
+        const targetX = ((fRect.left + fRect.width * 0.5 - cRect.left) / cRect.width) * 100;
+        const targetY = ((fRect.top + fRect.height * 0.5 - cRect.top) / cRect.height) * 100;
+        setCursorPos({ x: targetX, y: targetY });
+
+        timeouts.push(
+          setTimeout(() => {
+            setIsClicking(true);
+            setIsFollowing(true);
+            timeouts.push(setTimeout(() => setIsClicking(false), 200));
+          }, 1200)
+        );
+      }
+
+      timeouts.push(
+        setTimeout(() => {
+          setCursorPos({ x: 25, y: 75 });
+          setIsFollowing(false);
+        }, 4500)
+      );
+    };
+
+    const initTimer = setTimeout(runCycle, 400);
+    const interval = setInterval(runCycle, 5500);
+
+    return () => {
+      clearTimeout(initTimer);
+      clearInterval(interval);
+      timeouts.forEach(clearTimeout);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full aspect-auto min-h-[220px] sm:aspect-[16/10] bg-primary text-secondary rounded-[1.5vw] sm:rounded-[0.5vw] p-[3.5vw] sm:p-[1.8vw] flex flex-col justify-between border border-secondary/15 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
+    >
+      {/* Simulated Cursor */}
+      <div
+        className="absolute z-30 transition-all duration-700 ease-out"
+        style={{ left: `${cursorPos.x}%`, top: `${cursorPos.y}%` }}
+      >
+        <SimulatedCursor isClicking={isClicking} />
+      </div>
+
+      {/* Header matching AlbumDetailView */}
+      <div className="flex items-center justify-between z-10">
+        <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
+          <div className="drop-shadow rounded-[0.2vw]">
+            <div className="w-[3.5vw] h-[3.5vw] sm:w-[1vw] sm:h-[1vw] rounded-[0.15vw] bg-yellow" />
           </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-[1.5vw] sm:gap-[0.5vw]">
-              <span className="smallText font-medium text-primary text-[3.4vw] sm:text-inherit">
-                @julian.wav
+          <span className="extraSmallText text-secondary/70">record detail</span>
+        </div>
+        <span className="detailText text-secondary/50">community rating</span>
+      </div>
+
+      {/* Album Card */}
+      <div className="bg-secondary/[0.03] border border-secondary/10 rounded-[1vw] sm:rounded-[0.4vw] p-[3vw] sm:p-[1.2vw] flex items-center justify-between my-auto">
+        <div className="flex items-center gap-[2.5vw] sm:gap-[1.2vw]">
+          <div className="w-[14vw] h-[14vw] sm:w-[4.8vw] sm:h-[4.8vw] rounded-[0.3vw] overflow-hidden drop-shadow-soft bg-secondary shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/musi5t/hero_center.webp"
+              alt="Currents"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex flex-col gap-[0.5vw] sm:gap-[0.2vw]">
+            <span className="smallText font-medium text-secondary leading-tight text-[3.6vw] sm:text-inherit">
+              Currents
+            </span>
+            <span className="extraSmallText text-secondary/60 leading-tight text-[2.8vw] sm:text-inherit">
+              Tame Impala · 2015
+            </span>
+            <div className="flex items-center gap-[1.5vw] sm:gap-[0.5vw] mt-[0.5vw]">
+              <span className="detailText px-[1.5vw] py-[0.3vw] sm:px-[0.45vw] sm:py-[0.1vw] bg-yellow text-secondary rounded-[0.15vw] font-medium text-[2.4vw] sm:text-[0.65vw]">
+                ★ 8.8
               </span>
-              <span className="bg-yellow/15 text-yellow text-[2.6vw] sm:text-[0.65vw] px-[1.5vw] py-[0.4vw] sm:px-[0.4vw] sm:py-[0.1vw] rounded-[0.5vw] sm:rounded-[0.15vw] font-mono">
-                94% match
+              <span className="detailText text-secondary/45 text-[2.4vw] sm:text-[0.65vw]">
+                142 community ratings
               </span>
             </div>
-            <span className="detailText text-primary/50 text-[2.8vw] sm:text-[0.75vw] mt-[0.2vw]">
-              Shared in Top 5: Currents &amp; In Rainbows
-            </span>
           </div>
         </div>
 
-        {/* Animated Follow Button */}
+        {/* Action Follow Button */}
         <div
           ref={followBtnRef}
-          className={`px-[3vw] py-[1vw] sm:px-[1.2vw] sm:py-[0.4vw] rounded-[1vw] sm:rounded-[0.25vw] text-[3.2vw] sm:text-[0.85vw] font-medium transition-all duration-300 flex items-center gap-[1vw] sm:gap-[0.3vw] ${
+          className={`px-[3vw] py-[1.2vw] sm:px-[1vw] sm:py-[0.35vw] rounded-[0.25vw] text-[3vw] sm:text-[0.75vw] font-medium transition-all duration-300 flex items-center gap-[1vw] sm:gap-[0.3vw] drop-shadow-soft ${
             isFollowing
-              ? "bg-yellow text-secondary scale-105 shadow-sm"
-              : "bg-white/10 text-primary"
+              ? "bg-yellow text-secondary scale-105"
+              : "bg-secondary text-primary hover:bg-secondary/90"
           }`}
         >
           {isFollowing ? (
@@ -341,29 +315,32 @@ export function StepConnectAnimation() {
               <span>Following</span>
             </>
           ) : (
-            <span>+ Follow</span>
+            <span>+ Follow album</span>
           )}
         </div>
       </div>
 
-      {/* Clean Bottom Album Stat */}
-      <div className="flex items-center justify-between z-10 pt-[0.4vw] border-t border-white/5 text-primary/40 detailText text-[2.6vw] sm:text-[0.7vw] font-mono">
-        <span>Curating 5 albums · 5 songs</span>
-        <span className="text-yellow/70">★ 8.8 community score</span>
+      {/* Footer info */}
+      <div className="flex items-center justify-between z-10 pt-[1vw] border-t border-secondary/10 text-secondary/60 detailText text-[2.6vw] sm:text-[0.7vw]">
+        <span>
+          {isFollowing
+            ? "Album added to your taste network"
+            : "Follow records to curate your feed"}
+        </span>
+        <span className="text-secondary/40">album-first social</span>
       </div>
     </div>
   );
 }
 
-// STEP 3: Live Post & Liking with Exact Measured Cursor Position
+// STEP 3: Real Feed Post matching FeedView.tsx
 export function StepDiscussPost() {
   const containerRef = useRef<HTMLDivElement>(null);
   const heartBtnRef = useRef<HTMLDivElement>(null);
-  const commentsBtnRef = useRef<HTMLDivElement>(null);
 
   const [likes, setLikes] = useState(48);
   const [hasLiked, setHasLiked] = useState(false);
-  const [cursorPos, setCursorPos] = useState({ x: 75, y: 88 });
+  const [cursorPos, setCursorPos] = useState({ x: 75, y: 80 });
   const [isClicking, setIsClicking] = useState(false);
 
   useEffect(() => {
@@ -372,15 +349,12 @@ export function StepDiscussPost() {
     const runCycle = () => {
       const container = containerRef.current;
       const heartBtn = heartBtnRef.current;
-      const commentsBtn = commentsBtnRef.current;
 
-      // 1. Move directly to Like Heart icon using exact DOM coordinates
       if (container && heartBtn) {
         const cRect = container.getBoundingClientRect();
         const hRect = heartBtn.getBoundingClientRect();
-        // Position cursor tip directly on the heart SVG
-        const targetX = ((hRect.left + 4 - cRect.left) / cRect.width) * 100;
-        const targetY = ((hRect.top + 4 - cRect.top) / cRect.height) * 100;
+        const targetX = ((hRect.left + hRect.width * 0.4 - cRect.left) / cRect.width) * 100;
+        const targetY = ((hRect.top + hRect.height * 0.4 - cRect.top) / cRect.height) * 100;
         setCursorPos({ x: targetX, y: targetY });
 
         timeouts.push(
@@ -393,31 +367,17 @@ export function StepDiscussPost() {
         );
       }
 
-      // 2. Move directly to Comments pill using exact DOM coordinates
       timeouts.push(
         setTimeout(() => {
-          if (container && commentsBtn) {
-            const cRect = container.getBoundingClientRect();
-            const comRect = commentsBtn.getBoundingClientRect();
-            const targetX = ((comRect.left + 4 - cRect.left) / cRect.width) * 100;
-            const targetY = ((comRect.top + 4 - cRect.top) / cRect.height) * 100;
-            setCursorPos({ x: targetX, y: targetY });
-          }
-        }, 2600)
-      );
-
-      // 3. Move away to bottom right and reset state
-      timeouts.push(
-        setTimeout(() => {
-          setCursorPos({ x: 75, y: 88 });
+          setCursorPos({ x: 75, y: 80 });
           setHasLiked(false);
           setLikes(48);
-        }, 5000)
+        }, 4500)
       );
     };
 
-    const initTimer = setTimeout(runCycle, 300);
-    const interval = setInterval(runCycle, 5800);
+    const initTimer = setTimeout(runCycle, 400);
+    const interval = setInterval(runCycle, 5500);
 
     return () => {
       clearTimeout(initTimer);
@@ -429,9 +389,9 @@ export function StepDiscussPost() {
   return (
     <div
       ref={containerRef}
-      className="w-full aspect-auto min-h-[220px] sm:aspect-[16/10] bg-[#141412] rounded-[2vw] sm:rounded-[0.5vw] p-[3.5vw] sm:p-[2vw] flex flex-col justify-between border border-white/5 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
+      className="w-full aspect-auto min-h-[220px] sm:aspect-[16/10] bg-primary text-secondary rounded-[1.5vw] sm:rounded-[0.5vw] p-[3.5vw] sm:p-[1.8vw] flex flex-col justify-between border border-secondary/15 drop-shadow-soft relative overflow-hidden select-none pointer-events-none"
     >
-      {/* Simulated Animated Cursor with exact bounding-box tracking */}
+      {/* Simulated Cursor */}
       <div
         className="absolute z-30 transition-all duration-700 ease-out"
         style={{ left: `${cursorPos.x}%`, top: `${cursorPos.y}%` }}
@@ -439,52 +399,50 @@ export function StepDiscussPost() {
         <SimulatedCursor isClicking={isClicking} />
       </div>
 
-      {/* Top Header */}
+      {/* Header matching real musi5t */}
       <div className="flex items-center justify-between z-10">
         <div className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
-          <span className="w-[1.8vw] h-[1.8vw] sm:w-[0.5vw] sm:h-[0.5vw] rounded-full bg-yellow" />
-          <span className="detailText font-mono text-primary/70 text-[2.8vw] sm:text-inherit">
-            Feed Discussion
-          </span>
+          <div className="drop-shadow rounded-[0.2vw]">
+            <div className="w-[3.5vw] h-[3.5vw] sm:w-[1vw] sm:h-[1vw] rounded-[0.15vw] bg-yellow" />
+          </div>
+          <span className="extraSmallText text-secondary/70">feed / discussion</span>
         </div>
-        <span className="detailText text-primary/40 font-mono text-[2.8vw] sm:text-[0.7vw]">
-          audience: #Currents
-        </span>
+        <span className="detailText text-secondary/50">12m ago</span>
       </div>
 
-      {/* Main Post Card */}
-      <div className="bg-white/5 rounded-[1.5vw] sm:rounded-[0.4vw] p-[3vw] sm:p-[1.2vw] border border-white/10 my-auto flex flex-col gap-[2.5vw] sm:gap-[0.8vw]">
-        {/* Post Author Bar */}
+      {/* Main Post Card matching FeedView */}
+      <div className="bg-secondary/[0.03] border border-secondary/10 rounded-[1vw] sm:rounded-[0.4vw] p-[3vw] sm:p-[1.2vw] my-auto flex flex-col gap-[2vw] sm:gap-[0.8vw]">
+        {/* Author Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
-            <div className="w-[6vw] h-[6vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full bg-yellow/20 text-yellow flex items-center justify-center font-bold text-[3.6vw] sm:text-[0.9vw]">
+          <div className="flex items-center gap-[2vw] sm:gap-[0.6vw]">
+            <div className="w-[7vw] h-[7vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-[0.25vw] bg-yellow text-secondary flex items-center justify-center font-bold text-[3.2vw] sm:text-[0.85vw] drop-shadow shrink-0">
               S
             </div>
             <div className="flex flex-col">
-              <span className="detailText font-medium text-primary leading-tight text-[2.8vw] sm:text-inherit">
-                @sofia.music
+              <span className="detailText font-medium text-secondary leading-tight text-[2.8vw] sm:text-inherit">
+                Sofia
               </span>
-              <span className="detailText text-primary/40 text-[2.6vw] sm:text-[0.65vw]">
-                12m ago
+              <span className="detailText text-secondary/50 text-[2.4vw] sm:text-[0.65vw]">
+                @sofia.music
               </span>
             </div>
           </div>
-          <span className="bg-yellow text-secondary font-mono text-[2.6vw] sm:text-[0.65vw] px-[1.5vw] py-[0.4vw] sm:px-[0.4vw] sm:py-[0.1vw] rounded-[0.5vw] sm:rounded-[0.15vw] font-bold">
+          <span className="detailText px-[1.8vw] py-[0.4vw] sm:px-[0.5vw] sm:py-[0.15vw] bg-secondary/5 border border-secondary/10 text-secondary rounded-[0.2vw] font-medium text-[2.4vw] sm:text-[0.65vw]">
             #Currents
           </span>
         </div>
 
         {/* Post Content */}
-        <p className="extraSmallText text-primary/90 leading-snug text-[3.4vw] sm:text-inherit">
+        <p className="extraSmallText text-secondary/90 leading-snug text-[3.2vw] sm:text-inherit">
           &ldquo;The synth bassline on &apos;The Less I Know The Better&apos; into &apos;Past Life&apos; is unmatched. Still one of the best A-sides of the decade.&rdquo;
         </p>
 
-        {/* Actions bar (Like & Comments) */}
-        <div className="flex items-center gap-[4vw] sm:gap-[1.5vw] pt-[1.5vw] sm:pt-[0.4vw] border-t border-white/5">
+        {/* Actions bar (Like & Replies) */}
+        <div className="flex items-center gap-[4vw] sm:gap-[1.5vw] pt-[1.2vw] sm:pt-[0.4vw] border-t border-secondary/10">
           <div
             ref={heartBtnRef}
-            className={`flex items-center gap-[1.2vw] sm:gap-[0.35vw] text-[3.2vw] sm:text-[0.8vw] font-mono transition-all duration-200 ${
-              hasLiked ? "text-red-400 font-bold scale-105" : "text-primary/60"
+            className={`flex items-center gap-[1.2vw] sm:gap-[0.35vw] text-[3vw] sm:text-[0.75vw] transition-all duration-200 ${
+              hasLiked ? "text-red-500 font-bold scale-105" : "text-secondary/60"
             }`}
           >
             <svg
@@ -499,10 +457,7 @@ export function StepDiscussPost() {
             <span>{likes}</span>
           </div>
 
-          <div
-            ref={commentsBtnRef}
-            className="flex items-center gap-[1.2vw] sm:gap-[0.35vw] text-primary/50 text-[3.2vw] sm:text-[0.8vw] font-mono"
-          >
+          <div className="flex items-center gap-[1.2vw] sm:gap-[0.35vw] text-secondary/50 text-[3vw] sm:text-[0.75vw]">
             <svg
               className="w-[3.6vw] h-[3.6vw] sm:w-[0.9vw] sm:h-[0.9vw]"
               viewBox="0 0 24 24"
@@ -517,10 +472,10 @@ export function StepDiscussPost() {
         </div>
       </div>
 
-      {/* Mini live reply ticker */}
-      <div className="flex items-center gap-[1.5vw] sm:gap-[0.5vw] text-primary/50 detailText text-[2.8vw] sm:text-[0.7vw] truncate">
-        <span className="text-yellow font-bold">@nico:</span>
-        <span className="truncate">&ldquo;Agreed, the analog warmth on vinyl hits completely different.&rdquo;</span>
+      {/* Footer info */}
+      <div className="flex items-center justify-between z-10 pt-[1vw] border-t border-secondary/10 text-secondary/60 detailText text-[2.6vw] sm:text-[0.7vw]">
+        <span>Conversations happen around albums</span>
+        <span className="text-secondary/40">high-signal feed</span>
       </div>
     </div>
   );
