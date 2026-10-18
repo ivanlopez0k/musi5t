@@ -18,7 +18,7 @@ export function Header() {
     <header className="header">
       <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
         {/* Brand Wordmark */}
-        <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
+        <div className="mediumText col-span-3 flex justify-start items-center">
           <button
             type="button"
             onClick={() => scrollTo("#hero")}
@@ -29,7 +29,7 @@ export function Header() {
         </div>
 
         {/* Navigation Group */}
-        <div className="text-secondary smallText col-span-6 justify-center items-center hidden sm:flex">
+        <div className="smallText col-span-6 justify-center items-center hidden sm:flex">
           <span className="nav-group flex gap-[0.25vw]">
             <button
               type="button"
@@ -69,7 +69,7 @@ export function Header() {
         <div className="col-span-3 flex justify-end items-center gap-4">
           <Link
             href="/login"
-            className="text-secondary/60 hover:text-secondary text-[1.1vw] sm:text-[0.85vw] font-medium transition-colors"
+            className="opacity-70 hover:opacity-100 text-[1.1vw] sm:text-[0.85vw] font-medium transition-opacity"
           >
             Sign in
           </Link>

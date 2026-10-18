@@ -5,6 +5,7 @@ import Link from "next/link";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
+import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { Header } from "@/components/landing/Header";
 import { HeroPhotos } from "@/components/landing/HeroPhotos";
 import { Services } from "@/components/landing/Services";
@@ -66,6 +67,8 @@ export function LandingPageClient() {
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    const cleanupNav = setupNavColorTriggers(mainEl);
+
     const rafHandler = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -73,6 +76,7 @@ export function LandingPageClient() {
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      cleanupNav();
       gsap.ticker.remove(rafHandler);
       lenis.destroy();
       setLenis(null);
@@ -161,7 +165,7 @@ export function LandingPageClient() {
                 <div
                   ref={heroRef}
                   id="hero"
-                  data-nav-color="primary"
+                  data-nav-color="secondary"
                   className="w-full h-lvh bg-primary flex items-end relative overflow-hidden select-none"
                 >
                   {/* Giant 3D Hero Wordmark */}
@@ -418,7 +422,10 @@ export function LandingPageClient() {
                 </div>
 
                 {/* 8. FOOTER (Dark) */}
-                <footer className="w-full bg-secondary text-primary layout-grid pt-[6vw] pb-[4vw] border-t border-primary/10 select-none">
+                <footer
+                  data-nav-color="primary"
+                  className="w-full bg-secondary text-primary layout-grid pt-[6vw] pb-[4vw] border-t border-primary/10 select-none"
+                >
                   {/* Email contact links */}
                   <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
                     <span className="extraSmallText text-primary/40 font-mono">

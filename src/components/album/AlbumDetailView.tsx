@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
+import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { AlbumFollowButton } from "./AlbumFollowButton";
 import { AlbumRatingWidget } from "./AlbumRatingWidget";
 import {
@@ -75,6 +76,8 @@ export function AlbumDetailView({
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    const cleanupNav = setupNavColorTriggers(mainEl);
+
     const rafHandler = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -82,6 +85,7 @@ export function AlbumDetailView({
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      cleanupNav();
       gsap.ticker.remove(rafHandler);
       lenis.destroy();
       setLenis(null);
@@ -106,7 +110,7 @@ export function AlbumDetailView({
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Left: Brand Wordmark */}
-                <div className="text-secondary mediumText col-span-3 flex justify-start items-center">
+                <div className="mediumText col-span-3 flex justify-start items-center">
                   <Link
                     href={currentUser ? "/feed" : "/"}
                     className="nav-btn cursor-pointer text-left"
@@ -116,12 +120,12 @@ export function AlbumDetailView({
                 </div>
 
                 {/* Center Navigation Group */}
-                <div className="text-secondary smallText col-span-5 justify-center items-center hidden sm:flex">
+                <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
                   <span className="nav-group flex items-center gap-[0.5vw]">
                     <Link href="/feed" className="nav-btn cursor-pointer">
                       Feed
                     </Link>
-                    <span className="text-secondary/35">•</span>
+                    <span className="opacity-35">•</span>
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>
@@ -134,13 +138,13 @@ export function AlbumDetailView({
                     <>
                       <Link
                         href="/settings"
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                        className="opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
                       <Link
                         href={`/@${currentUser.username}`}
-                        className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
+                        className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
                         title={`@${currentUser.username}`}
                       >
                         {currentUser.avatarUrl ? (
@@ -161,7 +165,7 @@ export function AlbumDetailView({
                     <>
                       <Link
                         href="/login"
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                        className="opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Sign in
                       </Link>
@@ -502,7 +506,10 @@ export function AlbumDetailView({
                 </section>
 
                 {/* 5. EDITORIAL DARK FOOTER */}
-                <footer className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none">
+                <footer
+                  data-nav-color="primary"
+                  className="bg-secondary text-primary layout-grid py-[6vw] px-[var(--margin)] mt-[8vw] border-t border-primary/10 select-none"
+                >
                   {/* Platform Links */}
                   <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
                     <span className="extraSmallText text-primary/40 font-mono">

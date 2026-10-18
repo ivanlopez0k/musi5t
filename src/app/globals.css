@@ -141,7 +141,36 @@ body {
   position: fixed;
   top: 0;
   left: 0;
+  color: rgb(var(--rgb-secondary));
+  transition: color 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
+
+.route-surface > .header[data-nav-theme="light"],
+.route-surface > .header.theme-light {
+  color: rgb(var(--rgb-primary));
+}
+
+.route-surface > .header[data-nav-theme="light"] :not(.main-btn):not(.main-btn *) > .text-secondary,
+.route-surface > .header[data-nav-theme="light"] .text-secondary:not(.main-btn):not(.main-btn *) {
+  color: rgb(var(--rgb-primary));
+}
+
+.route-surface > .header[data-nav-theme="light"] .text-secondary\/60 {
+  color: rgba(var(--rgb-primary), 0.7);
+}
+
+.route-surface > .header[data-nav-theme="light"] .text-secondary\/35 {
+  color: rgba(var(--rgb-primary), 0.35);
+}
+
+.route-surface > .header[data-nav-theme="light"] .border-secondary\/25 {
+  border-color: rgba(var(--rgb-primary), 0.3);
+}
+
+.route-surface > .header[data-nav-theme="light"] .border-secondary {
+  border-color: rgba(var(--rgb-primary), 0.8);
+}
+
 
 .route-surface > main {
   z-index: 2;
