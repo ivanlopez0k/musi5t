@@ -70,6 +70,7 @@ export default async function UserProfilePage({ params }: PageProps) {
       bio: users.bio,
       avatarUrl: users.avatarUrl,
       themeKey: users.themeKey,
+      emailVerifiedAt: users.emailVerifiedAt,
       createdAt: users.createdAt,
     })
     .from(users)

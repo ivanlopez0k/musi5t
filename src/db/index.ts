@@ -65,7 +65,27 @@ export async function ensurePhase3Tables(): Promise<void> {
       );
     `);
     await ensureArtistTables();
+    await ensureAccountTokenTables();
     globalForDb.phase3Initialized = true;
+  } catch {
+    // Ignore if DB is offline during build/static analysis
+  }
+}
+
+export async function ensureAccountTokenTables(): Promise<void> {
+  try {
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS account_tokens (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token_hash text NOT NULL,
+        type text NOT NULL,
+        expires_at timestamptz NOT NULL,
+        used_at timestamptz,
+        created_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE INDEX IF NOT EXISTS idx_account_tokens_lookup ON account_tokens (token_hash, type);
+    `);
   } catch {
     // Ignore if DB is offline during build/static analysis
   }

@@ -23,6 +23,7 @@ export interface ProfileUser {
   avatarUrl: string | null;
   themeKey: string;
   createdAt: Date;
+  emailVerifiedAt?: Date | string | null;
 }
 
 export interface TopAlbumItem {
@@ -83,6 +84,11 @@ export function ProfileView({
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Email verification state
+  const [resendingVerification, setResendingVerification] = useState(false);
+  const [verificationNotice, setVerificationNotice] = useState<string | null>(null);
+  const [emailVerified] = useState(Boolean(user.emailVerifiedAt));
 
   // Moderation state for non-owners
   const [muted, setMuted] = useState(initialMuted);
@@ -312,6 +318,28 @@ export function ProfileView({
     } catch (err) {
       console.error("Failed to logout:", err);
       setIsLoggingOut(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (resendingVerification) return;
+    setResendingVerification(true);
+    setVerificationNotice(null);
+    try {
+      const res = await fetch("/api/v1/auth/verify-email/resend", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setVerificationNotice(data.message || "Verification link sent! Check your inbox.");
+      } else {
+        setVerificationNotice(data.error || "Failed to send verification link.");
+      }
+    } catch (err) {
+      console.error("Failed to resend verification:", err);
+      setVerificationNotice("An error occurred. Please try again.");
+    } finally {
+      setResendingVerification(false);
     }
   };
 
@@ -722,6 +750,38 @@ export function ProfileView({
                   className="w-full bg-transparent text-secondary pt-[24vw] sm:pt-[9.5vw] pb-[6vw] sm:pb-[4vw] relative z-10"
                 >
                   <div className="layout-grid w-full items-start">
+                    {/* Unverified Email Warning Banner for Owner */}
+                    {isOwner && !emailVerified && (
+                      <div className="col-span-full mb-[4vw] sm:mb-[2.5vw] p-[3.5vw] sm:p-[1.4vw] rounded-[0.5vw] border border-yellow/40 bg-yellow/10 flex flex-col sm:flex-row sm:items-center justify-between gap-[2.5vw] sm:gap-[1.5vw] drop-shadow-soft">
+                        <div className="flex items-center gap-[2.5vw] sm:gap-[1vw]">
+                          <span className="w-[2.5vw] h-[2.5vw] sm:w-[0.75vw] sm:h-[0.75vw] rounded-full bg-yellow shrink-0 animate-pulse" />
+                          <div>
+                            <p className="extraSmallTextBold text-secondary">
+                              Your email is unverified
+                            </p>
+                            <p className="extraSmallText text-secondary/70">
+                              Verify your email address to secure your account and enable password recovery.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-[2vw] sm:gap-[1vw]">
+                          {verificationNotice && (
+                            <span className="extraSmallText text-secondary/80 font-medium">
+                              {verificationNotice}
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            disabled={resendingVerification}
+                            onClick={handleResendVerification}
+                            className="extraSmallText px-[3.5vw] py-[1.5vw] sm:px-[1.1vw] sm:py-[0.45vw] rounded-[0.3vw] bg-secondary text-primary font-medium hover:bg-secondary/85 transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                          >
+                            {resendingVerification ? "Sending..." : "Resend verification email"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Left 8 Columns: Giant Editorial Name (+ member since), Bio & Visitor Actions */}
                     <div className="col-span-full sm:col-span-8 flex flex-col justify-between profile-hero-reveal">
                       <div className="flex flex-wrap items-baseline gap-x-[2vw] sm:gap-x-[1vw] gap-y-[1vw]">
