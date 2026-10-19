@@ -234,7 +234,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 24,
+                gap: 22,
                 zIndex: 10,
               }}
             >
@@ -248,15 +248,15 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
                   <div
                     style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 12,
+                      width: 54,
+                      height: 54,
+                      borderRadius: 14,
                       backgroundColor: palette.accent,
                     }}
                   />
                   <span
                     style={{
-                      fontSize: 64,
+                      fontSize: 68,
                       fontWeight: 800,
                       letterSpacing: "-0.04em",
                     }}
@@ -276,7 +276,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               >
                 <span
                   style={{
-                    fontSize: 72,
+                    fontSize: 84,
                     fontWeight: 800,
                     letterSpacing: "-0.03em",
                     lineHeight: 1.1,
@@ -286,7 +286,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 </span>
                 <span
                   style={{
-                    fontSize: 32,
+                    fontSize: 34,
                     color: "#0E0E0E",
                     opacity: 0.55,
                     fontWeight: 500,
@@ -303,9 +303,9 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 24,
+                gap: 32,
                 zIndex: 10,
-                margin: "40px 0",
+                margin: "12px 0",
               }}
             >
               {[1, 2, 3, 4, 5].map((pos) => {
@@ -316,10 +316,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                      backgroundColor: "rgba(255, 255, 255, 0.88)",
                       border: "2px solid rgba(14, 14, 14, 0.08)",
-                      borderRadius: 24,
-                      padding: "18px 24px",
+                      borderRadius: 26,
+                      padding: "24px 30px",
                       gap: 28,
                       boxShadow: "0 10px 25px rgba(0,0,0,0.03)",
                     }}
@@ -330,12 +330,12 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: 58,
-                        height: 58,
-                        borderRadius: 14,
+                        width: 70,
+                        height: 70,
+                        borderRadius: 18,
                         backgroundColor: pos === 1 ? palette.accent : "#0E0E0E",
                         color: pos === 1 ? "#0E0E0E" : "#F7F7F7",
-                        fontSize: 28,
+                        fontSize: 32,
                         fontWeight: 800,
                         flexShrink: 0,
                       }}
@@ -349,12 +349,12 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       <img
                         src={album.coverDataUrl}
                         alt={album.title}
-                        width={140}
-                        height={140}
+                        width={185}
+                        height={185}
                         style={{
-                          width: 140,
-                          height: 140,
-                          borderRadius: 16,
+                          width: 185,
+                          height: 185,
+                          borderRadius: 20,
                           objectFit: "cover",
                           flexShrink: 0,
                           border: "1px solid rgba(0,0,0,0.1)",
@@ -363,15 +363,15 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                     ) : (
                       <div
                         style={{
-                          width: 140,
-                          height: 140,
-                          borderRadius: 16,
+                          width: 185,
+                          height: 185,
+                          borderRadius: 20,
                           backgroundColor: "#0E0E0E",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           color: "#F7F7F7",
-                          fontSize: 20,
+                          fontSize: 22,
                           flexShrink: 0,
                         }}
                       >
@@ -384,14 +384,14 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       style={{
                         display: "flex",
                         flexDirection: "column",
-                        gap: 6,
+                        gap: 8,
                         overflow: "hidden",
                         flex: 1,
                       }}
                     >
                       <span
                         style={{
-                          fontSize: 34,
+                          fontSize: 40,
                           fontWeight: 700,
                           letterSpacing: "-0.02em",
                           whiteSpace: "nowrap",
@@ -403,7 +403,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       </span>
                       <span
                         style={{
-                          fontSize: 26,
+                          fontSize: 28,
                           color: "#0E0E0E",
                           opacity: 0.6,
                           fontWeight: 500,
@@ -422,20 +422,65 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               })}
             </div>
 
+            {/* Curator Taste Network Bar */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                backgroundColor: "rgba(255, 255, 255, 0.8)",
+                border: "2px solid rgba(14, 14, 14, 0.08)",
+                borderRadius: 20,
+                padding: "20px 28px",
+                zIndex: 10,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    backgroundColor: palette.accent,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 26,
+                    fontWeight: 600,
+                    color: "#0E0E0E",
+                  }}
+                >
+                  Curated rotation by @{user.username}
+                </span>
+              </div>
+              <span
+                style={{
+                  fontSize: 22,
+                  color: "#0E0E0E",
+                  opacity: 0.5,
+                  fontWeight: 600,
+                }}
+              >
+                musi5t taste network
+              </span>
+            </div>
+
             {/* Footer */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                borderTop: "2px solid rgba(14, 14, 14, 0.1)",
-                paddingTop: 30,
+                borderTop: "2px solid rgba(14, 14, 14, 0.12)",
+                paddingTop: 34,
                 zIndex: 10,
               }}
             >
               <span
                 style={{
-                  fontSize: 26,
+                  fontSize: 28,
                   color: "#0E0E0E",
                   opacity: 0.5,
                   fontWeight: 600,
@@ -445,7 +490,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               </span>
               <span
                 style={{
-                  fontSize: 24,
+                  fontSize: 26,
                   fontWeight: 700,
                   letterSpacing: "0.05em",
                   color: "#0E0E0E",
@@ -460,7 +505,480 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
       );
     }
 
-    // 2. SQUARE (1080x1080) & OG (1200x630) FORMAT
+    // 2. SQUARE FORMAT (1080x1080, 1:1)
+    if (format === "square") {
+      return new ImageResponse(
+        (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              backgroundColor: "#F7F7F7",
+              color: "#0E0E0E",
+              padding: "75px 65px",
+              fontFamily: "system-ui, -apple-system, sans-serif",
+              position: "relative",
+            }}
+          >
+            {/* Decorative Concentric Lateral Circles */}
+            {/* Upper Right Concentric Disc */}
+            <div
+              style={{
+                position: "absolute",
+                top: -140,
+                right: -140,
+                width: 520,
+                height: 520,
+                borderRadius: "50%",
+                backgroundColor: palette.secondaryOrb,
+                opacity: 0.55,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: -50,
+                right: -50,
+                width: 320,
+                height: 320,
+                borderRadius: "50%",
+                backgroundColor: palette.accent,
+                opacity: 0.65,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: 20,
+                right: 20,
+                width: 140,
+                height: 140,
+                borderRadius: "50%",
+                backgroundColor: palette.softGlow,
+                opacity: 0.45,
+              }}
+            />
+
+            {/* Left Edge Satellite Circle */}
+            <div
+              style={{
+                position: "absolute",
+                top: 480,
+                left: -70,
+                width: 190,
+                height: 190,
+                borderRadius: "50%",
+                backgroundColor: palette.accent,
+                opacity: 0.5,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: 510,
+                left: -40,
+                width: 120,
+                height: 120,
+                borderRadius: "50%",
+                backgroundColor: palette.secondaryOrb,
+                opacity: 0.6,
+              }}
+            />
+
+            {/* Right Lower Graphic Dot */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: 200,
+                right: -50,
+                width: 150,
+                height: 150,
+                borderRadius: "50%",
+                backgroundColor: palette.softGlow,
+                opacity: 0.45,
+              }}
+            />
+
+            {/* Bottom Left Concentric Sphere */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: -100,
+                left: -100,
+                width: 380,
+                height: 380,
+                borderRadius: "50%",
+                backgroundColor: palette.secondaryOrb,
+                opacity: 0.45,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: -30,
+                left: -30,
+                width: 220,
+                height: 220,
+                borderRadius: "50%",
+                backgroundColor: palette.accent,
+                opacity: 0.55,
+              }}
+            />
+
+            {/* Header: Brand & Identity */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+                zIndex: 10,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+                  <div
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 12,
+                      backgroundColor: palette.accent,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 60,
+                      fontWeight: 800,
+                      letterSpacing: "-0.04em",
+                    }}
+                  >
+                    musi5t
+                  </span>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  marginTop: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 72,
+                    fontWeight: 800,
+                    letterSpacing: "-0.03em",
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {user.displayName}
+                </span>
+                <span
+                  style={{
+                    fontSize: 28,
+                    color: "#0E0E0E",
+                    opacity: 0.55,
+                    fontWeight: 500,
+                    marginTop: 6,
+                  }}
+                >
+                  @{user.username}&apos;s definitive album rotation
+                </span>
+              </div>
+            </div>
+
+            {/* Middle: 5 Horizontal Album Shelf Showcase */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "100%",
+                zIndex: 10,
+              }}
+            >
+              {/* Section Header */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  marginBottom: 20,
+                  borderBottom: "1px solid rgba(14, 14, 14, 0.08)",
+                  paddingBottom: 12,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: 4,
+                      backgroundColor: palette.accent,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 700,
+                      letterSpacing: "-0.01em",
+                      textTransform: "lowercase",
+                    }}
+                  >
+                    curated records
+                  </span>
+                </div>
+                <span
+                  style={{
+                    fontSize: 18,
+                    color: "#0E0E0E",
+                    opacity: 0.5,
+                    fontWeight: 600,
+                  }}
+                >
+                  [ 05 / 05 ]
+                </span>
+              </div>
+
+              {/* 5 Columns Shelf */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  width: "100%",
+                }}
+              >
+                {[1, 2, 3, 4, 5].map((pos) => {
+                  const album = userAlbums.find((a) => a.position === pos);
+                  return (
+                    <div
+                      key={pos}
+                      style={{
+                        width: 176,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 12,
+                      }}
+                    >
+                      {/* Album Cover Card with Corner Rank Badge */}
+                      <div
+                        style={{
+                          position: "relative",
+                          width: 176,
+                          height: 176,
+                          borderRadius: 18,
+                          overflow: "hidden",
+                          display: "flex",
+                          border: "2px solid rgba(14, 14, 14, 0.08)",
+                          backgroundColor: "#0E0E0E",
+                          boxShadow: "0 12px 28px rgba(0,0,0,0.08)",
+                        }}
+                      >
+                        {album?.coverDataUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={album.coverDataUrl}
+                            alt={album.title}
+                            width={176}
+                            height={176}
+                            style={{
+                              width: 176,
+                              height: 176,
+                              borderRadius: 16,
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: 176,
+                              height: 176,
+                              backgroundColor: "#0E0E0E",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#F7F7F7",
+                              fontSize: 18,
+                            }}
+                          >
+                            vinyl slot
+                          </div>
+                        )}
+
+                        {/* Corner Rank Badge */}
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: 10,
+                            left: 10,
+                            width: 40,
+                            height: 40,
+                            borderRadius: 10,
+                            backgroundColor:
+                              pos === 1
+                                ? palette.accent
+                                : "rgba(14, 14, 14, 0.88)",
+                            color: pos === 1 ? "#0E0E0E" : "#F7F7F7",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 20,
+                            fontWeight: 800,
+                          }}
+                        >
+                          0{pos}
+                        </div>
+                      </div>
+
+                      {/* Metadata */}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 4,
+                          overflow: "hidden",
+                          width: 176,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 22,
+                            fontWeight: 700,
+                            letterSpacing: "-0.02em",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {album ? album.title : `Slot 0${pos}`}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 18,
+                            color: "#0E0E0E",
+                            opacity: 0.6,
+                            fontWeight: 500,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {album
+                            ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
+                            : "Uncurated"}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Editorial Shelf Pedestal Line */}
+              <div
+                style={{
+                  width: "100%",
+                  height: 3,
+                  backgroundColor: "rgba(14, 14, 14, 0.12)",
+                  borderRadius: 2,
+                  marginTop: 22,
+                }}
+              />
+
+              {/* Curator Taste Network Bar */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  backgroundColor: "rgba(255, 255, 255, 0.8)",
+                  border: "2px solid rgba(14, 14, 14, 0.08)",
+                  borderRadius: 16,
+                  padding: "16px 22px",
+                  marginTop: 22,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      backgroundColor: palette.accent,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 600,
+                      color: "#0E0E0E",
+                    }}
+                  >
+                    Curated rotation by @{user.username}
+                  </span>
+                </div>
+                <span
+                  style={{
+                    fontSize: 17,
+                    color: "#0E0E0E",
+                    opacity: 0.5,
+                    fontWeight: 600,
+                  }}
+                >
+                  musi5t taste network
+                </span>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                borderTop: "2px solid rgba(14, 14, 14, 0.12)",
+                paddingTop: 28,
+                zIndex: 10,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 24,
+                  color: "#0E0E0E",
+                  opacity: 0.5,
+                  fontWeight: 600,
+                }}
+              >
+                musi5t.com/@{user.username}
+              </span>
+              <span
+                style={{
+                  fontSize: 22,
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  color: "#0E0E0E",
+                }}
+              >
+                ALBUM-FIRST SOCIAL
+              </span>
+            </div>
+          </div>
+        ),
+        { width, height }
+      );
+    }
+
+    // 3. DEFAULT OG FORMAT (1200x630, Social Embeds)
     return new ImageResponse(
       (
         <div
@@ -472,20 +990,19 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             justifyContent: "space-between",
             backgroundColor: "#F7F7F7",
             color: "#0E0E0E",
-            padding: "50px 60px",
+            padding: "45px 55px",
             fontFamily: "system-ui, -apple-system, sans-serif",
             position: "relative",
           }}
         >
-          {/* DECORATIVE VISUAL LATERAL CIRCLES (Palette-Driven like Profile) */}
           {/* Upper Right Concentric Disc */}
           <div
             style={{
               position: "absolute",
-              top: -130,
-              right: -130,
-              width: 480,
-              height: 480,
+              top: -100,
+              right: -100,
+              width: 380,
+              height: 380,
               borderRadius: "50%",
               backgroundColor: palette.secondaryOrb,
               opacity: 0.55,
@@ -494,65 +1011,13 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
           <div
             style={{
               position: "absolute",
-              top: -50,
-              right: -50,
-              width: 290,
-              height: 290,
+              top: -30,
+              right: -30,
+              width: 220,
+              height: 220,
               borderRadius: "50%",
               backgroundColor: palette.accent,
               opacity: 0.65,
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              top: 20,
-              right: 20,
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              backgroundColor: palette.softGlow,
-              opacity: 0.45,
-            }}
-          />
-
-          {/* Left Edge Satellite Circle */}
-          <div
-            style={{
-              position: "absolute",
-              top: 420,
-              left: -60,
-              width: 160,
-              height: 160,
-              borderRadius: "50%",
-              backgroundColor: palette.accent,
-              opacity: 0.5,
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              top: 450,
-              left: -30,
-              width: 100,
-              height: 100,
-              borderRadius: "50%",
-              backgroundColor: palette.secondaryOrb,
-              opacity: 0.6,
-            }}
-          />
-
-          {/* Right Lower Graphic Dot */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: 140,
-              right: -40,
-              width: 130,
-              height: 130,
-              borderRadius: "50%",
-              backgroundColor: palette.softGlow,
-              opacity: 0.45,
             }}
           />
 
@@ -560,10 +1025,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
           <div
             style={{
               position: "absolute",
-              bottom: -90,
-              left: -90,
-              width: 340,
-              height: 340,
+              bottom: -80,
+              left: -80,
+              width: 300,
+              height: 300,
               borderRadius: "50%",
               backgroundColor: palette.secondaryOrb,
               opacity: 0.45,
@@ -572,10 +1037,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
           <div
             style={{
               position: "absolute",
-              bottom: -25,
-              left: -25,
-              width: 190,
-              height: 190,
+              bottom: -20,
+              left: -20,
+              width: 170,
+              height: 170,
               borderRadius: "50%",
               backgroundColor: palette.accent,
               opacity: 0.55,
@@ -586,30 +1051,24 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              gap: 12,
+              justifyContent: "space-between",
+              alignItems: "flex-start",
               zIndex: 10,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <div
                   style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 8,
                     backgroundColor: palette.accent,
                   }}
                 />
                 <span
                   style={{
-                    fontSize: 54,
+                    fontSize: 44,
                     fontWeight: 800,
                     letterSpacing: "-0.04em",
                   }}
@@ -617,31 +1076,22 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                   musi5t
                 </span>
               </div>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                marginTop: 6,
-              }}
-            >
               <span
                 style={{
-                  fontSize: 48,
+                  fontSize: 46,
                   fontWeight: 800,
                   letterSpacing: "-0.03em",
+                  marginTop: 4,
                 }}
               >
                 {user.displayName}
               </span>
               <span
                 style={{
-                  fontSize: 22,
+                  fontSize: 20,
                   color: "#0E0E0E",
                   opacity: 0.55,
                   fontWeight: 500,
-                  marginTop: 4,
                 }}
               >
                 @{user.username}&apos;s definitive album rotation
@@ -649,14 +1099,15 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             </div>
           </div>
 
-          {/* 5 Albums Vertical List */}
+          {/* 5 Horizontal Shelf Columns */}
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              gap: 14,
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              width: "100%",
+              margin: "12px 0",
               zIndex: 10,
-              margin: "16px 0",
             }}
           >
             {[1, 2, 3, 4, 5].map((pos) => {
@@ -665,108 +1116,105 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 <div
                   key={pos}
                   style={{
+                    width: 200,
                     display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "rgba(255, 255, 255, 0.85)",
-                    border: "2px solid rgba(14, 14, 14, 0.08)",
-                    borderRadius: 16,
-                    padding: "10px 18px",
-                    gap: 20,
+                    flexDirection: "column",
+                    gap: 8,
                   }}
                 >
-                  {/* Rank Badge */}
                   <div
                     style={{
+                      position: "relative",
+                      width: 200,
+                      height: 200,
+                      borderRadius: 16,
+                      overflow: "hidden",
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 44,
-                      height: 44,
-                      borderRadius: 10,
-                      backgroundColor: pos === 1 ? palette.accent : "#0E0E0E",
-                      color: pos === 1 ? "#0E0E0E" : "#F7F7F7",
-                      fontSize: 22,
-                      fontWeight: 800,
-                      flexShrink: 0,
+                      border: "2px solid rgba(14, 14, 14, 0.08)",
+                      backgroundColor: "#0E0E0E",
+                      boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
                     }}
                   >
-                    0{pos}
-                  </div>
-
-                  {/* Album Cover */}
-                  {album?.coverDataUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={album.coverDataUrl}
-                      alt={album.title}
-                      width={88}
-                      height={88}
-                      style={{
-                        width: 88,
-                        height: 88,
-                        borderRadius: 12,
-                        objectFit: "cover",
-                        flexShrink: 0,
-                        border: "1px solid rgba(0,0,0,0.1)",
-                      }}
-                    />
-                  ) : (
+                    {album?.coverDataUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={album.coverDataUrl}
+                        alt={album.title}
+                        width={200}
+                        height={200}
+                        style={{
+                          width: 200,
+                          height: 200,
+                          borderRadius: 14,
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: 200,
+                          height: 200,
+                          backgroundColor: "#0E0E0E",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#F7F7F7",
+                          fontSize: 18,
+                        }}
+                      >
+                        vinyl
+                      </div>
+                    )}
                     <div
                       style={{
-                        width: 88,
-                        height: 88,
-                        borderRadius: 12,
-                        backgroundColor: "#0E0E0E",
+                        position: "absolute",
+                        top: 8,
+                        left: 8,
+                        width: 36,
+                        height: 36,
+                        borderRadius: 8,
+                        backgroundColor:
+                          pos === 1
+                            ? palette.accent
+                            : "rgba(14, 14, 14, 0.88)",
+                        color: pos === 1 ? "#0E0E0E" : "#F7F7F7",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "#F7F7F7",
-                        fontSize: 14,
-                        flexShrink: 0,
+                        fontSize: 18,
+                        fontWeight: 800,
                       }}
                     >
-                      vinyl
+                      0{pos}
                     </div>
-                  )}
-
-                  {/* Metadata */}
-                  <div
+                  </div>
+                  <span
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 4,
+                      fontSize: 18,
+                      fontWeight: 700,
+                      letterSpacing: "-0.02em",
+                      whiteSpace: "nowrap",
                       overflow: "hidden",
-                      flex: 1,
+                      textOverflow: "ellipsis",
                     }}
                   >
-                    <span
-                      style={{
-                        fontSize: 24,
-                        fontWeight: 700,
-                        letterSpacing: "-0.02em",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {album ? album.title : `Slot 0${pos} uncurated`}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 18,
-                        color: "#0E0E0E",
-                        opacity: 0.6,
-                        fontWeight: 500,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {album
-                        ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
-                        : "Empty vinyl slot"}
-                    </span>
-                  </div>
+                    {album ? album.title : `Slot 0${pos}`}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 15,
+                      color: "#0E0E0E",
+                      opacity: 0.6,
+                      fontWeight: 500,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {album
+                      ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
+                      : "Uncurated"}
+                  </span>
                 </div>
               );
             })}
@@ -785,7 +1233,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
           >
             <span
               style={{
-                fontSize: 20,
+                fontSize: 18,
                 color: "#0E0E0E",
                 opacity: 0.5,
                 fontWeight: 600,
@@ -795,7 +1243,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             </span>
             <span
               style={{
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: 700,
                 letterSpacing: "0.05em",
                 color: "#0E0E0E",

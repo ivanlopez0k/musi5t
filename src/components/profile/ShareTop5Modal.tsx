@@ -34,6 +34,7 @@ export function ShareTop5Modal({
   const [format, setFormat] = useState<"story" | "square">("story");
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
   // Close on Escape key
   useEffect(() => {
@@ -119,130 +120,291 @@ export function ShareTop5Modal({
     ctx.restore();
 
     // Brand Header (Prominent musi5t)
+    const brandBadgeSize = format === "story" ? 54 : 48;
     ctx.fillStyle = activePalette.accent;
     ctx.beginPath();
-    ctx.roundRect(75, 75, format === "story" ? 44 : 36, format === "story" ? 44 : 36, 10);
+    ctx.roundRect(75, 75, brandBadgeSize, brandBadgeSize, 12);
     ctx.fill();
 
     ctx.fillStyle = "#0E0E0E";
-    ctx.font = `800 ${format === "story" ? "56px" : "46px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText("musi5t", 75 + (format === "story" ? 64 : 52), 75 + (format === "story" ? 38 : 31));
+    ctx.font = `800 ${format === "story" ? "68px" : "60px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.fillText("musi5t", 75 + brandBadgeSize + 20, 75 + (format === "story" ? 46 : 42));
 
     // User display name & username
-    ctx.font = `800 ${format === "story" ? "68px" : "48px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText(user.displayName, 75, format === "story" ? 210 : 175);
+    ctx.font = `800 ${format === "story" ? "84px" : "72px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.fillText(user.displayName, 75, format === "story" ? 230 : 205);
 
     ctx.fillStyle = "rgba(14, 14, 14, 0.55)";
-    ctx.font = `500 ${format === "story" ? "30px" : "22px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText(`@${user.username}'s definitive album rotation`, 75, format === "story" ? 258 : 212);
+    ctx.font = `500 ${format === "story" ? "34px" : "28px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.fillText(`@${user.username}'s definitive album rotation`, 75, format === "story" ? 282 : 252);
 
-    // 5 Albums
-    const startY = format === "story" ? 340 : 280;
-    const rowHeight = format === "story" ? 245 : 124;
-    const coverSize = format === "story" ? 140 : 88;
+    if (format === "story") {
+      // 5 Albums Vertical List with Large Artwork
+      const startY = 340;
+      const cardHeight = 236;
+      const cardGap = 32;
+      const coverSize = 185;
+      const badgeSize = 70;
 
-    for (let pos = 1; pos <= 5; pos++) {
-      const album = albums.find((a) => a.position === pos);
-      const y = startY + (pos - 1) * rowHeight;
-      const cardHeight = format === "story" ? 180 : 104;
+      for (let pos = 1; pos <= 5; pos++) {
+        const album = albums.find((a) => a.position === pos);
+        const y = startY + (pos - 1) * (cardHeight + cardGap);
 
-      // Card Background
+        // Card Background
+        ctx.save();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
+        ctx.strokeStyle = "rgba(14, 14, 14, 0.08)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(75, y, width - 150, cardHeight, 26);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Rank Badge
+        const badgeY = y + (cardHeight - badgeSize) / 2;
+        ctx.fillStyle = pos === 1 ? activePalette.accent : "#0E0E0E";
+        ctx.beginPath();
+        ctx.roundRect(105, badgeY, badgeSize, badgeSize, 18);
+        ctx.fill();
+
+        ctx.fillStyle = pos === 1 ? "#0E0E0E" : "#F7F7F7";
+        ctx.font = "800 32px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`0${pos}`, 105 + badgeSize / 2, badgeY + badgeSize / 2);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+
+        // Cover Art
+        const coverX = 105 + badgeSize + 28;
+        const coverY = y + (cardHeight - coverSize) / 2;
+
+        let imageDrawn = false;
+        if (album?.coverUrl) {
+          try {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = album.coverUrl;
+            await new Promise<void>((resolve, reject) => {
+              img.onload = () => resolve();
+              img.onerror = () => reject();
+              setTimeout(() => reject(new Error("Timeout")), 1500);
+            });
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(coverX, coverY, coverSize, coverSize, 20);
+            ctx.clip();
+            ctx.drawImage(img, coverX, coverY, coverSize, coverSize);
+            ctx.restore();
+            imageDrawn = true;
+          } catch {
+            imageDrawn = false;
+          }
+        }
+
+        if (!imageDrawn) {
+          ctx.fillStyle = "#0E0E0E";
+          ctx.beginPath();
+          ctx.roundRect(coverX, coverY, coverSize, coverSize, 20);
+          ctx.fill();
+          ctx.fillStyle = "#F7F7F7";
+          ctx.font = "600 22px -apple-system, BlinkMacSystemFont, sans-serif";
+          ctx.fillText("vinyl", coverX + 24, coverY + coverSize / 2);
+        }
+
+        // Title & Artist
+        const textX = coverX + coverSize + 28;
+        const textAvailableWidth = width - textX - 100;
+        ctx.fillStyle = "#0E0E0E";
+        ctx.font = "700 40px -apple-system, BlinkMacSystemFont, sans-serif";
+        const title = album ? album.title : `Slot 0${pos} uncurated`;
+        ctx.fillText(title.length > 30 ? `${title.slice(0, 29)}...` : title, textX, y + 105, textAvailableWidth);
+
+        ctx.fillStyle = "rgba(14, 14, 14, 0.6)";
+        ctx.font = "500 28px -apple-system, BlinkMacSystemFont, sans-serif";
+        const subtitle = album
+          ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
+          : "Empty vinyl slot";
+        ctx.fillText(subtitle.length > 38 ? `${subtitle.slice(0, 37)}...` : subtitle, textX, y + 155, textAvailableWidth);
+      }
+
+      // Curator Taste Network Bar
+      const curatorY = startY + 5 * (cardHeight + cardGap) + 10;
       ctx.save();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
       ctx.strokeStyle = "rgba(14, 14, 14, 0.08)";
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.roundRect(75, y, width - 150, cardHeight, 18);
+      ctx.roundRect(75, curatorY, width - 150, 72, 20);
       ctx.fill();
       ctx.stroke();
-      ctx.restore();
 
-      // Rank Badge
-      const badgeSize = format === "story" ? 54 : 44;
-      const badgeY = y + (cardHeight - badgeSize) / 2;
-      ctx.fillStyle = pos === 1 ? activePalette.accent : "#0E0E0E";
+      ctx.fillStyle = activePalette.accent;
       ctx.beginPath();
-      ctx.roundRect(98, badgeY, badgeSize, badgeSize, 10);
+      ctx.arc(105, curatorY + 36, 6, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = pos === 1 ? "#0E0E0E" : "#F7F7F7";
-      ctx.font = `800 ${format === "story" ? "24px" : "20px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(`0${pos}`, 98 + badgeSize / 2, badgeY + badgeSize / 2);
-      ctx.textAlign = "left";
-      ctx.textBaseline = "alphabetic";
-
-      // Cover Art
-      const coverX = 98 + badgeSize + 24;
-      const coverY = y + (cardHeight - coverSize) / 2;
-
-      let imageDrawn = false;
-      if (album?.coverUrl) {
-        try {
-          const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.src = album.coverUrl;
-          await new Promise<void>((resolve, reject) => {
-            img.onload = () => resolve();
-            img.onerror = () => reject();
-            setTimeout(() => reject(new Error("Timeout")), 1500);
-          });
-          ctx.save();
-          ctx.beginPath();
-          ctx.roundRect(coverX, coverY, coverSize, coverSize, 12);
-          ctx.clip();
-          ctx.drawImage(img, coverX, coverY, coverSize, coverSize);
-          ctx.restore();
-          imageDrawn = true;
-        } catch {
-          imageDrawn = false;
-        }
-      }
-
-      if (!imageDrawn) {
-        ctx.fillStyle = "#0E0E0E";
-        ctx.beginPath();
-        ctx.roundRect(coverX, coverY, coverSize, coverSize, 12);
-        ctx.fill();
-        ctx.fillStyle = "#F7F7F7";
-        ctx.font = "600 16px -apple-system, BlinkMacSystemFont, sans-serif";
-        ctx.fillText("vinyl", coverX + 16, coverY + coverSize / 2);
-      }
-
-      // Title & Artist
-      const textX = coverX + coverSize + 24;
-      const textAvailableWidth = width - textX - 100;
       ctx.fillStyle = "#0E0E0E";
-      ctx.font = `700 ${format === "story" ? "28px" : "22px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-      const title = album ? album.title : `Slot 0${pos} uncurated`;
-      ctx.fillText(title.length > 36 ? `${title.slice(0, 35)}...` : title, textX, y + (format === "story" ? 82 : 48), textAvailableWidth);
+      ctx.font = "600 26px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.fillText(`Curated rotation by @${user.username}`, 125, curatorY + 45);
 
-      ctx.fillStyle = "rgba(14, 14, 14, 0.6)";
-      ctx.font = `500 ${format === "story" ? "22px" : "18px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-      const subtitle = album
-        ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
-        : "Empty vinyl slot";
-      ctx.fillText(subtitle.length > 42 ? `${subtitle.slice(0, 41)}...` : subtitle, textX, y + (format === "story" ? 122 : 82), textAvailableWidth);
+      ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
+      ctx.font = "600 22px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText("musi5t taste network", width - 105, curatorY + 45);
+      ctx.textAlign = "left";
+      ctx.restore();
+    } else {
+      // SQUARE (1:1): 5 Horizontal Album Shelf Columns
+      // Section Header
+      const headerY = 320;
+      ctx.fillStyle = activePalette.accent;
+      ctx.beginPath();
+      ctx.roundRect(65, headerY, 14, 14, 4);
+      ctx.fill();
+
+      ctx.fillStyle = "#0E0E0E";
+      ctx.font = "700 22px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.fillText("curated records", 90, headerY + 13);
+
+      ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
+      ctx.font = "600 18px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText("[ 05 / 05 ]", width - 65, headerY + 13);
+      ctx.textAlign = "left";
+
+      ctx.strokeStyle = "rgba(14, 14, 14, 0.08)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(65, headerY + 28);
+      ctx.lineTo(width - 65, headerY + 28);
+      ctx.stroke();
+
+      // 5 Columns
+      const colWidth = 176;
+      const gap = (width - 130 - 5 * colWidth) / 4;
+      const startX = 65;
+      const shelfY = 380;
+
+      for (let pos = 1; pos <= 5; pos++) {
+        const album = albums.find((a) => a.position === pos);
+        const colX = startX + (pos - 1) * (colWidth + gap);
+
+        // Album Cover Art
+        let imageDrawn = false;
+        if (album?.coverUrl) {
+          try {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = album.coverUrl;
+            await new Promise<void>((resolve, reject) => {
+              img.onload = () => resolve();
+              img.onerror = () => reject();
+              setTimeout(() => reject(new Error("Timeout")), 1500);
+            });
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(colX, shelfY, colWidth, colWidth, 18);
+            ctx.clip();
+            ctx.drawImage(img, colX, shelfY, colWidth, colWidth);
+            ctx.restore();
+            imageDrawn = true;
+          } catch {
+            imageDrawn = false;
+          }
+        }
+
+        if (!imageDrawn) {
+          ctx.fillStyle = "#0E0E0E";
+          ctx.beginPath();
+          ctx.roundRect(colX, shelfY, colWidth, colWidth, 18);
+          ctx.fill();
+          ctx.fillStyle = "#F7F7F7";
+          ctx.font = "600 18px -apple-system, BlinkMacSystemFont, sans-serif";
+          ctx.fillText("vinyl slot", colX + 46, shelfY + colWidth / 2);
+        }
+
+        // Corner Rank Badge
+        ctx.fillStyle = pos === 1 ? activePalette.accent : "rgba(14, 14, 14, 0.88)";
+        ctx.beginPath();
+        ctx.roundRect(colX + 10, shelfY + 10, 40, 40, 10);
+        ctx.fill();
+
+        ctx.fillStyle = pos === 1 ? "#0E0E0E" : "#F7F7F7";
+        ctx.font = "800 20px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`0${pos}`, colX + 30, shelfY + 30);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+
+        // Title & Artist
+        ctx.fillStyle = "#0E0E0E";
+        ctx.font = "700 22px -apple-system, BlinkMacSystemFont, sans-serif";
+        const title = album ? album.title : `Slot 0${pos}`;
+        ctx.fillText(title.length > 14 ? `${title.slice(0, 13)}...` : title, colX, shelfY + colWidth + 30, colWidth);
+
+        ctx.fillStyle = "rgba(14, 14, 14, 0.6)";
+        ctx.font = "500 18px -apple-system, BlinkMacSystemFont, sans-serif";
+        const subtitle = album
+          ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
+          : "Uncurated";
+        ctx.fillText(subtitle.length > 18 ? `${subtitle.slice(0, 17)}...` : subtitle, colX, shelfY + colWidth + 56, colWidth);
+      }
+
+      // Shelf line
+      const shelfLineY = shelfY + colWidth + 80;
+      ctx.fillStyle = "rgba(14, 14, 14, 0.12)";
+      ctx.beginPath();
+      ctx.roundRect(65, shelfLineY, width - 130, 3, 2);
+      ctx.fill();
+
+      // Curator bar
+      const curatorY = shelfLineY + 22;
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+      ctx.strokeStyle = "rgba(14, 14, 14, 0.08)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(65, curatorY, width - 130, 60, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = activePalette.accent;
+      ctx.beginPath();
+      ctx.arc(90, curatorY + 30, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#0E0E0E";
+      ctx.font = "600 20px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.fillText(`Curated rotation by @${user.username}`, 108, curatorY + 37);
+
+      ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
+      ctx.font = "600 17px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText("musi5t taste network", width - 90, curatorY + 37);
+      ctx.textAlign = "left";
+      ctx.restore();
     }
 
     // Footer
     const footerY = height - 70;
-    ctx.strokeStyle = "rgba(14, 14, 14, 0.1)";
+    ctx.strokeStyle = "rgba(14, 14, 14, 0.12)";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(75, footerY - 30);
-    ctx.lineTo(width - 75, footerY - 30);
+    ctx.moveTo(65, footerY - 30);
+    ctx.lineTo(width - 65, footerY - 30);
     ctx.stroke();
 
     ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
-    ctx.font = "600 22px -apple-system, BlinkMacSystemFont, sans-serif";
-    ctx.fillText(`musi5t.com/@${user.username}`, 75, footerY);
+    ctx.font = `600 ${format === "story" ? "28px" : "24px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.fillText(`musi5t.com/@${user.username}`, 65, footerY);
 
     ctx.fillStyle = "#0E0E0E";
-    ctx.font = "800 20px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.font = `800 ${format === "story" ? "26px" : "22px"} -apple-system, BlinkMacSystemFont, sans-serif`;
     ctx.textAlign = "right";
-    ctx.fillText("ALBUM-FIRST SOCIAL", width - 75, footerY);
+    ctx.fillText("ALBUM-FIRST SOCIAL", width - 65, footerY);
     ctx.textAlign = "left";
 
     // Export to Blob and download
@@ -363,7 +525,12 @@ export function ShareTop5Modal({
         <div className="flex items-center justify-center gap-[2vw] sm:gap-[0.8vw]">
           <button
             type="button"
-            onClick={() => setFormat("story")}
+            onClick={() => {
+              if (format !== "story") {
+                setFormat("story");
+                setImageLoading(true);
+              }
+            }}
             className={`px-[3.5vw] py-[1.2vw] sm:px-[1.2vw] sm:py-[0.4vw] rounded-[0.3vw] detailText font-medium transition-all cursor-pointer ${
               format === "story"
                 ? "bg-secondary text-primary shadow-sm"
@@ -374,7 +541,12 @@ export function ShareTop5Modal({
           </button>
           <button
             type="button"
-            onClick={() => setFormat("square")}
+            onClick={() => {
+              if (format !== "square") {
+                setFormat("square");
+                setImageLoading(true);
+              }
+            }}
             className={`px-[3.5vw] py-[1.2vw] sm:px-[1.2vw] sm:py-[0.4vw] rounded-[0.3vw] detailText font-medium transition-all cursor-pointer ${
               format === "square"
                 ? "bg-secondary text-primary shadow-sm"
@@ -385,215 +557,41 @@ export function ShareTop5Modal({
           </button>
         </div>
 
-        {/* Live Visual Poster Preview */}
+        {/* Live Visual Poster Preview (100% WYSIWYG Real Generated Image) */}
         <div className="flex items-center justify-center py-[1vw]">
-          {format === "story" ? (
-            // Story Format Preview (9:16)
-            <div
-              className="w-[58vw] max-w-[270px] aspect-[9/16] bg-[#F7F7F7] text-[#0E0E0E] rounded-[1.5vw] sm:rounded-[0.5vw] border border-secondary/20 drop-shadow-soft p-[3vw] sm:p-[1.2vw] flex flex-col justify-between overflow-hidden relative"
-            >
-              {/* DECORATIVE VISUAL LATERAL ORBS (Matching Profile) */}
-              {/* Upper Right Concentric Disc */}
-              <div
-                className="absolute -top-[10vw] -right-[10vw] w-[28vw] h-[28vw] rounded-full opacity-50 pointer-events-none"
-                style={{ backgroundColor: activePalette.secondaryOrb }}
-              />
-              <div
-                className="absolute -top-[4vw] -right-[4vw] w-[17vw] h-[17vw] rounded-full opacity-60 pointer-events-none"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-              <div
-                className="absolute top-[2vw] right-[2vw] w-[7vw] h-[7vw] rounded-full opacity-40 pointer-events-none"
-                style={{ backgroundColor: activePalette.softGlow }}
-              />
-
-              {/* Left Edge Satellite Circle */}
-              <div
-                className="absolute top-[38%] -left-[5vw] w-[11vw] h-[11vw] rounded-full opacity-45 pointer-events-none"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-              <div
-                className="absolute top-[40%] -left-[2.5vw] w-[6.5vw] h-[6.5vw] rounded-full opacity-60 pointer-events-none"
-                style={{ backgroundColor: activePalette.secondaryOrb }}
-              />
-
-              {/* Right Edge Graphic Dot */}
-              <div
-                className="absolute top-[68%] -right-[3.5vw] w-[8.5vw] h-[8.5vw] rounded-full opacity-45 pointer-events-none"
-                style={{ backgroundColor: activePalette.softGlow }}
-              />
-
-              {/* Bottom Left Concentric Sphere */}
-              <div
-                className="absolute -bottom-[8vw] -left-[8vw] w-[22vw] h-[22vw] rounded-full opacity-45 pointer-events-none"
-                style={{ backgroundColor: activePalette.secondaryOrb }}
-              />
-              <div
-                className="absolute -bottom-[2vw] -left-[2vw] w-[13vw] h-[13vw] rounded-full opacity-55 pointer-events-none"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-
-              {/* Header */}
-              <div className="flex flex-col gap-[0.5vw] z-10">
-                <div className="flex items-center gap-[1.2vw] sm:gap-[0.5vw]">
-                  <div
-                    className="w-[2.8vw] h-[2.8vw] sm:w-[0.9vw] sm:h-[0.9vw] rounded-[0.2vw]"
-                    style={{ backgroundColor: activePalette.accent }}
-                  />
-                  <span className="smallText sm:text-[1.1vw] font-extrabold tracking-tight">
-                    musi5t
-                  </span>
-                </div>
-                <span className="smallText font-extrabold leading-tight mt-[0.5vw] truncate">
-                  {user.displayName}
-                </span>
-                <span className="detailText text-secondary/60 text-[2.2vw] sm:text-[0.6vw] -mt-[0.2vw] truncate">
-                  @{user.username}&apos;s definitive album rotation
+          <div
+            className={`relative overflow-hidden rounded-[1.5vw] sm:rounded-[0.5vw] border border-secondary/20 drop-shadow-soft bg-[#F7F7F7] flex items-center justify-center ${
+              format === "story"
+                ? "w-[58vw] max-w-[270px] aspect-[9/16]"
+                : "w-[68vw] max-w-[320px] aspect-square"
+            }`}
+          >
+            {/* Loading skeleton / spinner */}
+            {imageLoading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#F7F7F7] z-20 gap-3">
+                <div
+                  className="w-8 h-8 rounded-full border-2 border-secondary/20 border-t-secondary animate-spin"
+                  style={{ borderTopColor: activePalette.accent }}
+                />
+                <span className="detailText text-secondary/50 font-medium">
+                  rendering poster...
                 </span>
               </div>
+            )}
 
-              {/* 5 Album List */}
-              <div className="flex flex-col gap-[1.5vw] sm:gap-[0.5vw] my-[1vw] z-10">
-                {[1, 2, 3, 4, 5].map((pos) => {
-                  const album = albums.find((a) => a.position === pos);
-                  return (
-                    <div
-                      key={pos}
-                      className="flex items-center gap-[1.8vw] sm:gap-[0.6vw] bg-white/80 p-[1.2vw] sm:p-[0.35vw] rounded-[0.6vw] sm:rounded-[0.2vw] border border-secondary/10"
-                    >
-                      <div
-                        className="w-[4.5vw] h-[4.5vw] sm:w-[1.4vw] sm:h-[1.4vw] rounded-[0.15vw] flex items-center justify-center font-bold detailText shrink-0"
-                        style={{
-                          backgroundColor: pos === 1 ? activePalette.accent : "#0E0E0E",
-                          color: pos === 1 ? "#0E0E0E" : "#F7F7F7",
-                        }}
-                      >
-                        0{pos}
-                      </div>
-                      <div className="w-[8vw] h-[8vw] sm:w-[2.4vw] sm:h-[2.4vw] rounded-[0.2vw] overflow-hidden bg-secondary shrink-0">
-                        {album?.coverUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={album.coverUrl}
-                            alt={album.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-secondary" />
-                        )}
-                      </div>
-                      <div className="flex flex-col overflow-hidden">
-                        <span className="detailText font-bold truncate leading-tight text-[2.4vw] sm:text-[0.65vw]">
-                          {album ? album.title : `Slot 0${pos}`}
-                        </span>
-                        <span className="detailText text-secondary/50 truncate text-[2vw] sm:text-[0.55vw]">
-                          {album ? album.artistName : "Uncurated"}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between pt-[0.8vw] border-t border-secondary/15 detailText text-secondary/50 text-[2vw] sm:text-[0.55vw] z-10">
-                <span>musi5t.com/@{user.username}</span>
-                <span className="font-bold text-secondary">ALBUM-FIRST</span>
-              </div>
-            </div>
-          ) : (
-            // Square Format Preview (1:1)
-            <div
-              className="w-[68vw] max-w-[320px] aspect-square bg-[#F7F7F7] text-[#0E0E0E] rounded-[1.5vw] sm:rounded-[0.5vw] border border-secondary/20 drop-shadow-soft p-[3.5vw] sm:p-[1.4vw] flex flex-col justify-between overflow-hidden relative"
-            >
-              {/* DECORATIVE VISUAL LATERAL ORBS (Matching Profile) */}
-              <div
-                className="absolute -top-[8vw] -right-[8vw] w-[24vw] h-[24vw] rounded-full opacity-50 pointer-events-none"
-                style={{ backgroundColor: activePalette.secondaryOrb }}
-              />
-              <div
-                className="absolute -top-[3vw] -right-[3vw] w-[15vw] h-[15vw] rounded-full opacity-60 pointer-events-none"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-              <div
-                className="absolute top-[40%] -left-[4vw] w-[9vw] h-[9vw] rounded-full opacity-45 pointer-events-none"
-                style={{ backgroundColor: activePalette.accent }}
-              />
-              <div
-                className="absolute bottom-[18%] -right-[2.5vw] w-[7vw] h-[7vw] rounded-full opacity-40 pointer-events-none"
-                style={{ backgroundColor: activePalette.softGlow }}
-              />
-              <div
-                className="absolute -bottom-[6vw] -left-[6vw] w-[18vw] h-[18vw] rounded-full opacity-40 pointer-events-none"
-                style={{ backgroundColor: activePalette.secondaryOrb }}
-              />
-
-              {/* Header */}
-              <div className="flex flex-col gap-[0.5vw] z-10">
-                <div className="flex items-center gap-[1.2vw] sm:gap-[0.5vw]">
-                  <div
-                    className="w-[2.8vw] h-[2.8vw] sm:w-[0.9vw] sm:h-[0.9vw] rounded-[0.2vw]"
-                    style={{ backgroundColor: activePalette.accent }}
-                  />
-                  <span className="smallText sm:text-[1.1vw] font-extrabold tracking-tight">
-                    musi5t
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="detailText font-extrabold truncate leading-tight">
-                    {user.displayName}
-                  </span>
-                  <span className="detailText text-secondary/60 text-[2vw] sm:text-[0.6vw]">
-                    @{user.username}&apos;s definitive album rotation
-                  </span>
-                </div>
-              </div>
-
-              {/* 5 Horizontal Album Covers */}
-              <div className="grid grid-cols-5 gap-[1.5vw] sm:gap-[0.5vw] my-[1vw] z-10">
-                {[1, 2, 3, 4, 5].map((pos) => {
-                  const album = albums.find((a) => a.position === pos);
-                  return (
-                    <div key={pos} className="flex flex-col gap-[0.5vw] overflow-hidden">
-                      <div className="aspect-square rounded-[0.3vw] overflow-hidden bg-secondary relative border border-secondary/15">
-                        {album?.coverUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={album.coverUrl}
-                            alt={album.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-secondary" />
-                        )}
-                        <span
-                          className="absolute top-[0.4vw] left-[0.4vw] px-[0.8vw] py-[0.1vw] rounded-[0.1vw] text-[1.8vw] sm:text-[0.5vw] font-bold"
-                          style={{
-                            backgroundColor: pos === 1 ? activePalette.accent : "rgba(0,0,0,0.8)",
-                            color: pos === 1 ? "#0E0E0E" : "#FFF",
-                          }}
-                        >
-                          0{pos}
-                        </span>
-                      </div>
-                      <span className="detailText font-bold truncate text-[2vw] sm:text-[0.55vw] leading-tight">
-                        {album ? album.title : `Slot 0${pos}`}
-                      </span>
-                      <span className="detailText text-secondary/50 truncate text-[1.8vw] sm:text-[0.5vw]">
-                        {album ? album.artistName : ""}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between pt-[0.8vw] border-t border-secondary/15 detailText text-secondary/50 text-[2vw] sm:text-[0.55vw] z-10">
-                <span>Definitive Top 5 Records</span>
-                <span className="font-bold text-secondary">MUSI5T.COM</span>
-              </div>
-            </div>
-          )}
+            {/* Real WYSIWYG Poster Image */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              key={`${format}-${activePalette.accent}`}
+              src={downloadUrl}
+              alt={`${user.displayName}'s Top 5 poster`}
+              className={`w-full h-full object-contain transition-opacity duration-300 ${
+                imageLoading ? "opacity-0" : "opacity-100"
+              }`}
+              onLoad={() => setImageLoading(false)}
+              onError={() => setImageLoading(false)}
+            />
+          </div>
         </div>
 
         {/* Action Buttons */}
