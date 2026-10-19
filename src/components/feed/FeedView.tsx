@@ -715,10 +715,10 @@ export function FeedView({
             <header className="header">
               <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
                 {/* Brand Wordmark */}
-                <div className="mediumText col-span-3 flex justify-start items-center">
+                <div className="mediumText col-span-3 sm:col-span-3 flex justify-start items-center">
                   <Link
                     href={currentUser ? "/feed" : "/"}
-                    className="nav-btn nav-blend cursor-pointer text-left"
+                    className="nav-btn cursor-pointer text-left"
                   >
                     musi5t
                   </Link>
@@ -726,7 +726,7 @@ export function FeedView({
 
                 {/* Center Navigation Group */}
                 <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
-                  <span className="nav-group nav-blend flex items-center gap-[0.5vw]">
+                  <span className="nav-group flex items-center gap-[0.5vw]">
                     <button
                       type="button"
                       onClick={() => {
@@ -745,12 +745,12 @@ export function FeedView({
                 </div>
 
                 {/* Right Actions */}
-                <div className="col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
+                <div className="col-span-3 sm:col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
                   {currentUser ? (
                     <>
                       <Link
                         href="/settings"
-                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                        className="opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
