@@ -173,6 +173,11 @@ export function ShareTop5Modal({
         ctx.beginPath();
         ctx.roundRect(105, badgeY, badgeSize, badgeSize, 18);
         ctx.fill();
+        if (pos === 1 && activePalette.textOnAccent === "#FFFFFF") {
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
 
         ctx.fillStyle = pos === 1 ? (activePalette.textOnAccent || "#0E0E0E") : "#F7F7F7";
         ctx.font = `800 36px ${fontBase}`;
@@ -291,6 +296,11 @@ export function ShareTop5Modal({
         ctx.beginPath();
         ctx.roundRect(colX + 10, shelfY + 10, 42, 42, 12);
         ctx.fill();
+        if (pos === 1 && activePalette.textOnAccent === "#FFFFFF") {
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
 
         ctx.fillStyle = pos === 1 ? (activePalette.textOnAccent || "#0E0E0E") : "#F7F7F7";
         ctx.font = `800 22px ${fontBase}`;

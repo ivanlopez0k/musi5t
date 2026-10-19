@@ -341,7 +341,11 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                         height: 76,
                         borderRadius: 20,
                         backgroundColor: pos === 1 ? palette.accent : "#0E0E0E",
-                        color: pos === 1 ? "#0E0E0E" : "#F7F7F7",
+                        color: pos === 1 ? (palette.textOnAccent || "#0E0E0E") : "#F7F7F7",
+                        border:
+                          pos === 1 && palette.textOnAccent === "#FFFFFF"
+                            ? "2px solid rgba(255, 255, 255, 0.3)"
+                            : undefined,
                         fontSize: 36,
                         fontWeight: 800,
                         flexShrink: 0,
@@ -724,7 +728,11 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                               pos === 1
                                 ? palette.accent
                                 : "rgba(14, 14, 14, 0.88)",
-                            color: pos === 1 ? "#0E0E0E" : "#F7F7F7",
+                            color: pos === 1 ? (palette.textOnAccent || "#0E0E0E") : "#F7F7F7",
+                            border:
+                              pos === 1 && palette.textOnAccent === "#FFFFFF"
+                                ? "1.5px solid rgba(255, 255, 255, 0.3)"
+                                : undefined,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -1022,7 +1030,11 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                           pos === 1
                             ? palette.accent
                             : "rgba(14, 14, 14, 0.88)",
-                        color: pos === 1 ? "#0E0E0E" : "#F7F7F7",
+                        color: pos === 1 ? (palette.textOnAccent || "#0E0E0E") : "#F7F7F7",
+                        border:
+                          pos === 1 && palette.textOnAccent === "#FFFFFF"
+                            ? "1px solid rgba(255, 255, 255, 0.3)"
+                            : undefined,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
