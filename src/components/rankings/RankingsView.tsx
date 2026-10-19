@@ -8,6 +8,7 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
 import { setupNavColorTriggers } from "@/lib/nav-theme";
 import type { CurrentUserSummary } from "@/components/feed/FeedView";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export interface RankedAlbumItem {
   id: string;
@@ -125,18 +126,12 @@ export function RankingsView({
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
                         title={`@${currentUser.username}`}
                       >
-                        {currentUser.avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={currentUser.avatarUrl}
-                            alt={currentUser.displayName || currentUser.username}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
-                            {(currentUser.displayName || currentUser.username).slice(0, 2).toUpperCase()}
-                          </span>
-                        )}
+                        <UserAvatar
+                          avatarUrl={currentUser.avatarUrl}
+                          displayName={currentUser.displayName || currentUser.username}
+                          themeKey={currentUser.themeKey}
+                          textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                        />
                       </Link>
                     </>
                   ) : (

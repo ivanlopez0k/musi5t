@@ -9,6 +9,7 @@ import { setLenis, getLenis } from "@/lib/lenis-store";
 import { setupNavColorTriggers } from "@/lib/nav-theme";
 import type { FeedPost } from "@/lib/feed/visibility";
 import { AlbumSearchModal } from "@/components/profile/AlbumSearchModal";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export interface PostReplyItem {
   id: string;
@@ -225,17 +226,12 @@ export function InteractivePostList({
                 href={`/@${post.author.username}`}
                 className="flex items-center gap-[2.5vw] sm:gap-[0.8vw] group"
               >
-                <div className="w-[7vw] sm:w-[2.4vw] aspect-square rounded-[0.3vw] overflow-hidden bg-yellow flex items-center justify-center text-secondary extraSmallTextBold flex-shrink-0 drop-shadow">
-                  {post.author.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={post.author.avatarUrl}
-                      alt={post.author.displayName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    post.author.displayName.slice(0, 2).toUpperCase()
-                  )}
+                <div className="w-[7vw] sm:w-[2.4vw] aspect-square rounded-[0.3vw] overflow-hidden flex items-center justify-center extraSmallTextBold flex-shrink-0 drop-shadow">
+                  <UserAvatar
+                    avatarUrl={post.author.avatarUrl}
+                    displayName={post.author.displayName}
+                    themeKey={post.author.themeKey}
+                  />
                 </div>
                 <div className="flex flex-col">
                   <span className="smallText font-medium text-secondary group-hover:underline leading-tight">
@@ -404,8 +400,16 @@ export function InteractivePostList({
                         <div className="flex items-center justify-between mb-[0.8vw] sm:mb-[0.4vw]">
                           <Link
                             href={`/@${reply.author.username}`}
-                            className="flex items-center gap-[1vw] sm:gap-[0.4vw] hover:underline"
+                            className="flex items-center gap-[1.5vw] sm:gap-[0.5vw] hover:underline"
                           >
+                            <div className="w-[5vw] h-[5vw] sm:w-[1.6vw] sm:h-[1.6vw] rounded-[0.2vw] overflow-hidden flex items-center justify-center shrink-0 drop-shadow">
+                              <UserAvatar
+                                avatarUrl={reply.author.avatarUrl}
+                                displayName={reply.author.displayName}
+                                themeKey={reply.author.themeKey}
+                                textClassName="text-[2vw] sm:text-[0.6vw]"
+                              />
+                            </div>
                             <span className="extraSmallTextBold text-secondary">
                               {reply.author.displayName}
                             </span>
@@ -759,18 +763,12 @@ export function FeedView({
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
                         title={`@${currentUser.username}`}
                       >
-                        {currentUser.avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={currentUser.avatarUrl}
-                            alt={currentUser.displayName || currentUser.username}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
-                            {(currentUser.displayName || currentUser.username).slice(0, 2).toUpperCase()}
-                          </span>
-                        )}
+                        <UserAvatar
+                          avatarUrl={currentUser.avatarUrl}
+                          displayName={currentUser.displayName || currentUser.username}
+                          themeKey={currentUser.themeKey}
+                          textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                        />
                       </Link>
                     </>
                   ) : (
@@ -865,17 +863,13 @@ export function FeedView({
                         <div className="bg-primary border border-secondary/15 rounded-[0.5vw] drop-shadow-soft p-[3vw] sm:p-[1.8vw] mb-[4vw] sm:mb-[2.5vw]">
                           <form onSubmit={handleCreatePost}>
                             <div className="flex items-start gap-[2.5vw] sm:gap-[1vw]">
-                              <div className="w-[7vw] sm:w-[2.4vw] aspect-square rounded-[0.3vw] overflow-hidden bg-yellow flex items-center justify-center text-secondary extraSmallTextBold flex-shrink-0 drop-shadow">
-                                {currentUser.avatarUrl ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={currentUser.avatarUrl}
-                                    alt={currentUser.displayName}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  currentUser.displayName.slice(0, 2).toUpperCase()
-                                )}
+                              <div className="w-[7vw] sm:w-[2.4vw] aspect-square rounded-[0.3vw] overflow-hidden flex items-center justify-center flex-shrink-0 drop-shadow">
+                                <UserAvatar
+                                  avatarUrl={currentUser.avatarUrl}
+                                  displayName={currentUser.displayName || currentUser.username}
+                                  themeKey={currentUser.themeKey}
+                                  textClassName="extraSmallTextBold leading-none"
+                                />
                               </div>
 
                               <div className="flex-1">

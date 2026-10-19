@@ -14,6 +14,7 @@ import { ShareTop5Modal } from "./ShareTop5Modal";
 import { UserFollowButton } from "./UserFollowButton";
 import type { FeedPost } from "@/lib/feed/visibility";
 import { InteractivePostList, type CurrentUserSummary } from "@/components/feed/FeedView";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export interface ProfileUser {
   id: string;
@@ -628,18 +629,12 @@ export function ProfileView({
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
                         title={`@${user.username}`}
                       >
-                        {avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={avatarUrl}
-                            alt={displayName || user.username}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
-                            {(displayName || user.username).slice(0, 2).toUpperCase()}
-                          </span>
-                        )}
+                        <UserAvatar
+                          avatarUrl={avatarUrl}
+                          displayName={displayName || user.username}
+                          themeKey={activePalette.key}
+                          textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                        />
                       </Link>
                     </>
                   ) : currentUser ? (
@@ -648,18 +643,12 @@ export function ProfileView({
                       className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
                       title={`@${currentUser.username}`}
                     >
-                      {currentUser.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={currentUser.avatarUrl}
-                          alt={currentUser.displayName || currentUser.username}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      ) : (
-                        <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
-                          {(currentUser.displayName || currentUser.username).slice(0, 2).toUpperCase()}
-                        </span>
-                      )}
+                      <UserAvatar
+                        avatarUrl={currentUser.avatarUrl}
+                        displayName={currentUser.displayName || currentUser.username}
+                        themeKey={currentUser.themeKey}
+                        textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                      />
                     </Link>
                   ) : (
                     <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
@@ -893,7 +882,10 @@ export function ProfileView({
                               className="w-[70%] h-[70%] rounded-full border border-secondary/15 flex items-center justify-center transition-colors duration-700"
                               style={{ backgroundColor: activePalette.secondaryOrb }}
                             >
-                              <span className="mediumText font-medium text-secondary select-none">
+                              <span
+                                className="mediumText font-medium select-none"
+                                style={{ color: activePalette.textOnAccent || "#0E0E0E" }}
+                              >
                                 {displayName.slice(0, 2).toUpperCase()}
                               </span>
                             </div>
