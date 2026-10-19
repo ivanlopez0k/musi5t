@@ -58,6 +58,7 @@ interface ProfileViewProps {
   topAlbums: TopAlbumItem[];
   topSongs: TopSongItem[];
   userPosts?: FeedPost[];
+  totalPostsCount?: number;
 }
 
 export function ProfileView({
@@ -71,6 +72,7 @@ export function ProfileView({
   topAlbums: initialAlbums,
   topSongs: initialSongs,
   userPosts = [],
+  totalPostsCount = userPosts.length,
 }: ProfileViewProps) {
   const router = useRouter();
   const [currentThemeKey, setCurrentThemeKey] = useState(user.themeKey || "lima");
@@ -478,7 +480,11 @@ export function ProfileView({
           ...p,
           createdAt: new Date(p.createdAt),
         }));
-        setProfilePosts((prev) => [...prev, ...loaded]);
+        setProfilePosts((prev) => {
+          const existingIds = new Set(prev.map((item) => item.id));
+          const uniqueNewPosts = loaded.filter((item) => !existingIds.has(item.id));
+          return [...prev, ...uniqueNewPosts];
+        });
         setPostsCursor(loaded.length >= 10 ? data.nextCursor : null);
       }
     } catch (err) {
@@ -1319,7 +1325,7 @@ export function ProfileView({
                         </div>
                         <span className="mediumText">listener notes</span>
                       </div>
-                      <h2 className="mediumText">discussions ({userPosts.length})</h2>
+                      <h2 className="mediumText">discussions ({totalPostsCount})</h2>
                     </div>
                   </div>
 

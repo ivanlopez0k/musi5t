@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/db";
-import { users, albums, songs, userTopAlbums, userTopSongs, follows, mutes, blocks } from "@/db/schema";
+import { users, albums, songs, userTopAlbums, userTopSongs, follows, mutes, blocks, posts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { eq, sql, asc, and } from "drizzle-orm";
 import { ProfileView } from "@/components/profile/ProfileView";
@@ -157,6 +157,12 @@ export default async function UserProfilePage({ params }: PageProps) {
     limit: 10,
   });
 
+  const [postsCountResult] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(posts)
+    .where(and(eq(posts.authorId, user.id), sql`${posts.deletedAt} IS NULL`));
+  const totalPostsCount = postsCountResult?.count ?? userPosts.length;
+
   return (
     <ProfileView
       user={user}
@@ -169,6 +175,7 @@ export default async function UserProfilePage({ params }: PageProps) {
       topAlbums={userAlbums}
       topSongs={userSongs}
       userPosts={userPosts}
+      totalPostsCount={totalPostsCount}
     />
   );
 }

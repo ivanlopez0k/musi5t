@@ -78,7 +78,10 @@ export async function getFeedPosts({
 }): Promise<FeedPost[]> {
   await ensurePhase3Tables();
   const me = userId || null;
-  const cursorDate = cursor ? new Date(cursor) : null;
+  const cursorIso =
+    cursor && !isNaN(new Date(cursor).getTime())
+      ? new Date(cursor).toISOString()
+      : null;
 
   // Build the query matching Section 7 of SDD
   const rows = await db.execute<RawPostRow>(sql`
@@ -160,7 +163,7 @@ export async function getFeedPosts({
             )
           `
       }
-      ${cursorDate ? sql`AND p.created_at < ${cursorDate}` : sql``}
+      ${cursorIso ? sql`AND p.created_at < ${cursorIso}::timestamptz` : sql``}
     GROUP BY p.id, u.id
     ORDER BY p.created_at DESC
     LIMIT ${limit};
@@ -182,7 +185,10 @@ export async function getUserVisiblePosts({
 }): Promise<FeedPost[]> {
   await ensurePhase3Tables();
   const me = viewerUserId || null;
-  const cursorDate = cursor ? new Date(cursor) : null;
+  const cursorIso =
+    cursor && !isNaN(new Date(cursor).getTime())
+      ? new Date(cursor).toISOString()
+      : null;
 
   const rows = await db.execute<RawPostRow>(sql`
     SELECT 
@@ -255,7 +261,7 @@ export async function getUserVisiblePosts({
           `
           : sql`AND p.is_public = true`
       }
-      ${cursorDate ? sql`AND p.created_at < ${cursorDate}` : sql``}
+      ${cursorIso ? sql`AND p.created_at < ${cursorIso}::timestamptz` : sql``}
     GROUP BY p.id, u.id
     ORDER BY p.created_at DESC
     LIMIT ${limit};
