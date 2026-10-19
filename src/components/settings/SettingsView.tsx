@@ -25,6 +25,7 @@ interface SettingsViewProps {
     bio: string | null;
     avatarUrl: string | null;
     themeKey: string;
+    emailVerifiedAt?: Date | null;
   };
   initialMutedUsers: ModeratedUserItem[];
   initialBlockedUsers: ModeratedUserItem[];
@@ -483,6 +484,12 @@ export function SettingsView({
                               <PaletteSelector
                                 selectedTheme={themeKey}
                                 onSelect={(key) => setThemeKey(key)}
+                                isEmailVerified={Boolean(user.emailVerifiedAt)}
+                                onLockedClick={(label) => {
+                                  setStatusMessage(
+                                    `El tema "${label}" es exclusivo para cuentas con email verificado.`
+                                  );
+                                }}
                               />
                             </div>
                           </div>

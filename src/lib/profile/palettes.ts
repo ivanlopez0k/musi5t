@@ -6,6 +6,7 @@ export interface ProfilePalette {
   accent: string;
   secondaryOrb: string;
   softGlow: string;
+  requiresVerification?: boolean;
 }
 
 export const PROFILE_PALETTES: ProfilePalette[] = [
@@ -53,6 +54,26 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
     accent: "#FF9F1C",
     secondaryOrb: "#FFC15E",
     softGlow: "#E87A00",
+  },
+  {
+    key: "oro",
+    label: "oro musi5t",
+    bg: "#FFFBEB",
+    text: "#261C02",
+    accent: "#F5BE0B",
+    secondaryOrb: "#FDE68A",
+    softGlow: "#D97706",
+    requiresVerification: true,
+  },
+  {
+    key: "bosque",
+    label: "verde bosque",
+    bg: "#EEF5F1",
+    text: "#0D2619",
+    accent: "#1B5E3B",
+    secondaryOrb: "#3E9E6C",
+    softGlow: "#0B3822",
+    requiresVerification: true,
   },
 ];
 

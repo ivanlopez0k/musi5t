@@ -570,6 +570,12 @@ export function ProfileView({
                       <PaletteSelector
                         selectedTheme={currentThemeKey}
                         onSelect={handlePaletteChange}
+                        isEmailVerified={Boolean(emailVerified)}
+                        onLockedClick={(label) => {
+                          setVerificationNotice(
+                            `El color "${label}" es exclusivo para cuentas con email verificado.`
+                          );
+                        }}
                       />
                       <Link
                         href="/settings"
