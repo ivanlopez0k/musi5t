@@ -154,7 +154,7 @@ export default async function UserProfilePage({ params }: PageProps) {
   const userPosts = await getUserVisiblePosts({
     profileUserId: user.id,
     viewerUserId: currentUser?.id || null,
-    limit: 20,
+    limit: 10,
   });
 
   return (

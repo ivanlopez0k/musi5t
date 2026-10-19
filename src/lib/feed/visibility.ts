@@ -173,13 +173,16 @@ export async function getUserVisiblePosts({
   profileUserId,
   viewerUserId,
   limit = 20,
+  cursor,
 }: {
   profileUserId: string;
   viewerUserId?: string | null;
   limit?: number;
+  cursor?: string | null;
 }): Promise<FeedPost[]> {
   await ensurePhase3Tables();
   const me = viewerUserId || null;
+  const cursorDate = cursor ? new Date(cursor) : null;
 
   const rows = await db.execute<RawPostRow>(sql`
     SELECT 
@@ -252,6 +255,7 @@ export async function getUserVisiblePosts({
           `
           : sql`AND p.is_public = true`
       }
+      ${cursorDate ? sql`AND p.created_at < ${cursorDate}` : sql``}
     GROUP BY p.id, u.id
     ORDER BY p.created_at DESC
     LIMIT ${limit};

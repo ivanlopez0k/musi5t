@@ -43,6 +43,10 @@ export interface TopSongItem {
   coverUrl: string | null;
 }
 
+interface ApiUserPost extends Omit<FeedPost, "createdAt"> {
+  createdAt: string;
+}
+
 interface ProfileViewProps {
   user: ProfileUser;
   isOwner: boolean;
@@ -90,6 +94,13 @@ export function ProfileView({
   const [albumModalPos, setAlbumModalPos] = useState<number | null>(null);
   const [songModalPos, setSongModalPos] = useState<number | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  // User profile visible posts pagination
+  const [profilePosts, setProfilePosts] = useState<FeedPost[]>(userPosts);
+  const [postsCursor, setPostsCursor] = useState<string | null>(
+    userPosts.length >= 10 ? userPosts[userPosts.length - 1].createdAt.toISOString() : null
+  );
+  const [loadingMorePosts, setLoadingMorePosts] = useState(false);
 
   // Carousel hover & GSAP refs
   const [hoveredAlbumIndex, setHoveredAlbumIndex] = useState<number | null>(null);
@@ -450,6 +461,30 @@ export function ProfileView({
       console.error("Toggle block error:", err);
     } finally {
       setModerationLoading(false);
+    }
+  };
+
+  const handleLoadMorePosts = async () => {
+    if (!postsCursor || loadingMorePosts) return;
+    setLoadingMorePosts(true);
+    try {
+      const res = await fetch(
+        `/api/v1/users/${user.id}/posts?cursor=${encodeURIComponent(postsCursor)}&limit=10`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const rawPosts = (data.posts || []) as ApiUserPost[];
+        const loaded: FeedPost[] = rawPosts.map((p) => ({
+          ...p,
+          createdAt: new Date(p.createdAt),
+        }));
+        setProfilePosts((prev) => [...prev, ...loaded]);
+        setPostsCursor(loaded.length >= 10 ? data.nextCursor : null);
+      }
+    } catch (err) {
+      console.error("Failed to load more profile posts:", err);
+    } finally {
+      setLoadingMorePosts(false);
     }
   };
 
@@ -910,29 +945,31 @@ export function ProfileView({
                         <span className="mediumText">top 5 records</span>
                       </div>
                       <div className="flex items-center gap-[2.5vw] sm:gap-[1vw]">
-                        <button
-                          type="button"
-                          onClick={() => setIsShareModalOpen(true)}
-                          className="inline-flex items-center gap-[1.2vw] sm:gap-[0.45vw] extraSmallText text-secondary/80 hover:text-secondary bg-primary hover:bg-secondary/[0.04] border border-secondary/15 hover:border-secondary/35 rounded-[0.3vw] px-[2.4vw] py-[1vw] sm:px-[0.85vw] sm:py-[0.35vw] drop-shadow-soft transition-all cursor-pointer group"
-                          title="Generate shareable Top 5 poster for Instagram, Twitter or download"
-                        >
-                          <svg
-                            className="w-[3.5vw] h-[3.5vw] sm:w-[0.9vw] sm:h-[0.9vw] transition-transform group-hover:scale-110"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                        {isOwner && (
+                          <button
+                            type="button"
+                            onClick={() => setIsShareModalOpen(true)}
+                            className="inline-flex items-center gap-[1.2vw] sm:gap-[0.45vw] extraSmallText text-secondary/80 hover:text-secondary bg-primary hover:bg-secondary/[0.04] border border-secondary/15 hover:border-secondary/35 rounded-[0.3vw] px-[2.4vw] py-[1vw] sm:px-[0.85vw] sm:py-[0.35vw] drop-shadow-soft transition-all cursor-pointer group"
+                            title="Generate shareable Top 5 poster for Instagram, Twitter or download"
                           >
-                            <circle cx="18" cy="5" r="3" />
-                            <circle cx="6" cy="12" r="3" />
-                            <circle cx="18" cy="19" r="3" />
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                          </svg>
-                          <span>share poster</span>
-                        </button>
+                            <svg
+                              className="w-[3.5vw] h-[3.5vw] sm:w-[0.9vw] sm:h-[0.9vw] transition-transform group-hover:scale-110"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <circle cx="18" cy="5" r="3" />
+                              <circle cx="6" cy="12" r="3" />
+                              <circle cx="18" cy="19" r="3" />
+                              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                            </svg>
+                            <span>share poster</span>
+                          </button>
+                        )}
                         <h2 className="mediumText">curated ({initialAlbums.length}/5)</h2>
                       </div>
                     </div>
@@ -1014,8 +1051,14 @@ export function ProfileView({
                                 >
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
                                   <img
-                                    src={album.coverUrl}
+                                    src={album.coverUrl || "/images/musi5t/vinyl_player.webp"}
                                     alt={`${album.artistName} - ${album.title}`}
+                                    onError={(e) => {
+                                      const target = e.currentTarget;
+                                      if (!target.src.includes("vinyl_player.webp")) {
+                                        target.src = "/images/musi5t/vinyl_player.webp";
+                                      }
+                                    }}
                                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 select-none"
                                   />
                                 </Link>
@@ -1152,6 +1195,12 @@ export function ProfileView({
                                 <img
                                   src={song.coverUrl}
                                   alt={song.title}
+                                  onError={(e) => {
+                                    const target = e.currentTarget;
+                                    if (!target.src.includes("vinyl_player.webp")) {
+                                      target.src = "/images/musi5t/vinyl_player.webp";
+                                    }
+                                  }}
                                   className="w-[11vw] h-[11vw] sm:w-[3.8vw] sm:h-[3.8vw] rounded-[0.3vw] object-cover drop-shadow-soft shrink-0"
                                 />
                               ) : (
@@ -1308,7 +1357,7 @@ export function ProfileView({
 
                     {/* Right Column: Feed Posts */}
                     <div className="col-span-full sm:col-span-8">
-                      {userPosts.length === 0 ? (
+                      {profilePosts.length === 0 ? (
                         <div className="p-[6vw] sm:p-[3vw] border border-secondary/15 rounded-[0.5vw] bg-primary/80 backdrop-blur-sm flex flex-col items-start justify-between gap-[1.5vw]">
                           <span className="smallText font-medium text-secondary">
                             No visible notes from @{user.username} yet.
@@ -1318,11 +1367,39 @@ export function ProfileView({
                           </p>
                         </div>
                       ) : (
-                        <InteractivePostList
-                          posts={userPosts}
-                          currentUser={currentUser}
-                          variant="light"
-                        />
+                        <div className="flex flex-col gap-[3vw] sm:gap-[1.5vw]">
+                          <InteractivePostList
+                            posts={profilePosts}
+                            currentUser={currentUser}
+                            onPostsChange={setProfilePosts}
+                            variant="light"
+                          />
+                          {postsCursor && (
+                            <div className="w-full flex justify-center pt-[4vw] sm:pt-[2vw]">
+                              <button
+                                type="button"
+                                disabled={loadingMorePosts}
+                                onClick={handleLoadMorePosts}
+                                className="inline-flex items-center gap-[1.2vw] sm:gap-[0.45vw] px-[4vw] py-[2vw] sm:px-[1.4vw] sm:py-[0.6vw] rounded-[0.35vw] border border-secondary/20 hover:border-secondary/40 bg-primary hover:bg-secondary/[0.04] text-secondary font-medium extraSmallText drop-shadow-soft transition-all cursor-pointer disabled:opacity-50"
+                              >
+                                {loadingMorePosts ? (
+                                  <>
+                                    <div className="w-[3vw] h-[3vw] sm:w-[0.8vw] sm:h-[0.8vw] border-2 border-secondary/30 border-t-secondary rounded-full animate-spin" />
+                                    <span>Loading notes...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span
+                                      className="w-[1.6vw] h-[1.6vw] sm:w-[0.45vw] sm:h-[0.45vw] rounded-full"
+                                      style={{ backgroundColor: activePalette.accent }}
+                                    />
+                                    <span>+ Load more notes</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
