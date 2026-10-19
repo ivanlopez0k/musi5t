@@ -63,32 +63,78 @@ export function ShareTop5Modal({
     ctx.fillStyle = "#F7F7F7";
     ctx.fillRect(0, 0, width, height);
 
-    // Decorative Ambient Circle
+    // Decorative Lateral Circles (Palette-Driven like Profile)
+    // Upper Right Concentric Disc
     ctx.save();
     ctx.fillStyle = activePalette.secondaryOrb;
-    ctx.globalAlpha = 0.35;
+    ctx.globalAlpha = 0.55;
     ctx.beginPath();
-    ctx.arc(width - 40, -40, format === "story" ? 480 : 350, 0, Math.PI * 2);
+    ctx.arc(width - 40, -40, format === "story" ? 540 : 380, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = activePalette.accent;
+    ctx.globalAlpha = 0.65;
+    ctx.beginPath();
+    ctx.arc(width - 20, -20, format === "story" ? 340 : 240, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = activePalette.softGlow;
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath();
+    ctx.arc(width, 0, format === "story" ? 150 : 100, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Left Edge Satellite Orb
+    ctx.fillStyle = activePalette.accent;
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.arc(-20, format === "story" ? 720 : 440, format === "story" ? 160 : 110, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = activePalette.secondaryOrb;
+    ctx.globalAlpha = 0.65;
+    ctx.beginPath();
+    ctx.arc(10, format === "story" ? 740 : 455, format === "story" ? 95 : 65, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Right Edge Mid Graphic Dot
+    ctx.fillStyle = activePalette.softGlow;
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath();
+    ctx.arc(width + 10, format === "story" ? 1260 : 780, format === "story" ? 120 : 80, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Bottom Left Concentric Sphere
+    ctx.fillStyle = activePalette.secondaryOrb;
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath();
+    ctx.arc(-40, height + 20, format === "story" ? 340 : 220, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = activePalette.accent;
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath();
+    ctx.arc(0, height + 40, format === "story" ? 200 : 130, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
-    // Brand Header
+    // Brand Header (Prominent musi5t)
     ctx.fillStyle = activePalette.accent;
     ctx.beginPath();
-    ctx.roundRect(75, 80, 28, 28, 6);
+    ctx.roundRect(75, 75, format === "story" ? 44 : 36, format === "story" ? 44 : 36, 10);
     ctx.fill();
 
     ctx.fillStyle = "#0E0E0E";
-    ctx.font = "800 38px -apple-system, BlinkMacSystemFont, sans-serif";
-    ctx.fillText("musi5t", 118, 106);
+    ctx.font = `800 ${format === "story" ? "56px" : "46px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.fillText("musi5t", 75 + (format === "story" ? 64 : 52), 75 + (format === "story" ? 38 : 31));
 
     // User display name & username
-    ctx.font = "800 52px -apple-system, BlinkMacSystemFont, sans-serif";
-    ctx.fillText(user.displayName, 75, 195);
+    ctx.font = `800 ${format === "story" ? "68px" : "48px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.fillText(user.displayName, 75, format === "story" ? 210 : 175);
 
     ctx.fillStyle = "rgba(14, 14, 14, 0.55)";
-    ctx.font = "500 26px -apple-system, BlinkMacSystemFont, sans-serif";
-    ctx.fillText(`@${user.username}'s definitive vinyl rotation`, 75, 238);
+    ctx.font = `500 ${format === "story" ? "30px" : "22px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.fillText(`@${user.username}'s definitive album rotation`, 75, format === "story" ? 258 : 212);
 
     // 5 Albums
     const startY = format === "story" ? 340 : 280;
@@ -346,31 +392,63 @@ export function ShareTop5Modal({
             <div
               className="w-[58vw] max-w-[270px] aspect-[9/16] bg-[#F7F7F7] text-[#0E0E0E] rounded-[1.5vw] sm:rounded-[0.5vw] border border-secondary/20 drop-shadow-soft p-[3vw] sm:p-[1.2vw] flex flex-col justify-between overflow-hidden relative"
             >
-              {/* Palette Orb */}
+              {/* DECORATIVE VISUAL LATERAL ORBS (Matching Profile) */}
+              {/* Upper Right Concentric Disc */}
               <div
-                className="absolute -top-[8vw] -right-[8vw] w-[24vw] h-[24vw] rounded-full opacity-40 pointer-events-none"
+                className="absolute -top-[10vw] -right-[10vw] w-[28vw] h-[28vw] rounded-full opacity-50 pointer-events-none"
                 style={{ backgroundColor: activePalette.secondaryOrb }}
+              />
+              <div
+                className="absolute -top-[4vw] -right-[4vw] w-[17vw] h-[17vw] rounded-full opacity-60 pointer-events-none"
+                style={{ backgroundColor: activePalette.accent }}
+              />
+              <div
+                className="absolute top-[2vw] right-[2vw] w-[7vw] h-[7vw] rounded-full opacity-40 pointer-events-none"
+                style={{ backgroundColor: activePalette.softGlow }}
+              />
+
+              {/* Left Edge Satellite Circle */}
+              <div
+                className="absolute top-[38%] -left-[5vw] w-[11vw] h-[11vw] rounded-full opacity-45 pointer-events-none"
+                style={{ backgroundColor: activePalette.accent }}
+              />
+              <div
+                className="absolute top-[40%] -left-[2.5vw] w-[6.5vw] h-[6.5vw] rounded-full opacity-60 pointer-events-none"
+                style={{ backgroundColor: activePalette.secondaryOrb }}
+              />
+
+              {/* Right Edge Graphic Dot */}
+              <div
+                className="absolute top-[68%] -right-[3.5vw] w-[8.5vw] h-[8.5vw] rounded-full opacity-45 pointer-events-none"
+                style={{ backgroundColor: activePalette.softGlow }}
+              />
+
+              {/* Bottom Left Concentric Sphere */}
+              <div
+                className="absolute -bottom-[8vw] -left-[8vw] w-[22vw] h-[22vw] rounded-full opacity-45 pointer-events-none"
+                style={{ backgroundColor: activePalette.secondaryOrb }}
+              />
+              <div
+                className="absolute -bottom-[2vw] -left-[2vw] w-[13vw] h-[13vw] rounded-full opacity-55 pointer-events-none"
+                style={{ backgroundColor: activePalette.accent }}
               />
 
               {/* Header */}
               <div className="flex flex-col gap-[0.5vw] z-10">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-[1vw]">
-                    <div
-                      className="w-[2vw] h-[2vw] sm:w-[0.6vw] sm:h-[0.6vw] rounded-[0.1vw]"
-                      style={{ backgroundColor: activePalette.accent }}
-                    />
-                    <span className="detailText font-bold tracking-tight">musi5t</span>
-                  </div>
-                  <span className="detailText px-[1.5vw] py-[0.2vw] sm:px-[0.5vw] sm:py-[0.05vw] rounded-full bg-secondary text-primary text-[2vw] sm:text-[0.55vw] font-bold">
-                    TOP 5
+                <div className="flex items-center gap-[1.2vw] sm:gap-[0.5vw]">
+                  <div
+                    className="w-[2.8vw] h-[2.8vw] sm:w-[0.9vw] sm:h-[0.9vw] rounded-[0.2vw]"
+                    style={{ backgroundColor: activePalette.accent }}
+                  />
+                  <span className="smallText sm:text-[1.1vw] font-extrabold tracking-tight">
+                    musi5t
                   </span>
                 </div>
-                <span className="smallText font-bold leading-tight mt-[0.5vw] truncate">
+                <span className="smallText font-extrabold leading-tight mt-[0.5vw] truncate">
                   {user.displayName}
                 </span>
-                <span className="detailText text-secondary/50 text-[2.2vw] sm:text-[0.6vw] -mt-[0.2vw]">
-                  @{user.username}
+                <span className="detailText text-secondary/60 text-[2.2vw] sm:text-[0.6vw] -mt-[0.2vw] truncate">
+                  @{user.username}&apos;s definitive album rotation
                 </span>
               </div>
 
@@ -428,21 +506,45 @@ export function ShareTop5Modal({
             <div
               className="w-[68vw] max-w-[320px] aspect-square bg-[#F7F7F7] text-[#0E0E0E] rounded-[1.5vw] sm:rounded-[0.5vw] border border-secondary/20 drop-shadow-soft p-[3.5vw] sm:p-[1.4vw] flex flex-col justify-between overflow-hidden relative"
             >
+              {/* DECORATIVE VISUAL LATERAL ORBS (Matching Profile) */}
+              <div
+                className="absolute -top-[8vw] -right-[8vw] w-[24vw] h-[24vw] rounded-full opacity-50 pointer-events-none"
+                style={{ backgroundColor: activePalette.secondaryOrb }}
+              />
+              <div
+                className="absolute -top-[3vw] -right-[3vw] w-[15vw] h-[15vw] rounded-full opacity-60 pointer-events-none"
+                style={{ backgroundColor: activePalette.accent }}
+              />
+              <div
+                className="absolute top-[40%] -left-[4vw] w-[9vw] h-[9vw] rounded-full opacity-45 pointer-events-none"
+                style={{ backgroundColor: activePalette.accent }}
+              />
+              <div
+                className="absolute bottom-[18%] -right-[2.5vw] w-[7vw] h-[7vw] rounded-full opacity-40 pointer-events-none"
+                style={{ backgroundColor: activePalette.softGlow }}
+              />
+              <div
+                className="absolute -bottom-[6vw] -left-[6vw] w-[18vw] h-[18vw] rounded-full opacity-40 pointer-events-none"
+                style={{ backgroundColor: activePalette.secondaryOrb }}
+              />
+
               {/* Header */}
-              <div className="flex items-center justify-between z-10">
+              <div className="flex flex-col gap-[0.5vw] z-10">
                 <div className="flex items-center gap-[1.2vw] sm:gap-[0.5vw]">
                   <div
-                    className="w-[2.4vw] h-[2.4vw] sm:w-[0.8vw] sm:h-[0.8vw] rounded-[0.1vw]"
+                    className="w-[2.8vw] h-[2.8vw] sm:w-[0.9vw] sm:h-[0.9vw] rounded-[0.2vw]"
                     style={{ backgroundColor: activePalette.accent }}
                   />
-                  <span className="smallText font-bold tracking-tight">musi5t</span>
+                  <span className="smallText sm:text-[1.1vw] font-extrabold tracking-tight">
+                    musi5t
+                  </span>
                 </div>
-                <div className="flex flex-col items-end">
-                  <span className="detailText font-bold truncate leading-tight">
+                <div className="flex flex-col">
+                  <span className="detailText font-extrabold truncate leading-tight">
                     {user.displayName}
                   </span>
-                  <span className="detailText text-secondary/50 text-[2vw] sm:text-[0.6vw]">
-                    @{user.username}
+                  <span className="detailText text-secondary/60 text-[2vw] sm:text-[0.6vw]">
+                    @{user.username}&apos;s definitive album rotation
                   </span>
                 </div>
               </div>

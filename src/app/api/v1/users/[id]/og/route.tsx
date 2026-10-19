@@ -124,17 +124,108 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               position: "relative",
             }}
           >
-            {/* Ambient Background Graphic Disc */}
+            {/* DECORATIVE VISUAL LATERAL CIRCLES (Palette-Driven like Profile) */}
+            {/* Upper Right Concentric Disc */}
             <div
               style={{
                 position: "absolute",
-                top: -150,
-                right: -150,
-                width: 600,
-                height: 600,
+                top: -160,
+                right: -160,
+                width: 620,
+                height: 620,
+                borderRadius: "50%",
+                backgroundColor: palette.secondaryOrb,
+                opacity: 0.55,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: -60,
+                right: -60,
+                width: 380,
+                height: 380,
+                borderRadius: "50%",
+                backgroundColor: palette.accent,
+                opacity: 0.65,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: 40,
+                right: 40,
+                width: 160,
+                height: 160,
+                borderRadius: "50%",
+                backgroundColor: palette.softGlow,
+                opacity: 0.45,
+              }}
+            />
+
+            {/* Left Edge Floating Satellite Circle */}
+            <div
+              style={{
+                position: "absolute",
+                top: 680,
+                left: -90,
+                width: 220,
+                height: 220,
+                borderRadius: "50%",
+                backgroundColor: palette.accent,
+                opacity: 0.5,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: 720,
+                left: -50,
+                width: 140,
+                height: 140,
+                borderRadius: "50%",
+                backgroundColor: palette.secondaryOrb,
+                opacity: 0.6,
+              }}
+            />
+
+            {/* Right Edge Mid Graphic Dot */}
+            <div
+              style={{
+                position: "absolute",
+                top: 1220,
+                right: -60,
+                width: 180,
+                height: 180,
+                borderRadius: "50%",
+                backgroundColor: palette.softGlow,
+                opacity: 0.45,
+              }}
+            />
+
+            {/* Bottom Left Concentric Sphere */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: -110,
+                left: -110,
+                width: 440,
+                height: 440,
                 borderRadius: "50%",
                 backgroundColor: palette.secondaryOrb,
                 opacity: 0.45,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: -30,
+                left: -30,
+                width: 260,
+                height: 260,
+                borderRadius: "50%",
+                backgroundColor: palette.accent,
+                opacity: 0.55,
               }}
             />
 
@@ -143,7 +234,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 20,
+                gap: 24,
                 zIndex: 10,
               }}
             >
@@ -151,42 +242,27 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
+                  justifyContent: "flex-start",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
                   <div
                     style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 8,
+                      width: 48,
+                      height: 48,
+                      borderRadius: 12,
                       backgroundColor: palette.accent,
                     }}
                   />
                   <span
                     style={{
-                      fontSize: 44,
-                      fontWeight: 700,
+                      fontSize: 64,
+                      fontWeight: 800,
                       letterSpacing: "-0.04em",
                     }}
                   >
                     musi5t
                   </span>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "8px 24px",
-                    borderRadius: 999,
-                    backgroundColor: "#0E0E0E",
-                    color: "#F7F7F7",
-                    fontSize: 22,
-                    fontWeight: 600,
-                    letterSpacing: "0.02em",
-                  }}
-                >
-                  TOP 5 CURATED
                 </div>
               </div>
 
@@ -195,12 +271,12 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  marginTop: 15,
+                  marginTop: 10,
                 }}
               >
                 <span
                   style={{
-                    fontSize: 68,
+                    fontSize: 72,
                     fontWeight: 800,
                     letterSpacing: "-0.03em",
                     lineHeight: 1.1,
@@ -214,10 +290,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                     color: "#0E0E0E",
                     opacity: 0.55,
                     fontWeight: 500,
-                    marginTop: 6,
+                    marginTop: 8,
                   }}
                 >
-                  @{user.username}&apos;s definitive vinyl rotation
+                  @{user.username}&apos;s definitive album rotation
                 </span>
               </div>
             </div>
@@ -401,17 +477,108 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             position: "relative",
           }}
         >
-          {/* Ambient Background Graphic Disc */}
+          {/* DECORATIVE VISUAL LATERAL CIRCLES (Palette-Driven like Profile) */}
+          {/* Upper Right Concentric Disc */}
           <div
             style={{
               position: "absolute",
-              top: -120,
-              right: -120,
-              width: 500,
-              height: 500,
+              top: -130,
+              right: -130,
+              width: 480,
+              height: 480,
               borderRadius: "50%",
               backgroundColor: palette.secondaryOrb,
-              opacity: 0.4,
+              opacity: 0.55,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: -50,
+              right: -50,
+              width: 290,
+              height: 290,
+              borderRadius: "50%",
+              backgroundColor: palette.accent,
+              opacity: 0.65,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: 20,
+              right: 20,
+              width: 120,
+              height: 120,
+              borderRadius: "50%",
+              backgroundColor: palette.softGlow,
+              opacity: 0.45,
+            }}
+          />
+
+          {/* Left Edge Satellite Circle */}
+          <div
+            style={{
+              position: "absolute",
+              top: 420,
+              left: -60,
+              width: 160,
+              height: 160,
+              borderRadius: "50%",
+              backgroundColor: palette.accent,
+              opacity: 0.5,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: 450,
+              left: -30,
+              width: 100,
+              height: 100,
+              borderRadius: "50%",
+              backgroundColor: palette.secondaryOrb,
+              opacity: 0.6,
+            }}
+          />
+
+          {/* Right Lower Graphic Dot */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 140,
+              right: -40,
+              width: 130,
+              height: 130,
+              borderRadius: "50%",
+              backgroundColor: palette.softGlow,
+              opacity: 0.45,
+            }}
+          />
+
+          {/* Bottom Left Concentric Sphere */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: -90,
+              left: -90,
+              width: 340,
+              height: 340,
+              borderRadius: "50%",
+              backgroundColor: palette.secondaryOrb,
+              opacity: 0.45,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: -25,
+              left: -25,
+              width: 190,
+              height: 190,
+              borderRadius: "50%",
+              backgroundColor: palette.accent,
+              opacity: 0.55,
             }}
           />
 
@@ -420,7 +587,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 10,
+              gap: 12,
               zIndex: 10,
             }}
           >
@@ -428,56 +595,40 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
+                justifyContent: "flex-start",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                 <div
                   style={{
-                    width: 26,
-                    height: 26,
-                    borderRadius: 6,
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
                     backgroundColor: palette.accent,
                   }}
                 />
                 <span
                   style={{
-                    fontSize: 34,
-                    fontWeight: 700,
+                    fontSize: 54,
+                    fontWeight: 800,
                     letterSpacing: "-0.04em",
                   }}
                 >
                   musi5t
                 </span>
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "6px 18px",
-                  borderRadius: 999,
-                  backgroundColor: "#0E0E0E",
-                  color: "#F7F7F7",
-                  fontSize: 16,
-                  fontWeight: 600,
-                  letterSpacing: "0.02em",
-                }}
-              >
-                TOP 5 CURATED
-              </div>
             </div>
 
             <div
               style={{
                 display: "flex",
-                alignItems: "baseline",
-                justifyContent: "space-between",
+                flexDirection: "column",
                 marginTop: 6,
               }}
             >
               <span
                 style={{
-                  fontSize: 44,
+                  fontSize: 48,
                   fontWeight: 800,
                   letterSpacing: "-0.03em",
                 }}
@@ -490,9 +641,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                   color: "#0E0E0E",
                   opacity: 0.55,
                   fontWeight: 500,
+                  marginTop: 4,
                 }}
               >
-                @{user.username}
+                @{user.username}&apos;s definitive album rotation
               </span>
             </div>
           </div>
