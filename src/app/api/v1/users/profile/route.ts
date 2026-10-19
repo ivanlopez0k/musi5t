@@ -4,8 +4,8 @@ import { users } from "@/db/schema";
 import { clearSessionCookie, getCurrentUser } from "@/lib/auth/session";
 import { eq } from "drizzle-orm";
 
-const ALLOWED_THEMES = ["lima", "coral", "cobalto", "violeta", "mandarina", "oro", "bosque"];
-const VERIFIED_ONLY_THEMES = ["oro", "bosque"];
+const ALLOWED_THEMES = ["lima", "coral", "cobalto", "violeta", "mandarina", "obsidiana", "bosque"];
+const VERIFIED_ONLY_THEMES = ["obsidiana", "bosque"];
 
 export async function PATCH(req: Request) {
   try {

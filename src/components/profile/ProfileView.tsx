@@ -595,10 +595,22 @@ export function ProfileView({
                         <button
                           type="button"
                           onClick={() => setIsEditing(!isEditing)}
-                          className="main-btn smallText text-secondary transition-colors duration-500"
-                          style={{ backgroundColor: activePalette.accent }}
+                          className="main-btn smallText transition-colors duration-500"
+                          style={{
+                            backgroundColor: activePalette.accent,
+                            color: activePalette.textOnAccent || "#0E0E0E",
+                          }}
                         >
-                          <span className="main-btn__icon" aria-hidden="true" />
+                          <span
+                            className="main-btn__icon"
+                            aria-hidden="true"
+                            style={{
+                              backgroundColor:
+                                activePalette.textOnAccent === "#FFFFFF"
+                                  ? "#FFFFFF"
+                                  : undefined,
+                            }}
+                          />
                           <span className="main-btn__label">
                             <span className="main-btn__clip">
                               <span className="main-btn__from">
@@ -653,10 +665,22 @@ export function ProfileView({
                     <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
                       <Link
                         href="/login"
-                        className="main-btn smallText text-secondary transition-colors duration-500"
-                        style={{ backgroundColor: activePalette.accent }}
+                        className="main-btn smallText transition-colors duration-500"
+                        style={{
+                          backgroundColor: activePalette.accent,
+                          color: activePalette.textOnAccent || "#0E0E0E",
+                        }}
                       >
-                        <span className="main-btn__icon" aria-hidden="true" />
+                        <span
+                          className="main-btn__icon"
+                          aria-hidden="true"
+                          style={{
+                            backgroundColor:
+                              activePalette.textOnAccent === "#FFFFFF"
+                                ? "#FFFFFF"
+                                : undefined,
+                          }}
+                        />
                         <span className="main-btn__label">
                           <span className="main-btn__clip">
                             <span className="main-btn__from">Sign in</span>
@@ -1068,8 +1092,11 @@ export function ProfileView({
                               <div className="w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary relative">
                                 {/* Top-left rank badge */}
                                 <div
-                                  className="absolute top-[2.5vw] left-[2.5vw] sm:top-[0.85vw] sm:left-[0.85vw] z-20 px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] text-secondary detailText font-medium drop-shadow transition-colors duration-500 pointer-events-none"
-                                  style={{ backgroundColor: activePalette.accent }}
+                                  className="absolute top-[2.5vw] left-[2.5vw] sm:top-[0.85vw] sm:left-[0.85vw] z-20 px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] detailText font-medium drop-shadow transition-colors duration-500 pointer-events-none"
+                                  style={{
+                                    backgroundColor: activePalette.accent,
+                                    color: activePalette.textOnAccent || "#0E0E0E",
+                                  }}
                                 >
                                   0{pos}
                                 </div>
@@ -1177,8 +1204,11 @@ export function ProfileView({
                               {/* Top Rank Badge */}
                               <div className="flex items-center justify-between z-10">
                                 <span
-                                  className="px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] text-secondary detailText font-medium transition-colors duration-500"
-                                  style={{ backgroundColor: activePalette.accent }}
+                                  className="px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] detailText font-medium transition-colors duration-500"
+                                  style={{
+                                    backgroundColor: activePalette.accent,
+                                    color: activePalette.textOnAccent || "#0E0E0E",
+                                  }}
                                 >
                                   0{pos}
                                 </span>
@@ -1253,8 +1283,11 @@ export function ProfileView({
                             {/* Index Number */}
                             <div className="col-span-1 flex items-center">
                               <span
-                                className="px-[1.8vw] py-[0.6vw] sm:px-[0.65vw] sm:py-[0.25vw] rounded-[0.2vw] extraSmallTextBold text-secondary drop-shadow transition-colors duration-500"
-                                style={{ backgroundColor: activePalette.accent }}
+                                className="px-[1.8vw] py-[0.6vw] sm:px-[0.65vw] sm:py-[0.25vw] rounded-[0.2vw] extraSmallTextBold drop-shadow transition-colors duration-500"
+                                style={{
+                                  backgroundColor: activePalette.accent,
+                                  color: activePalette.textOnAccent || "#0E0E0E",
+                                }}
                               >
                                 0{pos}
                               </span>

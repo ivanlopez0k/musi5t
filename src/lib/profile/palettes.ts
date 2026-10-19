@@ -7,6 +7,7 @@ export interface ProfilePalette {
   secondaryOrb: string;
   softGlow: string;
   requiresVerification?: boolean;
+  textOnAccent?: string;
 }
 
 export const PROFILE_PALETTES: ProfilePalette[] = [
@@ -18,6 +19,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
     accent: "#B6E02E",
     secondaryOrb: "#D9F970",
     softGlow: "#82B515",
+    textOnAccent: "#0E0E0E",
   },
   {
     key: "coral",
@@ -27,6 +29,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
     accent: "#FF5A3C",
     secondaryOrb: "#FF8E72",
     softGlow: "#E03516",
+    textOnAccent: "#FFFFFF",
   },
   {
     key: "cobalto",
@@ -36,6 +39,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
     accent: "#2F5BFF",
     secondaryOrb: "#6E90FF",
     softGlow: "#1939B7",
+    textOnAccent: "#FFFFFF",
   },
   {
     key: "violeta",
@@ -45,6 +49,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
     accent: "#8A4DFF",
     secondaryOrb: "#B488FF",
     softGlow: "#5E22D9",
+    textOnAccent: "#FFFFFF",
   },
   {
     key: "mandarina",
@@ -54,16 +59,18 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
     accent: "#FF9F1C",
     secondaryOrb: "#FFC15E",
     softGlow: "#E87A00",
+    textOnAccent: "#0E0E0E",
   },
   {
-    key: "oro",
-    label: "oro musi5t",
-    bg: "#FFFBEB",
-    text: "#261C02",
-    accent: "#F5BE0B",
-    secondaryOrb: "#FDE68A",
-    softGlow: "#D97706",
+    key: "obsidiana",
+    label: "obsidiana",
+    bg: "#F0F0F2",
+    text: "#0E0E0E",
+    accent: "#18181B",
+    secondaryOrb: "#71717A",
+    softGlow: "#27272A",
     requiresVerification: true,
+    textOnAccent: "#FFFFFF",
   },
   {
     key: "bosque",
@@ -74,6 +81,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
     secondaryOrb: "#3E9E6C",
     softGlow: "#0B3822",
     requiresVerification: true,
+    textOnAccent: "#FFFFFF",
   },
 ];
 

@@ -174,7 +174,7 @@ export function ShareTop5Modal({
         ctx.roundRect(105, badgeY, badgeSize, badgeSize, 18);
         ctx.fill();
 
-        ctx.fillStyle = pos === 1 ? "#0E0E0E" : "#F7F7F7";
+        ctx.fillStyle = pos === 1 ? (activePalette.textOnAccent || "#0E0E0E") : "#F7F7F7";
         ctx.font = `800 36px ${fontBase}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -292,7 +292,7 @@ export function ShareTop5Modal({
         ctx.roundRect(colX + 10, shelfY + 10, 42, 42, 12);
         ctx.fill();
 
-        ctx.fillStyle = pos === 1 ? "#0E0E0E" : "#F7F7F7";
+        ctx.fillStyle = pos === 1 ? (activePalette.textOnAccent || "#0E0E0E") : "#F7F7F7";
         ctx.font = `800 22px ${fontBase}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
