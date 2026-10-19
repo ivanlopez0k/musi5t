@@ -50,11 +50,186 @@ export function ShareTop5Modal({
 
   const downloadUrl = `/api/v1/users/${user.username}/og?format=${format}`;
 
+  const downloadViaCanvas = async () => {
+    const width = 1080;
+    const height = format === "story" ? 1920 : 1080;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not initialize canvas context");
+
+    // Clean Editorial Background
+    ctx.fillStyle = "#F7F7F7";
+    ctx.fillRect(0, 0, width, height);
+
+    // Decorative Ambient Circle
+    ctx.save();
+    ctx.fillStyle = activePalette.secondaryOrb;
+    ctx.globalAlpha = 0.35;
+    ctx.beginPath();
+    ctx.arc(width - 40, -40, format === "story" ? 480 : 350, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Brand Header
+    ctx.fillStyle = activePalette.accent;
+    ctx.beginPath();
+    ctx.roundRect(75, 80, 28, 28, 6);
+    ctx.fill();
+
+    ctx.fillStyle = "#0E0E0E";
+    ctx.font = "800 38px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText("musi5t", 118, 106);
+
+    // User display name & username
+    ctx.font = "800 52px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText(user.displayName, 75, 195);
+
+    ctx.fillStyle = "rgba(14, 14, 14, 0.55)";
+    ctx.font = "500 26px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText(`@${user.username}'s definitive vinyl rotation`, 75, 238);
+
+    // 5 Albums
+    const startY = format === "story" ? 340 : 280;
+    const rowHeight = format === "story" ? 245 : 124;
+    const coverSize = format === "story" ? 140 : 88;
+
+    for (let pos = 1; pos <= 5; pos++) {
+      const album = albums.find((a) => a.position === pos);
+      const y = startY + (pos - 1) * rowHeight;
+      const cardHeight = format === "story" ? 180 : 104;
+
+      // Card Background
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.strokeStyle = "rgba(14, 14, 14, 0.08)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(75, y, width - 150, cardHeight, 18);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Rank Badge
+      const badgeSize = format === "story" ? 54 : 44;
+      const badgeY = y + (cardHeight - badgeSize) / 2;
+      ctx.fillStyle = pos === 1 ? activePalette.accent : "#0E0E0E";
+      ctx.beginPath();
+      ctx.roundRect(98, badgeY, badgeSize, badgeSize, 10);
+      ctx.fill();
+
+      ctx.fillStyle = pos === 1 ? "#0E0E0E" : "#F7F7F7";
+      ctx.font = `800 ${format === "story" ? "24px" : "20px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`0${pos}`, 98 + badgeSize / 2, badgeY + badgeSize / 2);
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+
+      // Cover Art
+      const coverX = 98 + badgeSize + 24;
+      const coverY = y + (cardHeight - coverSize) / 2;
+
+      let imageDrawn = false;
+      if (album?.coverUrl) {
+        try {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.src = album.coverUrl;
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = () => reject();
+            setTimeout(() => reject(new Error("Timeout")), 1500);
+          });
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(coverX, coverY, coverSize, coverSize, 12);
+          ctx.clip();
+          ctx.drawImage(img, coverX, coverY, coverSize, coverSize);
+          ctx.restore();
+          imageDrawn = true;
+        } catch {
+          imageDrawn = false;
+        }
+      }
+
+      if (!imageDrawn) {
+        ctx.fillStyle = "#0E0E0E";
+        ctx.beginPath();
+        ctx.roundRect(coverX, coverY, coverSize, coverSize, 12);
+        ctx.fill();
+        ctx.fillStyle = "#F7F7F7";
+        ctx.font = "600 16px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.fillText("vinyl", coverX + 16, coverY + coverSize / 2);
+      }
+
+      // Title & Artist
+      const textX = coverX + coverSize + 24;
+      const textAvailableWidth = width - textX - 100;
+      ctx.fillStyle = "#0E0E0E";
+      ctx.font = `700 ${format === "story" ? "28px" : "22px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+      const title = album ? album.title : `Slot 0${pos} uncurated`;
+      ctx.fillText(title.length > 36 ? `${title.slice(0, 35)}...` : title, textX, y + (format === "story" ? 82 : 48), textAvailableWidth);
+
+      ctx.fillStyle = "rgba(14, 14, 14, 0.6)";
+      ctx.font = `500 ${format === "story" ? "22px" : "18px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+      const subtitle = album
+        ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
+        : "Empty vinyl slot";
+      ctx.fillText(subtitle.length > 42 ? `${subtitle.slice(0, 41)}...` : subtitle, textX, y + (format === "story" ? 122 : 82), textAvailableWidth);
+    }
+
+    // Footer
+    const footerY = height - 70;
+    ctx.strokeStyle = "rgba(14, 14, 14, 0.1)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(75, footerY - 30);
+    ctx.lineTo(width - 75, footerY - 30);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
+    ctx.font = "600 22px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText(`musi5t.com/@${user.username}`, 75, footerY);
+
+    ctx.fillStyle = "#0E0E0E";
+    ctx.font = "800 20px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText("ALBUM-FIRST SOCIAL", width - 75, footerY);
+    ctx.textAlign = "left";
+
+    // Export to Blob and download
+    return new Promise<void>((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error("Canvas blob export failed"));
+          return;
+        }
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `musi5t-${user.username}-top5-${format}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        resolve();
+      }, "image/png");
+    });
+  };
+
   const handleDownload = async () => {
     setDownloading(true);
     try {
       const res = await fetch(`${downloadUrl}&t=${Date.now()}`);
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`);
+      }
       const blob = await res.blob();
+      if (!blob.type.includes("image") && !blob.type.includes("png")) {
+        throw new Error(`Invalid response content type: ${blob.type}`);
+      }
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -64,9 +239,13 @@ export function ShareTop5Modal({
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Failed to download poster:", err);
-      // Fallback: open image in new tab
-      window.open(downloadUrl, "_blank");
+      console.warn("Server poster generation failed or returned error, falling back to client canvas:", err);
+      try {
+        await downloadViaCanvas();
+      } catch (canvasErr) {
+        console.error("Canvas poster export failed:", canvasErr);
+        window.open(downloadUrl, "_blank");
+      }
     } finally {
       setDownloading(false);
     }
