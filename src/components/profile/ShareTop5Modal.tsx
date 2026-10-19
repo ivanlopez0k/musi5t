@@ -119,22 +119,38 @@ export function ShareTop5Modal({
     ctx.fill();
     ctx.restore();
 
+    // Ensure KH Teka font is loaded in browser canvas
+    try {
+      if (typeof FontFace !== "undefined" && !document.fonts.check("500 30px KHTeka")) {
+        const font = new FontFace("KHTeka", "url(/fonts/KHTeka-Medium.otf)", {
+          weight: "500",
+          style: "normal",
+        });
+        await font.load();
+        document.fonts.add(font);
+      }
+    } catch {
+      // Graceful fallback
+    }
+
+    const fontBase = '"KHTeka", -apple-system, BlinkMacSystemFont, sans-serif';
+
     // Brand Header (Prominent musi5t without square badge)
     ctx.fillStyle = "#0E0E0E";
-    ctx.font = `900 ${format === "story" ? "100px" : "84px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText("musi5t", 75, format === "story" ? 160 : 145);
+    ctx.font = `900 ${format === "story" ? "148px" : "120px"} ${fontBase}`;
+    ctx.fillText("musi5t", format === "story" ? 75 : 48, format === "story" ? 190 : 160);
 
     ctx.fillStyle = "rgba(14, 14, 14, 0.55)";
-    ctx.font = `500 ${format === "story" ? "32px" : "26px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText(`@${user.username}'s definitive album rotation`, 75, format === "story" ? 208 : 185);
+    ctx.font = `500 ${format === "story" ? "34px" : "26px"} ${fontBase}`;
+    ctx.fillText(`@${user.username}'s definitive album rotation`, format === "story" ? 75 : 48, format === "story" ? 245 : 202);
 
     if (format === "story") {
       // 5 Albums Vertical List with Large Artwork
-      const startY = 270;
-      const cardHeight = 236;
-      const cardGap = 32;
-      const coverSize = 185;
-      const badgeSize = 70;
+      const startY = 280;
+      const cardHeight = 256;
+      const cardGap = 24;
+      const coverSize = 215;
+      const badgeSize = 76;
 
       for (let pos = 1; pos <= 5; pos++) {
         const album = albums.find((a) => a.position === pos);
@@ -159,7 +175,7 @@ export function ShareTop5Modal({
         ctx.fill();
 
         ctx.fillStyle = pos === 1 ? "#0E0E0E" : "#F7F7F7";
-        ctx.font = "800 32px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.font = `800 36px ${fontBase}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(`0${pos}`, 105 + badgeSize / 2, badgeY + badgeSize / 2);
@@ -207,12 +223,12 @@ export function ShareTop5Modal({
         const textX = coverX + coverSize + 28;
         const textAvailableWidth = width - textX - 100;
         ctx.fillStyle = "#0E0E0E";
-        ctx.font = "700 40px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.font = `700 42px ${fontBase}`;
         const title = album ? album.title : `Slot 0${pos} uncurated`;
         ctx.fillText(title.length > 30 ? `${title.slice(0, 29)}...` : title, textX, y + 105, textAvailableWidth);
 
         ctx.fillStyle = "rgba(14, 14, 14, 0.6)";
-        ctx.font = "500 28px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.font = `500 28px ${fontBase}`;
         const subtitle = album
           ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
           : "Empty vinyl slot";
@@ -220,17 +236,17 @@ export function ShareTop5Modal({
       }
 
       // Curator text (Clean typography without card or dot)
-      const curatorY = startY + 5 * (cardHeight + cardGap) + 50;
+      const curatorY = startY + 5 * (cardHeight + cardGap) + 40;
       ctx.fillStyle = "#0E0E0E";
-      ctx.font = "700 34px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.font = `700 36px ${fontBase}`;
       ctx.fillText(`Curated rotation by @${user.username}`, 75, curatorY);
     } else {
       // SQUARE (1:1): 5 Horizontal Album Shelf Columns
       // 5 Columns
-      const colWidth = 176;
-      const gap = (width - 130 - 5 * colWidth) / 4;
-      const startX = 65;
-      const shelfY = 360;
+      const colWidth = 186;
+      const startX = 48;
+      const gap = (width - 96 - 5 * colWidth) / 4;
+      const shelfY = 340;
 
       for (let pos = 1; pos <= 5; pos++) {
         const album = albums.find((a) => a.position === pos);
@@ -273,11 +289,11 @@ export function ShareTop5Modal({
         // Corner Rank Badge
         ctx.fillStyle = pos === 1 ? activePalette.accent : "rgba(14, 14, 14, 0.88)";
         ctx.beginPath();
-        ctx.roundRect(colX + 10, shelfY + 10, 40, 40, 10);
+        ctx.roundRect(colX + 10, shelfY + 10, 42, 42, 12);
         ctx.fill();
 
         ctx.fillStyle = pos === 1 ? "#0E0E0E" : "#F7F7F7";
-        ctx.font = "800 20px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.font = `800 22px ${fontBase}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(`0${pos}`, colX + 30, shelfY + 30);
@@ -286,12 +302,12 @@ export function ShareTop5Modal({
 
         // Title & Artist
         ctx.fillStyle = "#0E0E0E";
-        ctx.font = "700 22px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.font = `700 23px ${fontBase}`;
         const title = album ? album.title : `Slot 0${pos}`;
         ctx.fillText(title.length > 14 ? `${title.slice(0, 13)}...` : title, colX, shelfY + colWidth + 30, colWidth);
 
         ctx.fillStyle = "rgba(14, 14, 14, 0.6)";
-        ctx.font = "500 18px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.font = `500 18px ${fontBase}`;
         const subtitle = album
           ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
           : "Uncurated";
@@ -306,10 +322,10 @@ export function ShareTop5Modal({
       ctx.fill();
 
       // Curator text (Clean typography without card or dot)
-      const curatorY = shelfLineY + 55;
+      const curatorY = shelfLineY + 50;
       ctx.fillStyle = "#0E0E0E";
-      ctx.font = "700 26px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText(`Curated rotation by @${user.username}`, 65, curatorY);
+      ctx.font = `700 28px ${fontBase}`;
+      ctx.fillText(`Curated rotation by @${user.username}`, 48, curatorY);
     }
 
     // Footer
@@ -322,8 +338,8 @@ export function ShareTop5Modal({
     ctx.stroke();
 
     ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
-    ctx.font = `600 ${format === "story" ? "28px" : "24px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText(`musi5t.com/@${user.username}`, 65, footerY);
+    ctx.font = `600 ${format === "story" ? "30px" : "24px"} ${fontBase}`;
+    ctx.fillText(`musi5t.com/@${user.username}`, format === "story" ? 75 : 48, footerY);
 
     // Export to Blob and download
     return new Promise<void>((resolve, reject) => {

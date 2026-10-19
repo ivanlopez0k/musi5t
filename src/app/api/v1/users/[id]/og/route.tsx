@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import fs from "node:fs/promises";
+import path from "node:path";
 import { db } from "@/db";
 import { users, userTopAlbums, albums } from "@/db/schema";
 import { eq, sql, asc } from "drizzle-orm";
@@ -9,6 +11,44 @@ export const instant = false;
 
 interface RouteProps {
   params: Promise<{ id: string }>;
+}
+
+let cachedFonts: Array<{
+  name: string;
+  data: ArrayBuffer;
+  weight: 400 | 500 | 600 | 700 | 800 | 900;
+  style: "normal";
+}> | null = null;
+
+async function getKHTekaFonts() {
+  if (cachedFonts) return cachedFonts;
+  try {
+    const fontsDir = path.join(process.cwd(), "public", "fonts");
+    const [reg, med] = await Promise.all([
+      fs.readFile(path.join(fontsDir, "KHTeka-Regular.otf")),
+      fs.readFile(path.join(fontsDir, "KHTeka-Medium.otf")),
+    ]);
+    const regBuf = reg.buffer.slice(
+      reg.byteOffset,
+      reg.byteOffset + reg.byteLength
+    );
+    const medBuf = med.buffer.slice(
+      med.byteOffset,
+      med.byteOffset + med.byteLength
+    );
+
+    cachedFonts = [
+      { name: "KHTeka", data: regBuf, weight: 400, style: "normal" },
+      { name: "KHTeka", data: medBuf, weight: 500, style: "normal" },
+      { name: "KHTeka", data: medBuf, weight: 600, style: "normal" },
+      { name: "KHTeka", data: medBuf, weight: 700, style: "normal" },
+      { name: "KHTeka", data: medBuf, weight: 800, style: "normal" },
+      { name: "KHTeka", data: medBuf, weight: 900, style: "normal" },
+    ];
+    return cachedFonts;
+  } catch {
+    return [];
+  }
 }
 
 async function getSafeCoverDataUrl(
@@ -106,6 +146,9 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
       height = 1080;
     }
 
+    // Load KH Teka font for editorial brand parity
+    const fonts = await getKHTekaFonts();
+
     // 1. STORY FORMAT (1080x1920, 9:16)
     if (format === "story") {
       return new ImageResponse(
@@ -120,7 +163,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               backgroundColor: "#F7F7F7",
               color: "#0E0E0E",
               padding: "90px 75px",
-              fontFamily: "system-ui, -apple-system, sans-serif",
+              fontFamily: '"KHTeka", sans-serif',
               position: "relative",
             }}
           >
@@ -239,10 +282,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             >
               <span
                 style={{
-                  fontSize: 100,
+                  fontSize: 148,
                   fontWeight: 900,
-                  letterSpacing: "-0.05em",
-                  lineHeight: 1,
+                  letterSpacing: "-0.06em",
+                  lineHeight: 0.9,
                   color: "#0E0E0E",
                 }}
               >
@@ -250,11 +293,12 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               </span>
               <span
                 style={{
-                  fontSize: 32,
+                  fontSize: 34,
                   color: "#0E0E0E",
                   opacity: 0.55,
                   fontWeight: 500,
-                  marginTop: 10,
+                  marginTop: 14,
+                  letterSpacing: "-0.02em",
                 }}
               >
                 @{user.username}&apos;s definitive album rotation
@@ -266,9 +310,9 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 32,
+                gap: 24,
                 zIndex: 10,
-                margin: "12px 0",
+                margin: "8px 0",
               }}
             >
               {[1, 2, 3, 4, 5].map((pos) => {
@@ -282,7 +326,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       backgroundColor: "rgba(255, 255, 255, 0.88)",
                       border: "2px solid rgba(14, 14, 14, 0.08)",
                       borderRadius: 26,
-                      padding: "24px 30px",
+                      padding: "20px 26px",
                       gap: 28,
                       boxShadow: "0 10px 25px rgba(0,0,0,0.03)",
                     }}
@@ -293,12 +337,12 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: 70,
-                        height: 70,
-                        borderRadius: 18,
+                        width: 76,
+                        height: 76,
+                        borderRadius: 20,
                         backgroundColor: pos === 1 ? palette.accent : "#0E0E0E",
                         color: pos === 1 ? "#0E0E0E" : "#F7F7F7",
-                        fontSize: 32,
+                        fontSize: 36,
                         fontWeight: 800,
                         flexShrink: 0,
                       }}
@@ -312,12 +356,12 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       <img
                         src={album.coverDataUrl}
                         alt={album.title}
-                        width={185}
-                        height={185}
+                        width={215}
+                        height={215}
                         style={{
-                          width: 185,
-                          height: 185,
-                          borderRadius: 20,
+                          width: 215,
+                          height: 215,
+                          borderRadius: 22,
                           objectFit: "cover",
                           flexShrink: 0,
                           border: "1px solid rgba(0,0,0,0.1)",
@@ -326,15 +370,15 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                     ) : (
                       <div
                         style={{
-                          width: 185,
-                          height: 185,
-                          borderRadius: 20,
+                          width: 215,
+                          height: 215,
+                          borderRadius: 22,
                           backgroundColor: "#0E0E0E",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           color: "#F7F7F7",
-                          fontSize: 22,
+                          fontSize: 24,
                           flexShrink: 0,
                         }}
                       >
@@ -347,16 +391,17 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       style={{
                         display: "flex",
                         flexDirection: "column",
-                        gap: 8,
+                        gap: 10,
                         overflow: "hidden",
                         flex: 1,
                       }}
                     >
                       <span
                         style={{
-                          fontSize: 40,
+                          fontSize: 42,
                           fontWeight: 700,
                           letterSpacing: "-0.02em",
+                          lineHeight: 1.15,
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -396,7 +441,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             >
               <span
                 style={{
-                  fontSize: 34,
+                  fontSize: 36,
                   fontWeight: 700,
                   letterSpacing: "-0.02em",
                   color: "#0E0E0E",
@@ -413,16 +458,17 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 alignItems: "center",
                 justifyContent: "flex-start",
                 borderTop: "2px solid rgba(14, 14, 14, 0.12)",
-                paddingTop: 32,
+                paddingTop: 30,
                 zIndex: 10,
               }}
             >
               <span
                 style={{
-                  fontSize: 28,
+                  fontSize: 30,
                   color: "#0E0E0E",
                   opacity: 0.5,
                   fontWeight: 600,
+                  letterSpacing: "-0.01em",
                 }}
               >
                 musi5t.com/@{user.username}
@@ -430,7 +476,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             </div>
           </div>
         ),
-        { width, height }
+        { width, height, fonts }
       );
     }
 
@@ -447,8 +493,8 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               justifyContent: "space-between",
               backgroundColor: "#F7F7F7",
               color: "#0E0E0E",
-              padding: "75px 65px",
-              fontFamily: "system-ui, -apple-system, sans-serif",
+              padding: "60px 48px",
+              fontFamily: '"KHTeka", sans-serif',
               position: "relative",
             }}
           >
@@ -567,10 +613,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             >
               <span
                 style={{
-                  fontSize: 84,
+                  fontSize: 120,
                   fontWeight: 900,
-                  letterSpacing: "-0.05em",
-                  lineHeight: 1,
+                  letterSpacing: "-0.06em",
+                  lineHeight: 0.9,
                   color: "#0E0E0E",
                 }}
               >
@@ -583,6 +629,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                   opacity: 0.55,
                   fontWeight: 500,
                   marginTop: 8,
+                  letterSpacing: "-0.02em",
                 }}
               >
                 @{user.username}&apos;s definitive album rotation
@@ -613,7 +660,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                     <div
                       key={pos}
                       style={{
-                        width: 176,
+                        width: 186,
                         display: "flex",
                         flexDirection: "column",
                         gap: 12,
@@ -623,9 +670,9 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       <div
                         style={{
                           position: "relative",
-                          width: 176,
-                          height: 176,
-                          borderRadius: 18,
+                          width: 186,
+                          height: 186,
+                          borderRadius: 20,
                           overflow: "hidden",
                           display: "flex",
                           border: "2px solid rgba(14, 14, 14, 0.08)",
@@ -638,20 +685,20 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                           <img
                             src={album.coverDataUrl}
                             alt={album.title}
-                            width={176}
-                            height={176}
+                            width={186}
+                            height={186}
                             style={{
-                              width: 176,
-                              height: 176,
-                              borderRadius: 16,
+                              width: 186,
+                              height: 186,
+                              borderRadius: 18,
                               objectFit: "cover",
                             }}
                           />
                         ) : (
                           <div
                             style={{
-                              width: 176,
-                              height: 176,
+                              width: 186,
+                              height: 186,
                               backgroundColor: "#0E0E0E",
                               display: "flex",
                               alignItems: "center",
@@ -670,9 +717,9 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                             position: "absolute",
                             top: 10,
                             left: 10,
-                            width: 40,
-                            height: 40,
-                            borderRadius: 10,
+                            width: 42,
+                            height: 42,
+                            borderRadius: 12,
                             backgroundColor:
                               pos === 1
                                 ? palette.accent
@@ -681,7 +728,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: 20,
+                            fontSize: 22,
                             fontWeight: 800,
                           }}
                         >
@@ -696,14 +743,15 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                           flexDirection: "column",
                           gap: 4,
                           overflow: "hidden",
-                          width: 176,
+                          width: 186,
                         }}
                       >
                         <span
                           style={{
-                            fontSize: 22,
+                            fontSize: 23,
                             fontWeight: 700,
                             letterSpacing: "-0.02em",
+                            lineHeight: 1.15,
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -755,7 +803,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               >
                 <span
                   style={{
-                    fontSize: 26,
+                    fontSize: 28,
                     fontWeight: 700,
                     letterSpacing: "-0.02em",
                     color: "#0E0E0E",
@@ -773,7 +821,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 alignItems: "center",
                 justifyContent: "flex-start",
                 borderTop: "2px solid rgba(14, 14, 14, 0.12)",
-                paddingTop: 24,
+                paddingTop: 22,
                 zIndex: 10,
               }}
             >
@@ -783,6 +831,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                   color: "#0E0E0E",
                   opacity: 0.5,
                   fontWeight: 600,
+                  letterSpacing: "-0.01em",
                 }}
               >
                 musi5t.com/@{user.username}
@@ -790,7 +839,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             </div>
           </div>
         ),
-        { width, height }
+        { width, height, fonts }
       );
     }
 
@@ -807,7 +856,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             backgroundColor: "#F7F7F7",
             color: "#0E0E0E",
             padding: "45px 55px",
-            fontFamily: "system-ui, -apple-system, sans-serif",
+            fontFamily: '"KHTeka", sans-serif',
             position: "relative",
           }}
         >
@@ -873,10 +922,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
           >
             <span
               style={{
-                fontSize: 64,
+                fontSize: 84,
                 fontWeight: 900,
-                letterSpacing: "-0.05em",
-                lineHeight: 1,
+                letterSpacing: "-0.06em",
+                lineHeight: 0.9,
                 color: "#0E0E0E",
               }}
             >
@@ -1040,7 +1089,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
           </div>
         </div>
       ),
-      { width, height }
+      { width, height, fonts }
     );
   } catch (error: unknown) {
     if (error && typeof error === "object" && "digest" in error) {
