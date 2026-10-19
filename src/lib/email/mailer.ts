@@ -1,14 +1,21 @@
 import { Resend } from "resend";
 
-const resendApiKey = process.env.RESEND_API_KEY;
-const resend = resendApiKey ? new Resend(resendApiKey) : null;
+function getResendClient(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || apiKey.trim().length === 0) return null;
+  return new Resend(apiKey.trim());
+}
 
-const emailFrom = process.env.EMAIL_FROM || "musi5t <onboarding@resend.dev>";
-const appUrl =
-  process.env.NEXT_PUBLIC_APP_URL ||
-  (process.env.NODE_ENV === "production"
-    ? "https://musi5t.com"
-    : "http://localhost:3000");
+function getAppUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.NODE_ENV === "production" ? "https://musi5t.com" : "http://localhost:3000")
+  );
+}
+
+function getEmailFrom(): string {
+  return process.env.EMAIL_FROM || "musi5t <onboarding@resend.dev>";
+}
 
 interface EmailPayload {
   to: string;
@@ -19,6 +26,9 @@ interface EmailPayload {
 }
 
 async function dispatchEmail({ to, subject, html, devLink, actionName }: EmailPayload): Promise<{ success: boolean; id?: string }> {
+  const resend = getResendClient();
+  const emailFrom = getEmailFrom();
+
   // If no Resend API key is provided, log to console in development
   if (!resend) {
     console.log("\n=======================================================");
@@ -69,6 +79,7 @@ export async function sendVerificationEmail({
   username: string;
   token: string;
 }): Promise<{ success: boolean; verifyUrl: string }> {
+  const appUrl = getAppUrl();
   const verifyUrl = `${appUrl}/verify-email?token=${encodeURIComponent(token)}`;
 
   const html = `
@@ -146,6 +157,7 @@ export async function sendPasswordResetEmail({
   username: string;
   token: string;
 }): Promise<{ success: boolean; resetUrl: string }> {
+  const appUrl = getAppUrl();
   const resetUrl = `${appUrl}/reset-password?token=${encodeURIComponent(token)}`;
 
   const html = `

@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { db, ensureAccountTokenTables } from "@/db";
+import { db } from "@/db";
 import { accountTokens } from "@/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
 
@@ -18,8 +18,6 @@ export async function createAccountToken({
   type: AccountTokenType;
   expiresInHours?: number;
 }): Promise<string> {
-  await ensureAccountTokenTables();
-
   const rawToken = crypto.randomBytes(32).toString("hex");
   const tokenHash = hashToken(rawToken);
 
@@ -56,8 +54,6 @@ export async function verifyAndConsumeAccountToken({
   rawToken: string;
   type: AccountTokenType;
 }): Promise<{ valid: boolean; userId?: string; error?: string }> {
-  await ensureAccountTokenTables();
-
   if (!rawToken || typeof rawToken !== "string" || rawToken.trim().length === 0) {
     return { valid: false, error: "Token no provisto o inválido." };
   }
