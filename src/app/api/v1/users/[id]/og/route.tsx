@@ -234,68 +234,31 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 22,
                 zIndex: 10,
               }}
             >
-              <div
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
+                  fontSize: 100,
+                  fontWeight: 900,
+                  letterSpacing: "-0.05em",
+                  lineHeight: 1,
+                  color: "#0E0E0E",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                  <div
-                    style={{
-                      width: 54,
-                      height: 54,
-                      borderRadius: 14,
-                      backgroundColor: palette.accent,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 68,
-                      fontWeight: 800,
-                      letterSpacing: "-0.04em",
-                    }}
-                  >
-                    musi5t
-                  </span>
-                </div>
-              </div>
-
-              {/* User Bio Header */}
-              <div
+                musi5t
+              </span>
+              <span
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
+                  fontSize: 32,
+                  color: "#0E0E0E",
+                  opacity: 0.55,
+                  fontWeight: 500,
                   marginTop: 10,
                 }}
               >
-                <span
-                  style={{
-                    fontSize: 84,
-                    fontWeight: 800,
-                    letterSpacing: "-0.03em",
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {user.displayName}
-                </span>
-                <span
-                  style={{
-                    fontSize: 34,
-                    color: "#0E0E0E",
-                    opacity: 0.55,
-                    fontWeight: 500,
-                    marginTop: 8,
-                  }}
-                >
-                  @{user.username}&apos;s definitive album rotation
-                </span>
-              </div>
+                @{user.username}&apos;s definitive album rotation
+              </span>
             </div>
 
             {/* 5 Albums Vertical List with Large Artwork */}
@@ -422,48 +385,24 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               })}
             </div>
 
-            {/* Curator Taste Network Bar */}
+            {/* Curator text */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                backgroundColor: "rgba(255, 255, 255, 0.8)",
-                border: "2px solid rgba(14, 14, 14, 0.08)",
-                borderRadius: 20,
-                padding: "20px 28px",
+                justifyContent: "flex-start",
                 zIndex: 10,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div
-                  style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: "50%",
-                    backgroundColor: palette.accent,
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: 26,
-                    fontWeight: 600,
-                    color: "#0E0E0E",
-                  }}
-                >
-                  Curated rotation by @{user.username}
-                </span>
-              </div>
               <span
                 style={{
-                  fontSize: 22,
+                  fontSize: 34,
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
                   color: "#0E0E0E",
-                  opacity: 0.5,
-                  fontWeight: 600,
                 }}
               >
-                musi5t taste network
+                Curated rotation by @{user.username}
               </span>
             </div>
 
@@ -472,9 +411,9 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
+                justifyContent: "flex-start",
                 borderTop: "2px solid rgba(14, 14, 14, 0.12)",
-                paddingTop: 34,
+                paddingTop: 32,
                 zIndex: 10,
               }}
             >
@@ -487,16 +426,6 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 }}
               >
                 musi5t.com/@{user.username}
-              </span>
-              <span
-                style={{
-                  fontSize: 26,
-                  fontWeight: 700,
-                  letterSpacing: "0.05em",
-                  color: "#0E0E0E",
-                }}
-              >
-                ALBUM-FIRST SOCIAL
               </span>
             </div>
           </div>
@@ -633,67 +562,31 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 16,
                 zIndex: 10,
               }}
             >
-              <div
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
+                  fontSize: 84,
+                  fontWeight: 900,
+                  letterSpacing: "-0.05em",
+                  lineHeight: 1,
+                  color: "#0E0E0E",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-                  <div
-                    style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 12,
-                      backgroundColor: palette.accent,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 60,
-                      fontWeight: 800,
-                      letterSpacing: "-0.04em",
-                    }}
-                  >
-                    musi5t
-                  </span>
-                </div>
-              </div>
-
-              <div
+                musi5t
+              </span>
+              <span
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  marginTop: 6,
+                  fontSize: 26,
+                  color: "#0E0E0E",
+                  opacity: 0.55,
+                  fontWeight: 500,
+                  marginTop: 8,
                 }}
               >
-                <span
-                  style={{
-                    fontSize: 72,
-                    fontWeight: 800,
-                    letterSpacing: "-0.03em",
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {user.displayName}
-                </span>
-                <span
-                  style={{
-                    fontSize: 28,
-                    color: "#0E0E0E",
-                    opacity: 0.55,
-                    fontWeight: 500,
-                    marginTop: 6,
-                  }}
-                >
-                  @{user.username}&apos;s definitive album rotation
-                </span>
-              </div>
+                @{user.username}&apos;s definitive album rotation
+              </span>
             </div>
 
             {/* Middle: 5 Horizontal Album Shelf Showcase */}
@@ -705,50 +598,6 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 zIndex: 10,
               }}
             >
-              {/* Section Header */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  marginBottom: 20,
-                  borderBottom: "1px solid rgba(14, 14, 14, 0.08)",
-                  paddingBottom: 12,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div
-                    style={{
-                      width: 14,
-                      height: 14,
-                      borderRadius: 4,
-                      backgroundColor: palette.accent,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 22,
-                      fontWeight: 700,
-                      letterSpacing: "-0.01em",
-                      textTransform: "lowercase",
-                    }}
-                  >
-                    curated records
-                  </span>
-                </div>
-                <span
-                  style={{
-                    fontSize: 18,
-                    color: "#0E0E0E",
-                    opacity: 0.5,
-                    fontWeight: 600,
-                  }}
-                >
-                  [ 05 / 05 ]
-                </span>
-              </div>
-
               {/* 5 Columns Shelf */}
               <div
                 style={{
@@ -894,48 +743,25 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 }}
               />
 
-              {/* Curator Taste Network Bar */}
+              {/* Curator text */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
+                  justifyContent: "flex-start",
                   width: "100%",
-                  backgroundColor: "rgba(255, 255, 255, 0.8)",
-                  border: "2px solid rgba(14, 14, 14, 0.08)",
-                  borderRadius: 16,
-                  padding: "16px 22px",
                   marginTop: 22,
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: "50%",
-                      backgroundColor: palette.accent,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 600,
-                      color: "#0E0E0E",
-                    }}
-                  >
-                    Curated rotation by @{user.username}
-                  </span>
-                </div>
                 <span
                   style={{
-                    fontSize: 17,
+                    fontSize: 26,
+                    fontWeight: 700,
+                    letterSpacing: "-0.02em",
                     color: "#0E0E0E",
-                    opacity: 0.5,
-                    fontWeight: 600,
                   }}
                 >
-                  musi5t taste network
+                  Curated rotation by @{user.username}
                 </span>
               </div>
             </div>
@@ -945,9 +771,9 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
+                justifyContent: "flex-start",
                 borderTop: "2px solid rgba(14, 14, 14, 0.12)",
-                paddingTop: 28,
+                paddingTop: 24,
                 zIndex: 10,
               }}
             >
@@ -960,16 +786,6 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 }}
               >
                 musi5t.com/@{user.username}
-              </span>
-              <span
-                style={{
-                  fontSize: 22,
-                  fontWeight: 700,
-                  letterSpacing: "0.05em",
-                  color: "#0E0E0E",
-                }}
-              >
-                ALBUM-FIRST SOCIAL
               </span>
             </div>
           </div>
@@ -1051,52 +867,32 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
+              flexDirection: "column",
               zIndex: 10,
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 8,
-                    backgroundColor: palette.accent,
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: 44,
-                    fontWeight: 800,
-                    letterSpacing: "-0.04em",
-                  }}
-                >
-                  musi5t
-                </span>
-              </div>
-              <span
-                style={{
-                  fontSize: 46,
-                  fontWeight: 800,
-                  letterSpacing: "-0.03em",
-                  marginTop: 4,
-                }}
-              >
-                {user.displayName}
-              </span>
-              <span
-                style={{
-                  fontSize: 20,
-                  color: "#0E0E0E",
-                  opacity: 0.55,
-                  fontWeight: 500,
-                }}
-              >
-                @{user.username}&apos;s definitive album rotation
-              </span>
-            </div>
+            <span
+              style={{
+                fontSize: 64,
+                fontWeight: 900,
+                letterSpacing: "-0.05em",
+                lineHeight: 1,
+                color: "#0E0E0E",
+              }}
+            >
+              musi5t
+            </span>
+            <span
+              style={{
+                fontSize: 20,
+                color: "#0E0E0E",
+                opacity: 0.55,
+                fontWeight: 500,
+                marginTop: 6,
+              }}
+            >
+              @{user.username}&apos;s definitive album rotation
+            </span>
           </div>
 
           {/* 5 Horizontal Shelf Columns */}
@@ -1225,7 +1021,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "flex-start",
               borderTop: "2px solid rgba(14, 14, 14, 0.1)",
               paddingTop: 16,
               zIndex: 10,
@@ -1240,16 +1036,6 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               }}
             >
               musi5t.com/@{user.username}
-            </span>
-            <span
-              style={{
-                fontSize: 16,
-                fontWeight: 700,
-                letterSpacing: "0.05em",
-                color: "#0E0E0E",
-              }}
-            >
-              ALBUM-FIRST SOCIAL
             </span>
           </div>
         </div>

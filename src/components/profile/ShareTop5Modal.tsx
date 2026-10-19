@@ -119,28 +119,18 @@ export function ShareTop5Modal({
     ctx.fill();
     ctx.restore();
 
-    // Brand Header (Prominent musi5t)
-    const brandBadgeSize = format === "story" ? 54 : 48;
-    ctx.fillStyle = activePalette.accent;
-    ctx.beginPath();
-    ctx.roundRect(75, 75, brandBadgeSize, brandBadgeSize, 12);
-    ctx.fill();
-
+    // Brand Header (Prominent musi5t without square badge)
     ctx.fillStyle = "#0E0E0E";
-    ctx.font = `800 ${format === "story" ? "68px" : "60px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText("musi5t", 75 + brandBadgeSize + 20, 75 + (format === "story" ? 46 : 42));
-
-    // User display name & username
-    ctx.font = `800 ${format === "story" ? "84px" : "72px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText(user.displayName, 75, format === "story" ? 230 : 205);
+    ctx.font = `900 ${format === "story" ? "100px" : "84px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.fillText("musi5t", 75, format === "story" ? 160 : 145);
 
     ctx.fillStyle = "rgba(14, 14, 14, 0.55)";
-    ctx.font = `500 ${format === "story" ? "34px" : "28px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText(`@${user.username}'s definitive album rotation`, 75, format === "story" ? 282 : 252);
+    ctx.font = `500 ${format === "story" ? "32px" : "26px"} -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.fillText(`@${user.username}'s definitive album rotation`, 75, format === "story" ? 208 : 185);
 
     if (format === "story") {
       // 5 Albums Vertical List with Large Artwork
-      const startY = 340;
+      const startY = 270;
       const cardHeight = 236;
       const cardGap = 32;
       const coverSize = 185;
@@ -229,63 +219,18 @@ export function ShareTop5Modal({
         ctx.fillText(subtitle.length > 38 ? `${subtitle.slice(0, 37)}...` : subtitle, textX, y + 155, textAvailableWidth);
       }
 
-      // Curator Taste Network Bar
-      const curatorY = startY + 5 * (cardHeight + cardGap) + 10;
-      ctx.save();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-      ctx.strokeStyle = "rgba(14, 14, 14, 0.08)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(75, curatorY, width - 150, 72, 20);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = activePalette.accent;
-      ctx.beginPath();
-      ctx.arc(105, curatorY + 36, 6, 0, Math.PI * 2);
-      ctx.fill();
-
+      // Curator text (Clean typography without card or dot)
+      const curatorY = startY + 5 * (cardHeight + cardGap) + 50;
       ctx.fillStyle = "#0E0E0E";
-      ctx.font = "600 26px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText(`Curated rotation by @${user.username}`, 125, curatorY + 45);
-
-      ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
-      ctx.font = "600 22px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText("musi5t taste network", width - 105, curatorY + 45);
-      ctx.textAlign = "left";
-      ctx.restore();
+      ctx.font = "700 34px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.fillText(`Curated rotation by @${user.username}`, 75, curatorY);
     } else {
       // SQUARE (1:1): 5 Horizontal Album Shelf Columns
-      // Section Header
-      const headerY = 320;
-      ctx.fillStyle = activePalette.accent;
-      ctx.beginPath();
-      ctx.roundRect(65, headerY, 14, 14, 4);
-      ctx.fill();
-
-      ctx.fillStyle = "#0E0E0E";
-      ctx.font = "700 22px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText("curated records", 90, headerY + 13);
-
-      ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
-      ctx.font = "600 18px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText("[ 05 / 05 ]", width - 65, headerY + 13);
-      ctx.textAlign = "left";
-
-      ctx.strokeStyle = "rgba(14, 14, 14, 0.08)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(65, headerY + 28);
-      ctx.lineTo(width - 65, headerY + 28);
-      ctx.stroke();
-
       // 5 Columns
       const colWidth = 176;
       const gap = (width - 130 - 5 * colWidth) / 4;
       const startX = 65;
-      const shelfY = 380;
+      const shelfY = 360;
 
       for (let pos = 1; pos <= 5; pos++) {
         const album = albums.find((a) => a.position === pos);
@@ -360,32 +305,11 @@ export function ShareTop5Modal({
       ctx.roundRect(65, shelfLineY, width - 130, 3, 2);
       ctx.fill();
 
-      // Curator bar
-      const curatorY = shelfLineY + 22;
-      ctx.save();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-      ctx.strokeStyle = "rgba(14, 14, 14, 0.08)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(65, curatorY, width - 130, 60, 16);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = activePalette.accent;
-      ctx.beginPath();
-      ctx.arc(90, curatorY + 30, 5, 0, Math.PI * 2);
-      ctx.fill();
-
+      // Curator text (Clean typography without card or dot)
+      const curatorY = shelfLineY + 55;
       ctx.fillStyle = "#0E0E0E";
-      ctx.font = "600 20px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText(`Curated rotation by @${user.username}`, 108, curatorY + 37);
-
-      ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
-      ctx.font = "600 17px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText("musi5t taste network", width - 90, curatorY + 37);
-      ctx.textAlign = "left";
-      ctx.restore();
+      ctx.font = "700 26px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.fillText(`Curated rotation by @${user.username}`, 65, curatorY);
     }
 
     // Footer
@@ -400,12 +324,6 @@ export function ShareTop5Modal({
     ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
     ctx.font = `600 ${format === "story" ? "28px" : "24px"} -apple-system, BlinkMacSystemFont, sans-serif`;
     ctx.fillText(`musi5t.com/@${user.username}`, 65, footerY);
-
-    ctx.fillStyle = "#0E0E0E";
-    ctx.font = `800 ${format === "story" ? "26px" : "22px"} -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.textAlign = "right";
-    ctx.fillText("ALBUM-FIRST SOCIAL", width - 65, footerY);
-    ctx.textAlign = "left";
 
     // Export to Blob and download
     return new Promise<void>((resolve, reject) => {
