@@ -62,7 +62,13 @@ export function Header() {
                 How it works,
               </button>
               <Link href="/feed" className="nav-btn cursor-pointer">
-                Feed
+                Feed,
+              </Link>
+              <Link href="/rankings" className="nav-btn cursor-pointer">
+                Rankings,
+              </Link>
+              <Link href="/releases" className="nav-btn cursor-pointer">
+                Releases
               </Link>
             </span>
           </div>

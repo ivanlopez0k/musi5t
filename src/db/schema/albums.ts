@@ -6,6 +6,7 @@ export const albums = pgTable("albums", {
   title: text("title").notNull(),
   artistName: text("artist_name").notNull(),
   releaseYear: integer("release_year"),
+  releaseDate: text("release_date"),
   defaultCoverUrl: text("default_cover_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

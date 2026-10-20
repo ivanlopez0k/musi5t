@@ -745,6 +745,10 @@ export function FeedView({
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>
+                    <span className="opacity-35">•</span>
+                    <Link href="/releases" className="nav-btn cursor-pointer">
+                      Releases
+                    </Link>
                   </span>
                 </div>
 
