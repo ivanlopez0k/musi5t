@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { db, ensurePhase3Tables } from "@/db";
+import { db } from "@/db";
 import { albums, userTopAlbums, users, albumFollows, albumRatings } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { and, eq, sql } from "drizzle-orm";
@@ -32,8 +32,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function AlbumDetailPage({ params }: PageProps) {
   const { id } = await params;
-
-  await ensurePhase3Tables();
 
   const [album] = await db
     .select()
@@ -104,7 +102,7 @@ export default async function AlbumDetailPage({ params }: PageProps) {
       viewerUserId: currentUser?.id || null,
       limit: 20,
     }),
-    getAlbumTracklist(album.artistName, album.title),
+    getAlbumTracklist(album.artistName, album.title, album.id),
   ]);
 
   return (

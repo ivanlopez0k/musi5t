@@ -11,7 +11,20 @@ const globalForDb = globalThis as unknown as {
   phase3Initialized?: boolean;
 };
 
-const conn = globalForDb.conn ?? postgres(connectionString);
+const maxConnections = process.env.DB_MAX_CONNECTIONS
+  ? parseInt(process.env.DB_MAX_CONNECTIONS, 10)
+  : process.env.NODE_ENV === "production"
+    ? 25
+    : 10;
+
+const conn =
+  globalForDb.conn ??
+  postgres(connectionString, {
+    max: maxConnections,
+    idle_timeout: 20,
+    connect_timeout: 10,
+    prepare: false,
+  });
 if (process.env.NODE_ENV !== "production") globalForDb.conn = conn;
 
 export const db = drizzle(conn, { schema });
@@ -63,6 +76,18 @@ export async function ensurePhase3Tables(): Promise<void> {
         updated_at timestamptz NOT NULL DEFAULT now(),
         PRIMARY KEY (user_id, album_id)
       );
+    `);
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS album_tracks (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        album_id uuid NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+        position smallint NOT NULL,
+        title text NOT NULL,
+        duration_seconds integer NOT NULL DEFAULT 0,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        UNIQUE (album_id, position)
+      );
+      CREATE INDEX IF NOT EXISTS idx_album_tracks_album_id ON album_tracks (album_id, position);
     `);
     await ensureArtistTables();
     await ensureAccountTokenTables();

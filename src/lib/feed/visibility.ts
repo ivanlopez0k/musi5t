@@ -1,4 +1,4 @@
-import { db, ensurePhase3Tables } from "@/db";
+import { db } from "@/db";
 import { sql } from "drizzle-orm";
 
 export interface FeedPost {
@@ -76,7 +76,6 @@ export async function getFeedPosts({
   cursor?: string | null;
   limit?: number;
 }): Promise<FeedPost[]> {
-  await ensurePhase3Tables();
   const me = userId || null;
   const cursorIso =
     cursor && !isNaN(new Date(cursor).getTime())
@@ -95,13 +94,13 @@ export async function getFeedPosts({
       u.display_name AS author_display_name,
       u.avatar_url AS author_avatar_url,
       u.theme_key AS author_theme_key,
-      COUNT(DISTINCT pl.user_id)::text AS likes_count,
+      (SELECT COUNT(*)::text FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
       CASE 
         WHEN ${me}::uuid IS NOT NULL THEN 
           EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = ${me}::uuid)
         ELSE false
       END AS liked_by_me,
-      COUNT(DISTINCT pr.id)::text AS replies_count,
+      (SELECT COUNT(*)::text FROM post_replies pr WHERE pr.post_id = p.id AND pr.deleted_at IS NULL) AS replies_count,
       (
         SELECT json_agg(json_build_object(
           'id', a.id,
@@ -115,8 +114,6 @@ export async function getFeedPosts({
       ) AS albums_json
     FROM posts p
     JOIN users u ON u.id = p.author_id
-    LEFT JOIN post_likes pl ON pl.post_id = p.id
-    LEFT JOIN post_replies pr ON pr.post_id = p.id AND pr.deleted_at IS NULL
     WHERE p.deleted_at IS NULL
       ${
         me
@@ -164,7 +161,6 @@ export async function getFeedPosts({
           `
       }
       ${cursorIso ? sql`AND p.created_at < ${cursorIso}::timestamptz` : sql``}
-    GROUP BY p.id, u.id
     ORDER BY p.created_at DESC
     LIMIT ${limit};
   `);
@@ -183,7 +179,6 @@ export async function getUserVisiblePosts({
   limit?: number;
   cursor?: string | null;
 }): Promise<FeedPost[]> {
-  await ensurePhase3Tables();
   const me = viewerUserId || null;
   const cursorIso =
     cursor && !isNaN(new Date(cursor).getTime())
@@ -201,13 +196,13 @@ export async function getUserVisiblePosts({
       u.display_name AS author_display_name,
       u.avatar_url AS author_avatar_url,
       u.theme_key AS author_theme_key,
-      COUNT(DISTINCT pl.user_id)::text AS likes_count,
+      (SELECT COUNT(*)::text FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
       CASE 
         WHEN ${me}::uuid IS NOT NULL THEN 
           EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = ${me}::uuid)
         ELSE false
       END AS liked_by_me,
-      COUNT(DISTINCT pr.id)::text AS replies_count,
+      (SELECT COUNT(*)::text FROM post_replies pr WHERE pr.post_id = p.id AND pr.deleted_at IS NULL) AS replies_count,
       (
         SELECT json_agg(json_build_object(
           'id', a.id,
@@ -221,8 +216,6 @@ export async function getUserVisiblePosts({
       ) AS albums_json
     FROM posts p
     JOIN users u ON u.id = p.author_id
-    LEFT JOIN post_likes pl ON pl.post_id = p.id
-    LEFT JOIN post_replies pr ON pr.post_id = p.id AND pr.deleted_at IS NULL
     WHERE p.deleted_at IS NULL
       AND p.author_id = ${profileUserId}::uuid
       ${
@@ -262,7 +255,6 @@ export async function getUserVisiblePosts({
           : sql`AND p.is_public = true`
       }
       ${cursorIso ? sql`AND p.created_at < ${cursorIso}::timestamptz` : sql``}
-    GROUP BY p.id, u.id
     ORDER BY p.created_at DESC
     LIMIT ${limit};
   `);
@@ -279,7 +271,6 @@ export async function getArtistVisiblePosts({
   viewerUserId?: string | null;
   limit?: number;
 }): Promise<FeedPost[]> {
-  await ensurePhase3Tables();
   const me = viewerUserId || null;
 
   const rows = await db.execute<RawPostRow>(sql`
@@ -293,13 +284,13 @@ export async function getArtistVisiblePosts({
       u.display_name AS author_display_name,
       u.avatar_url AS author_avatar_url,
       u.theme_key AS author_theme_key,
-      COUNT(DISTINCT pl.user_id)::text AS likes_count,
+      (SELECT COUNT(*)::text FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
       CASE 
         WHEN ${me}::uuid IS NOT NULL THEN 
           EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = ${me}::uuid)
         ELSE false
       END AS liked_by_me,
-      COUNT(DISTINCT pr.id)::text AS replies_count,
+      (SELECT COUNT(*)::text FROM post_replies pr WHERE pr.post_id = p.id AND pr.deleted_at IS NULL) AS replies_count,
       (
         SELECT json_agg(json_build_object(
           'id', a.id,
@@ -315,8 +306,6 @@ export async function getArtistVisiblePosts({
     JOIN albums a_filter ON a_filter.id = pa.album_id
     JOIN posts p ON p.id = pa.post_id
     JOIN users u ON u.id = p.author_id
-    LEFT JOIN post_likes pl ON pl.post_id = p.id
-    LEFT JOIN post_replies pr ON pr.post_id = p.id AND pr.deleted_at IS NULL
     WHERE LOWER(TRIM(a_filter.artist_name)) = LOWER(TRIM(${artistName}))
       AND p.deleted_at IS NULL
       ${
@@ -334,7 +323,6 @@ export async function getArtistVisiblePosts({
           `
           : sql``
       }
-    GROUP BY p.id, u.id
     ORDER BY p.created_at DESC
     LIMIT ${limit};
   `);
@@ -351,7 +339,6 @@ export async function getAlbumVisiblePosts({
   viewerUserId?: string | null;
   limit?: number;
 }): Promise<FeedPost[]> {
-  await ensurePhase3Tables();
   const me = viewerUserId || null;
 
   const rows = await db.execute<RawPostRow>(sql`
@@ -365,13 +352,13 @@ export async function getAlbumVisiblePosts({
       u.display_name AS author_display_name,
       u.avatar_url AS author_avatar_url,
       u.theme_key AS author_theme_key,
-      COUNT(DISTINCT pl.user_id)::text AS likes_count,
+      (SELECT COUNT(*)::text FROM post_likes pl WHERE pl.post_id = p.id) AS likes_count,
       CASE 
         WHEN ${me}::uuid IS NOT NULL THEN 
           EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = ${me}::uuid)
         ELSE false
       END AS liked_by_me,
-      COUNT(DISTINCT pr.id)::text AS replies_count,
+      (SELECT COUNT(*)::text FROM post_replies pr WHERE pr.post_id = p.id AND pr.deleted_at IS NULL) AS replies_count,
       (
         SELECT json_agg(json_build_object(
           'id', a.id,
@@ -386,8 +373,6 @@ export async function getAlbumVisiblePosts({
     FROM post_albums pa
     JOIN posts p ON p.id = pa.post_id
     JOIN users u ON u.id = p.author_id
-    LEFT JOIN post_likes pl ON pl.post_id = p.id
-    LEFT JOIN post_replies pr ON pr.post_id = p.id AND pr.deleted_at IS NULL
     WHERE pa.album_id = ${albumId}::uuid
       AND p.deleted_at IS NULL
       ${
@@ -405,7 +390,6 @@ export async function getAlbumVisiblePosts({
           `
           : sql``
       }
-    GROUP BY p.id, u.id
     ORDER BY p.created_at DESC
     LIMIT ${limit};
   `);

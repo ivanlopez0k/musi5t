@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { db, ensureArtistTables } from "@/db";
+import { db } from "@/db";
 import { artistRatings } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { and, eq, sql } from "drizzle-orm";
@@ -26,7 +26,6 @@ export async function GET(
   { params }: { params: Promise<{ name: string }> }
 ) {
   try {
-    await ensureArtistTables();
     const { name } = await params;
     const decodedName = decodeURIComponent(name).trim();
 
@@ -74,7 +73,6 @@ export async function PUT(
   { params }: { params: Promise<{ name: string }> }
 ) {
   try {
-    await ensureArtistTables();
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
@@ -164,7 +162,6 @@ export async function DELETE(
   { params }: { params: Promise<{ name: string }> }
 ) {
   try {
-    await ensureArtistTables();
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });

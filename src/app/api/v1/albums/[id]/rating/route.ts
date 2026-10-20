@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { db, ensurePhase3Tables } from "@/db";
+import { db } from "@/db";
 import { albumRatings, albums } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { and, eq, sql } from "drizzle-orm";
@@ -24,7 +24,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await ensurePhase3Tables();
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json({ error: "No autorizado." }, { status: 401 });
@@ -93,7 +92,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await ensurePhase3Tables();
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json({ error: "No autorizado." }, { status: 401 });

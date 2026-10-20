@@ -24,11 +24,15 @@ export interface RankedAlbumItem {
 interface RankingsViewProps {
   rankedAlbums: RankedAlbumItem[];
   currentUser: CurrentUserSummary | null;
+  timeframe?: "all" | "year" | "month";
+  currentYear?: number;
 }
 
 export function RankingsView({
   rankedAlbums,
   currentUser,
+  timeframe = "all",
+  currentYear = new Date().getFullYear(),
 }: RankingsViewProps) {
   const router = useRouter();
   const mainRef = useRef<HTMLElement>(null);
@@ -192,7 +196,7 @@ export function RankingsView({
                       </div>
 
                       {/* Hero Section */}
-                      <div className="flex flex-col gap-[1.5vw] sm:gap-[0.7vw] pb-[3.5vw] sm:pb-[1.8vw] mb-[4vw] sm:mb-[2.5vw] border-b border-secondary/15">
+                      <div className="flex flex-col gap-[1.5vw] sm:gap-[0.7vw] pb-[3.5vw] sm:pb-[1.8vw] mb-[3vw] sm:mb-[1.8vw] border-b border-secondary/15">
                         <div className="flex items-center gap-[2vw] sm:gap-[1vw]">
                           <div className="drop-shadow rounded-[0.25vw]">
                             <div className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] bg-yellow" />
@@ -202,6 +206,51 @@ export function RankingsView({
                         <p className="smallText text-secondary/60">
                           the highest rated and most curated records across musi5t
                         </p>
+                      </div>
+
+                      {/* Timeframe Filter Tabs */}
+                      <div className="flex items-center gap-[4vw] sm:gap-[1.5vw] mb-[4vw] sm:mb-[2.5vw] border-b border-secondary/15 pb-[1.5vw] sm:pb-[0.8vw]">
+                        <Link
+                          href="/rankings?timeframe=all"
+                          className={`smallText lowercase flex items-center gap-[1vw] sm:gap-[0.4vw] pb-[0.5vw] sm:pb-[0.2vw] border-b-2 transition-all cursor-pointer ${
+                            timeframe === "all"
+                              ? "text-secondary font-medium border-secondary"
+                              : "text-secondary/40 hover:text-secondary/75 border-transparent"
+                          }`}
+                        >
+                          {timeframe === "all" && (
+                            <span className="w-[1.5vw] h-[1.5vw] sm:w-[0.4vw] sm:h-[0.4vw] rounded-full bg-yellow inline-block" />
+                          )}
+                          <span>all time</span>
+                        </Link>
+
+                        <Link
+                          href="/rankings?timeframe=year"
+                          className={`smallText lowercase flex items-center gap-[1vw] sm:gap-[0.4vw] pb-[0.5vw] sm:pb-[0.2vw] border-b-2 transition-all cursor-pointer ${
+                            timeframe === "year"
+                              ? "text-secondary font-medium border-secondary"
+                              : "text-secondary/40 hover:text-secondary/75 border-transparent"
+                          }`}
+                        >
+                          {timeframe === "year" && (
+                            <span className="w-[1.5vw] h-[1.5vw] sm:w-[0.4vw] sm:h-[0.4vw] rounded-full bg-yellow inline-block" />
+                          )}
+                          <span>this year ({currentYear})</span>
+                        </Link>
+
+                        <Link
+                          href="/rankings?timeframe=month"
+                          className={`smallText lowercase flex items-center gap-[1vw] sm:gap-[0.4vw] pb-[0.5vw] sm:pb-[0.2vw] border-b-2 transition-all cursor-pointer ${
+                            timeframe === "month"
+                              ? "text-secondary font-medium border-secondary"
+                              : "text-secondary/40 hover:text-secondary/75 border-transparent"
+                          }`}
+                        >
+                          {timeframe === "month" && (
+                            <span className="w-[1.5vw] h-[1.5vw] sm:w-[0.4vw] sm:h-[0.4vw] rounded-full bg-yellow inline-block" />
+                          )}
+                          <span>this month</span>
+                        </Link>
                       </div>
 
                       {/* Ranked Records List */}

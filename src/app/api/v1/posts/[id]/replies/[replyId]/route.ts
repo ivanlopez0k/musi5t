@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { db, ensurePhase3Tables } from "@/db";
+import { db } from "@/db";
 import { postReplies } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { and, eq, isNull } from "drizzle-orm";
@@ -9,7 +9,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; replyId: string }> }
 ) {
   try {
-    await ensurePhase3Tables();
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json({ error: "No autorizado." }, { status: 401 });

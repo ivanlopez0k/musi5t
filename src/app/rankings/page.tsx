@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { sql } from "drizzle-orm";
-import { db, ensurePhase3Tables } from "@/db";
+import { db } from "@/db";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   RankingsView,
@@ -26,9 +26,17 @@ interface RawRankedAlbumRow {
   [key: string]: unknown;
 }
 
-export default async function RankingsPage() {
-  await ensurePhase3Tables();
+interface PageProps {
+  searchParams: Promise<{ timeframe?: string }>;
+}
+
+export default async function RankingsPage({ searchParams }: PageProps) {
+  const { timeframe = "all" } = (await searchParams) || {};
   const currentUser = await getCurrentUser();
+  const currentYear = new Date().getFullYear();
+
+  const validTimeframe =
+    timeframe === "year" || timeframe === "month" ? timeframe : "all";
 
   const rows = await db.execute<RawRankedAlbumRow>(sql`
     SELECT
@@ -37,19 +45,42 @@ export default async function RankingsPage() {
       a.artist_name,
       a.release_year,
       a.default_cover_url,
-      ROUND(AVG(ar.score)::numeric, 1)::text AS average_score,
-      COUNT(DISTINCT ar.user_id)::text AS ratings_count,
-      COUNT(DISTINCT uta.id)::text AS curators_count
+      ROUND(ar_stat.avg_score::numeric, 1)::text AS average_score,
+      COALESCE(ar_stat.ratings_count, 0)::text AS ratings_count,
+      COALESCE(uta_stat.curators_count, 0)::text AS curators_count
     FROM albums a
-    LEFT JOIN album_ratings ar ON ar.album_id = a.id
-    LEFT JOIN user_top_albums uta ON uta.album_id = a.id
-    GROUP BY a.id
-    HAVING COUNT(DISTINCT ar.user_id) > 0 OR COUNT(DISTINCT uta.id) > 0
+    LEFT JOIN (
+      SELECT 
+        album_id, 
+        AVG(score) AS avg_score, 
+        COUNT(*) AS ratings_count
+      FROM album_ratings
+      ${
+        validTimeframe === "month"
+          ? sql`WHERE created_at >= NOW() - INTERVAL '30 days'`
+          : sql``
+      }
+      GROUP BY album_id
+    ) ar_stat ON ar_stat.album_id = a.id
+    LEFT JOIN (
+      SELECT 
+        album_id, 
+        COUNT(*) AS curators_count
+      FROM user_top_albums
+      ${
+        validTimeframe === "month"
+          ? sql`WHERE created_at >= NOW() - INTERVAL '30 days'`
+          : sql``
+      }
+      GROUP BY album_id
+    ) uta_stat ON uta_stat.album_id = a.id
+    WHERE (COALESCE(ar_stat.ratings_count, 0) > 0 OR COALESCE(uta_stat.curators_count, 0) > 0)
+      ${validTimeframe === "year" ? sql`AND a.release_year = ${currentYear}` : sql``}
     ORDER BY
-      COALESCE(AVG(ar.score), 0) DESC,
-      COUNT(DISTINCT ar.user_id) DESC,
-      COUNT(DISTINCT uta.id) DESC
-    LIMIT 50
+      COALESCE(ar_stat.avg_score, 0) DESC,
+      COALESCE(ar_stat.ratings_count, 0) DESC,
+      COALESCE(uta_stat.curators_count, 0) DESC
+    LIMIT 100
   `);
 
   const rankedAlbums: RankedAlbumItem[] = rows.map((r) => ({
@@ -64,6 +95,11 @@ export default async function RankingsPage() {
   }));
 
   return (
-    <RankingsView rankedAlbums={rankedAlbums} currentUser={currentUser} />
+    <RankingsView
+      rankedAlbums={rankedAlbums}
+      currentUser={currentUser}
+      timeframe={validTimeframe}
+      currentYear={currentYear}
+    />
   );
 }
