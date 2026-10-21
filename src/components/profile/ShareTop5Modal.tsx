@@ -64,59 +64,73 @@ export function ShareTop5Modal({
     ctx.fillStyle = "#F7F7F7";
     ctx.fillRect(0, 0, width, height);
 
-    // Decorative Lateral Circles (Palette-Driven like Profile)
-    // Upper Right Concentric Disc
+    // Concentric Palette Orbs
     ctx.save();
-    ctx.fillStyle = activePalette.secondaryOrb;
-    ctx.globalAlpha = 0.55;
-    ctx.beginPath();
-    ctx.arc(width - 40, -40, format === "story" ? 540 : 380, 0, Math.PI * 2);
-    ctx.fill();
+    if (format === "story") {
+      // Top Right Concentric Disc
+      ctx.fillStyle = activePalette.secondaryOrb;
+      ctx.globalAlpha = 0.55;
+      ctx.beginPath();
+      ctx.arc(width - 40, -40, 300, 0, Math.PI * 2);
+      ctx.fill();
 
-    ctx.fillStyle = activePalette.accent;
-    ctx.globalAlpha = 0.65;
-    ctx.beginPath();
-    ctx.arc(width - 20, -20, format === "story" ? 340 : 240, 0, Math.PI * 2);
-    ctx.fill();
+      ctx.fillStyle = activePalette.accent;
+      ctx.globalAlpha = 0.65;
+      ctx.beginPath();
+      ctx.arc(width - 20, -20, 200, 0, Math.PI * 2);
+      ctx.fill();
 
-    ctx.fillStyle = activePalette.softGlow;
-    ctx.globalAlpha = 0.45;
-    ctx.beginPath();
-    ctx.arc(width, 0, format === "story" ? 150 : 100, 0, Math.PI * 2);
-    ctx.fill();
+      ctx.fillStyle = activePalette.softGlow;
+      ctx.globalAlpha = 0.45;
+      ctx.beginPath();
+      ctx.arc(width, 0, 100, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Left Edge Satellite Orb
-    ctx.fillStyle = activePalette.accent;
-    ctx.globalAlpha = 0.5;
-    ctx.beginPath();
-    ctx.arc(-20, format === "story" ? 720 : 440, format === "story" ? 160 : 110, 0, Math.PI * 2);
-    ctx.fill();
+      // Bottom Left Concentric Sphere
+      ctx.fillStyle = activePalette.secondaryOrb;
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.arc(-40, height + 20, 220, 0, Math.PI * 2);
+      ctx.fill();
 
-    ctx.fillStyle = activePalette.secondaryOrb;
-    ctx.globalAlpha = 0.65;
-    ctx.beginPath();
-    ctx.arc(10, format === "story" ? 740 : 455, format === "story" ? 95 : 65, 0, Math.PI * 2);
-    ctx.fill();
+      ctx.fillStyle = activePalette.accent;
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.arc(0, height + 40, 130, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Square Concentric Orbs
+      ctx.fillStyle = activePalette.secondaryOrb;
+      ctx.globalAlpha = 0.55;
+      ctx.beginPath();
+      ctx.arc(width - 30, -30, 220, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Right Edge Mid Graphic Dot
-    ctx.fillStyle = activePalette.softGlow;
-    ctx.globalAlpha = 0.45;
-    ctx.beginPath();
-    ctx.arc(width + 10, format === "story" ? 1260 : 780, format === "story" ? 120 : 80, 0, Math.PI * 2);
-    ctx.fill();
+      ctx.fillStyle = activePalette.accent;
+      ctx.globalAlpha = 0.65;
+      ctx.beginPath();
+      ctx.arc(width - 15, -15, 140, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Bottom Left Concentric Sphere
-    ctx.fillStyle = activePalette.secondaryOrb;
-    ctx.globalAlpha = 0.45;
-    ctx.beginPath();
-    ctx.arc(-40, height + 20, format === "story" ? 340 : 220, 0, Math.PI * 2);
-    ctx.fill();
+      ctx.fillStyle = activePalette.softGlow;
+      ctx.globalAlpha = 0.45;
+      ctx.beginPath();
+      ctx.arc(width, 0, 70, 0, Math.PI * 2);
+      ctx.fill();
 
-    ctx.fillStyle = activePalette.accent;
-    ctx.globalAlpha = 0.6;
-    ctx.beginPath();
-    ctx.arc(0, height + 40, format === "story" ? 200 : 130, 0, Math.PI * 2);
-    ctx.fill();
+      // Bottom Left
+      ctx.fillStyle = activePalette.secondaryOrb;
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.arc(-30, height + 15, 160, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = activePalette.accent;
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.arc(0, height + 30, 95, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
 
     // Ensure KH Teka font is loaded in browser canvas
@@ -135,221 +149,353 @@ export function ShareTop5Modal({
 
     const fontBase = '"KHTeka", -apple-system, BlinkMacSystemFont, sans-serif';
 
-    // Brand Header (Prominent musi5t without square badge)
+    // Header: Brand & Identity
     ctx.fillStyle = "#0E0E0E";
-    ctx.font = `900 ${format === "story" ? "148px" : "120px"} ${fontBase}`;
-    ctx.fillText("musi5t", format === "story" ? 75 : 48, format === "story" ? 190 : 160);
+    ctx.font = `900 ${format === "story" ? "136px" : "96px"} ${fontBase}`;
+    ctx.fillText("musi5t", format === "story" ? 75 : 55, format === "story" ? 205 : 135);
 
     ctx.fillStyle = "rgba(14, 14, 14, 0.55)";
-    ctx.font = `500 ${format === "story" ? "34px" : "26px"} ${fontBase}`;
-    ctx.fillText(`@${user.username}'s definitive album rotation`, format === "story" ? 75 : 48, format === "story" ? 245 : 202);
+    ctx.font = `500 ${format === "story" ? "32px" : "22px"} ${fontBase}`;
+    ctx.fillText(
+      `@${user.username}'s definitive album rotation`,
+      format === "story" ? 75 : 55,
+      format === "story" ? 260 : 175
+    );
 
-    if (format === "story") {
-      // 5 Albums Vertical List with Large Artwork
-      const startY = 280;
-      const cardHeight = 256;
-      const cardGap = 24;
-      const coverSize = 215;
-      const badgeSize = 76;
+    // Pre-load all album covers asynchronously
+    const loadedImages: Record<number, HTMLImageElement> = {};
+    await Promise.allSettled(
+      albums.map((album) => {
+        if (!album.coverUrl) return Promise.resolve();
+        return new Promise<void>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.src = album.coverUrl!;
+          img.onload = () => {
+            loadedImages[album.position] = img;
+            resolve();
+          };
+          img.onerror = () => reject();
+          setTimeout(() => reject(new Error("Timeout")), 2500);
+        });
+      })
+    );
 
-      for (let pos = 1; pos <= 5; pos++) {
-        const album = albums.find((a) => a.position === pos);
-        const y = startY + (pos - 1) * (cardHeight + cardGap);
+    const storyCards = [
+      {
+        pos: 1,
+        left: 75,
+        top: 380,
+        width: 485,
+        height: 615,
+        artSize: 445,
+        rotation: -4.5,
+        paddingTop: 20,
+        paddingSide: 20,
+        paddingBottom: 22,
+        numberSize: 54,
+        titleSize: 32,
+        artistSize: 20,
+        gap: 14,
+        zIndex: 5,
+      },
+      {
+        pos: 2,
+        left: 615,
+        top: 410,
+        width: 380,
+        height: 485,
+        artSize: 344,
+        rotation: 3.5,
+        paddingTop: 18,
+        paddingSide: 18,
+        paddingBottom: 20,
+        numberSize: 42,
+        titleSize: 25,
+        artistSize: 17,
+        gap: 12,
+        zIndex: 4,
+      },
+      {
+        pos: 3,
+        left: 635,
+        top: 960,
+        width: 360,
+        height: 460,
+        artSize: 324,
+        rotation: -2.8,
+        paddingTop: 18,
+        paddingSide: 18,
+        paddingBottom: 20,
+        numberSize: 40,
+        titleSize: 24,
+        artistSize: 16,
+        gap: 12,
+        zIndex: 4,
+      },
+      {
+        pos: 4,
+        left: 355,
+        top: 1205,
+        width: 345,
+        height: 440,
+        artSize: 309,
+        rotation: 2.2,
+        paddingTop: 18,
+        paddingSide: 18,
+        paddingBottom: 20,
+        numberSize: 38,
+        titleSize: 22,
+        artistSize: 15,
+        gap: 10,
+        zIndex: 6,
+      },
+      {
+        pos: 5,
+        left: 75,
+        top: 1320,
+        width: 280,
+        height: 365,
+        artSize: 248,
+        rotation: -5.5,
+        paddingTop: 16,
+        paddingSide: 16,
+        paddingBottom: 18,
+        numberSize: 32,
+        titleSize: 19,
+        artistSize: 13,
+        gap: 8,
+        zIndex: 5,
+      },
+    ];
 
-        // Card Background
-        ctx.save();
-        ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
-        ctx.strokeStyle = "rgba(14, 14, 14, 0.08)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(75, y, width - 150, cardHeight, 26);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
+    const squareCards = [
+      {
+        pos: 1,
+        left: 55,
+        top: 215,
+        width: 320,
+        height: 410,
+        artSize: 284,
+        rotation: -3.5,
+        paddingTop: 18,
+        paddingSide: 18,
+        paddingBottom: 20,
+        numberSize: 36,
+        titleSize: 22,
+        artistSize: 15,
+        gap: 10,
+        zIndex: 5,
+      },
+      {
+        pos: 2,
+        left: 420,
+        top: 195,
+        width: 265,
+        height: 345,
+        artSize: 233,
+        rotation: 3.5,
+        paddingTop: 16,
+        paddingSide: 16,
+        paddingBottom: 18,
+        numberSize: 30,
+        titleSize: 18,
+        artistSize: 13,
+        gap: 9,
+        zIndex: 4,
+      },
+      {
+        pos: 3,
+        left: 745,
+        top: 230,
+        width: 255,
+        height: 335,
+        artSize: 223,
+        rotation: -2.5,
+        paddingTop: 16,
+        paddingSide: 16,
+        paddingBottom: 18,
+        numberSize: 28,
+        titleSize: 17,
+        artistSize: 12,
+        gap: 8,
+        zIndex: 4,
+      },
+      {
+        pos: 4,
+        left: 650,
+        top: 560,
+        width: 265,
+        height: 345,
+        artSize: 233,
+        rotation: 2.8,
+        paddingTop: 16,
+        paddingSide: 16,
+        paddingBottom: 18,
+        numberSize: 30,
+        titleSize: 18,
+        artistSize: 13,
+        gap: 9,
+        zIndex: 6,
+      },
+      {
+        pos: 5,
+        left: 285,
+        top: 585,
+        width: 260,
+        height: 340,
+        artSize: 228,
+        rotation: -4.0,
+        paddingTop: 16,
+        paddingSide: 16,
+        paddingBottom: 18,
+        numberSize: 30,
+        titleSize: 18,
+        artistSize: 13,
+        gap: 9,
+        zIndex: 5,
+      },
+    ];
 
-        // Rank Badge
-        const badgeY = y + (cardHeight - badgeSize) / 2;
-        ctx.fillStyle = pos === 1 ? activePalette.accent : "#0E0E0E";
-        ctx.beginPath();
-        ctx.roundRect(105, badgeY, badgeSize, badgeSize, 18);
-        ctx.fill();
-        if (pos === 1 && activePalette.textOnAccent === "#FFFFFF") {
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        }
+    const cardsToRender = (format === "story" ? storyCards : squareCards)
+      .slice()
+      .sort((a, b) => a.zIndex - b.zIndex);
 
-        ctx.fillStyle = pos === 1 ? (activePalette.textOnAccent || "#0E0E0E") : "#F7F7F7";
-        ctx.font = `800 36px ${fontBase}`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(`0${pos}`, 105 + badgeSize / 2, badgeY + badgeSize / 2);
-        ctx.textAlign = "left";
-        ctx.textBaseline = "alphabetic";
+    for (const card of cardsToRender) {
+      const album = albums.find((a) => a.position === card.pos);
+      const cx = card.left + card.width / 2;
+      const cy = card.top + card.height / 2;
 
-        // Cover Art
-        const coverX = 105 + badgeSize + 28;
-        const coverY = y + (cardHeight - coverSize) / 2;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((card.rotation * Math.PI) / 180);
 
-        let imageDrawn = false;
-        if (album?.coverUrl) {
-          try {
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.src = album.coverUrl;
-            await new Promise<void>((resolve, reject) => {
-              img.onload = () => resolve();
-              img.onerror = () => reject();
-              setTimeout(() => reject(new Error("Timeout")), 1500);
-            });
-            ctx.save();
-            ctx.beginPath();
-            ctx.roundRect(coverX, coverY, coverSize, coverSize, 20);
-            ctx.clip();
-            ctx.drawImage(img, coverX, coverY, coverSize, coverSize);
-            ctx.restore();
-            imageDrawn = true;
-          } catch {
-            imageDrawn = false;
-          }
-        }
+      // Physical polaroid drop shadow
+      ctx.shadowColor = "rgba(0, 0, 0, 0.22)";
+      ctx.shadowBlur = format === "story" ? 40 : 28;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = format === "story" ? 20 : 14;
 
-        if (!imageDrawn) {
-          ctx.fillStyle = "#0E0E0E";
-          ctx.beginPath();
-          ctx.roundRect(coverX, coverY, coverSize, coverSize, 20);
-          ctx.fill();
-          ctx.fillStyle = "#F7F7F7";
-          ctx.font = "600 22px -apple-system, BlinkMacSystemFont, sans-serif";
-          ctx.fillText("vinyl", coverX + 24, coverY + coverSize / 2);
-        }
-
-        // Title & Artist
-        const textX = coverX + coverSize + 28;
-        const textAvailableWidth = width - textX - 100;
-        ctx.fillStyle = "#0E0E0E";
-        ctx.font = `700 42px ${fontBase}`;
-        const title = album ? album.title : `Slot 0${pos} uncurated`;
-        ctx.fillText(title.length > 30 ? `${title.slice(0, 29)}...` : title, textX, y + 105, textAvailableWidth);
-
-        ctx.fillStyle = "rgba(14, 14, 14, 0.6)";
-        ctx.font = `500 28px ${fontBase}`;
-        const subtitle = album
-          ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
-          : "Empty vinyl slot";
-        ctx.fillText(subtitle.length > 38 ? `${subtitle.slice(0, 37)}...` : subtitle, textX, y + 155, textAvailableWidth);
-      }
-
-      // Curator text (Clean typography without card or dot)
-      const curatorY = startY + 5 * (cardHeight + cardGap) + 40;
-      ctx.fillStyle = "#0E0E0E";
-      ctx.font = `700 36px ${fontBase}`;
-      ctx.fillText(`Curated rotation by @${user.username}`, 75, curatorY);
-    } else {
-      // SQUARE (1:1): 5 Horizontal Album Shelf Columns
-      // 5 Columns
-      const colWidth = 186;
-      const startX = 48;
-      const gap = (width - 96 - 5 * colWidth) / 4;
-      const shelfY = 340;
-
-      for (let pos = 1; pos <= 5; pos++) {
-        const album = albums.find((a) => a.position === pos);
-        const colX = startX + (pos - 1) * (colWidth + gap);
-
-        // Album Cover Art
-        let imageDrawn = false;
-        if (album?.coverUrl) {
-          try {
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.src = album.coverUrl;
-            await new Promise<void>((resolve, reject) => {
-              img.onload = () => resolve();
-              img.onerror = () => reject();
-              setTimeout(() => reject(new Error("Timeout")), 1500);
-            });
-            ctx.save();
-            ctx.beginPath();
-            ctx.roundRect(colX, shelfY, colWidth, colWidth, 18);
-            ctx.clip();
-            ctx.drawImage(img, colX, shelfY, colWidth, colWidth);
-            ctx.restore();
-            imageDrawn = true;
-          } catch {
-            imageDrawn = false;
-          }
-        }
-
-        if (!imageDrawn) {
-          ctx.fillStyle = "#0E0E0E";
-          ctx.beginPath();
-          ctx.roundRect(colX, shelfY, colWidth, colWidth, 18);
-          ctx.fill();
-          ctx.fillStyle = "#F7F7F7";
-          ctx.font = "600 18px -apple-system, BlinkMacSystemFont, sans-serif";
-          ctx.fillText("vinyl slot", colX + 46, shelfY + colWidth / 2);
-        }
-
-        // Corner Rank Badge
-        ctx.fillStyle = pos === 1 ? activePalette.accent : "rgba(14, 14, 14, 0.88)";
-        ctx.beginPath();
-        ctx.roundRect(colX + 10, shelfY + 10, 42, 42, 12);
-        ctx.fill();
-        if (pos === 1 && activePalette.textOnAccent === "#FFFFFF") {
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-        }
-
-        ctx.fillStyle = pos === 1 ? (activePalette.textOnAccent || "#0E0E0E") : "#F7F7F7";
-        ctx.font = `800 22px ${fontBase}`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(`0${pos}`, colX + 30, shelfY + 30);
-        ctx.textAlign = "left";
-        ctx.textBaseline = "alphabetic";
-
-        // Title & Artist
-        ctx.fillStyle = "#0E0E0E";
-        ctx.font = `700 23px ${fontBase}`;
-        const title = album ? album.title : `Slot 0${pos}`;
-        ctx.fillText(title.length > 14 ? `${title.slice(0, 13)}...` : title, colX, shelfY + colWidth + 30, colWidth);
-
-        ctx.fillStyle = "rgba(14, 14, 14, 0.6)";
-        ctx.font = `500 18px ${fontBase}`;
-        const subtitle = album
-          ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
-          : "Uncurated";
-        ctx.fillText(subtitle.length > 18 ? `${subtitle.slice(0, 17)}...` : subtitle, colX, shelfY + colWidth + 56, colWidth);
-      }
-
-      // Shelf line
-      const shelfLineY = shelfY + colWidth + 80;
-      ctx.fillStyle = "rgba(14, 14, 14, 0.12)";
+      // White Polaroid body
+      const halfW = card.width / 2;
+      const halfH = card.height / 2;
+      ctx.fillStyle = "#FFFFFF";
       ctx.beginPath();
-      ctx.roundRect(65, shelfLineY, width - 130, 3, 2);
+      ctx.roundRect(-halfW, -halfH, card.width, card.height, format === "story" ? 10 : 8);
       ctx.fill();
 
-      // Curator text (Clean typography without card or dot)
-      const curatorY = shelfLineY + 50;
+      // Clear shadow for crisp artwork and typography
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Subtle hairline border
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Inside artwork position
+      const artX = -halfW + card.paddingSide;
+      const artY = -halfH + card.paddingTop;
+      const artSize = card.artSize;
+
+      const img = loadedImages[card.pos];
+      if (img) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(artX, artY, artSize, artSize, 4);
+        ctx.clip();
+        ctx.drawImage(img, artX, artY, artSize, artSize);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = "#111111";
+        ctx.beginPath();
+        ctx.roundRect(artX, artY, artSize, artSize, 4);
+        ctx.fill();
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = `600 ${Math.round(artSize * 0.08)}px ${fontBase}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("vinyl slot", artX + artSize / 2, artY + artSize / 2);
+      }
+
+      // Chin: Number + Metadata
+      const chinY = artY + artSize + 12;
+      const numX = artX;
+
+      // Rank Number
+      ctx.fillStyle = card.pos === 1 ? activePalette.accent : "#0E0E0E";
+      ctx.font = `900 ${card.numberSize}px ${fontBase}`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText(`0${card.pos}`, numX, chinY);
+
+      const numWidth = ctx.measureText(`0${card.pos}`).width;
+      const textX = numX + numWidth + card.gap;
+      const maxTextWidth = card.width - card.paddingSide * 2 - numWidth - card.gap;
+
+      // Title
       ctx.fillStyle = "#0E0E0E";
-      ctx.font = `700 28px ${fontBase}`;
-      ctx.fillText(`Curated rotation by @${user.username}`, 48, curatorY);
+      ctx.font = `800 ${card.titleSize}px ${fontBase}`;
+      let title = album ? album.title : `Slot 0${card.pos}`;
+      if (ctx.measureText(title).width > maxTextWidth) {
+        while (title.length > 0 && ctx.measureText(title + "...").width > maxTextWidth) {
+          title = title.slice(0, -1);
+        }
+        title += "...";
+      }
+      ctx.fillText(title, textX, chinY + 2);
+
+      // Subtitle (Artist · Year)
+      ctx.fillStyle = "rgba(14, 14, 14, 0.6)";
+      ctx.font = `500 ${card.artistSize}px ${fontBase}`;
+      let subtitle = album
+        ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
+        : "Uncurated";
+      if (ctx.measureText(subtitle).width > maxTextWidth) {
+        while (subtitle.length > 0 && ctx.measureText(subtitle + "...").width > maxTextWidth) {
+          subtitle = subtitle.slice(0, -1);
+        }
+        subtitle += "...";
+      }
+      ctx.fillText(subtitle, textX, chinY + card.titleSize + 4);
+
+      ctx.restore();
     }
 
     // Footer
-    const footerY = height - 70;
-    ctx.strokeStyle = "rgba(14, 14, 14, 0.12)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(65, footerY - 30);
-    ctx.lineTo(width - 65, footerY - 30);
-    ctx.stroke();
+    if (format === "story") {
+      ctx.fillStyle = "#0E0E0E";
+      ctx.font = `700 32px ${fontBase}`;
+      ctx.fillText(`Curated rotation by @${user.username}`, 75, height - 130);
 
-    ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
-    ctx.font = `600 ${format === "story" ? "30px" : "24px"} ${fontBase}`;
-    ctx.fillText(`musi5t.com/@${user.username}`, format === "story" ? 75 : 48, footerY);
+      ctx.strokeStyle = "rgba(14, 14, 14, 0.12)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(75, height - 95);
+      ctx.lineTo(width - 75, height - 95);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
+      ctx.font = `600 26px ${fontBase}`;
+      ctx.fillText(`musi5t.com/@${user.username}`, 75, height - 55);
+    } else {
+      ctx.fillStyle = "#0E0E0E";
+      ctx.font = `700 22px ${fontBase}`;
+      ctx.fillText(`Curated rotation by @${user.username}`, 55, height - 85);
+
+      ctx.strokeStyle = "rgba(14, 14, 14, 0.12)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(55, height - 60);
+      ctx.lineTo(width - 55, height - 60);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(14, 14, 14, 0.5)";
+      ctx.font = `600 18px ${fontBase}`;
+      ctx.fillText(`musi5t.com/@${user.username}`, 55, height - 35);
+    }
 
     // Export to Blob and download
     return new Promise<void>((resolve, reject) => {

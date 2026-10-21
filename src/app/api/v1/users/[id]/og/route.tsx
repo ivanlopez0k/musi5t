@@ -149,8 +149,96 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
     // Load KH Teka font for editorial brand parity
     const fonts = await getKHTekaFonts();
 
-    // 1. STORY FORMAT (1080x1920, 9:16)
+    // 1. STORY FORMAT (1080x1920, 9:16) - Polaroid Rotation Layout
     if (format === "story") {
+      const storyCards = [
+        {
+          pos: 1,
+          left: 75,
+          top: 380,
+          width: 485,
+          height: 615,
+          artSize: 445,
+          rotation: -4.5,
+          paddingTop: 20,
+          paddingSide: 20,
+          paddingBottom: 22,
+          numberSize: 54,
+          titleSize: 32,
+          artistSize: 20,
+          gap: 14,
+          zIndex: 5,
+        },
+        {
+          pos: 2,
+          left: 615,
+          top: 410,
+          width: 380,
+          height: 485,
+          artSize: 344,
+          rotation: 3.5,
+          paddingTop: 18,
+          paddingSide: 18,
+          paddingBottom: 20,
+          numberSize: 42,
+          titleSize: 25,
+          artistSize: 17,
+          gap: 12,
+          zIndex: 4,
+        },
+        {
+          pos: 3,
+          left: 635,
+          top: 960,
+          width: 360,
+          height: 460,
+          artSize: 324,
+          rotation: -2.8,
+          paddingTop: 18,
+          paddingSide: 18,
+          paddingBottom: 20,
+          numberSize: 40,
+          titleSize: 24,
+          artistSize: 16,
+          gap: 12,
+          zIndex: 4,
+        },
+        {
+          pos: 4,
+          left: 355,
+          top: 1205,
+          width: 345,
+          height: 440,
+          artSize: 309,
+          rotation: 2.2,
+          paddingTop: 18,
+          paddingSide: 18,
+          paddingBottom: 20,
+          numberSize: 38,
+          titleSize: 22,
+          artistSize: 15,
+          gap: 10,
+          zIndex: 6,
+        },
+        {
+          pos: 5,
+          left: 75,
+          top: 1320,
+          width: 280,
+          height: 365,
+          artSize: 248,
+          rotation: -5.5,
+          paddingTop: 16,
+          paddingSide: 16,
+          paddingBottom: 18,
+          numberSize: 32,
+          titleSize: 19,
+          artistSize: 13,
+          gap: 8,
+          zIndex: 5,
+        },
+      ];
+
       return new ImageResponse(
         (
           <div
@@ -158,24 +246,22 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               width: "100%",
               height: "100%",
               display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
               backgroundColor: "#F7F7F7",
               color: "#0E0E0E",
-              padding: "90px 75px",
               fontFamily: '"KHTeka", sans-serif',
               position: "relative",
+              overflow: "hidden",
             }}
           >
-            {/* DECORATIVE VISUAL LATERAL CIRCLES (Palette-Driven like Profile) */}
+            {/* Concentric Palette Orbs */}
             {/* Upper Right Concentric Disc */}
             <div
               style={{
                 position: "absolute",
-                top: -160,
-                right: -160,
-                width: 620,
-                height: 620,
+                top: -140,
+                right: -140,
+                width: 600,
+                height: 600,
                 borderRadius: "50%",
                 backgroundColor: palette.secondaryOrb,
                 opacity: 0.55,
@@ -184,10 +270,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             <div
               style={{
                 position: "absolute",
-                top: -60,
-                right: -60,
-                width: 380,
-                height: 380,
+                top: -40,
+                right: -40,
+                width: 400,
+                height: 400,
                 borderRadius: "50%",
                 backgroundColor: palette.accent,
                 opacity: 0.65,
@@ -196,50 +282,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             <div
               style={{
                 position: "absolute",
-                top: 40,
-                right: 40,
-                width: 160,
-                height: 160,
-                borderRadius: "50%",
-                backgroundColor: palette.softGlow,
-                opacity: 0.45,
-              }}
-            />
-
-            {/* Left Edge Floating Satellite Circle */}
-            <div
-              style={{
-                position: "absolute",
-                top: 680,
-                left: -90,
-                width: 220,
-                height: 220,
-                borderRadius: "50%",
-                backgroundColor: palette.accent,
-                opacity: 0.5,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: 720,
-                left: -50,
-                width: 140,
-                height: 140,
-                borderRadius: "50%",
-                backgroundColor: palette.secondaryOrb,
-                opacity: 0.6,
-              }}
-            />
-
-            {/* Right Edge Mid Graphic Dot */}
-            <div
-              style={{
-                position: "absolute",
-                top: 1220,
-                right: -60,
-                width: 180,
-                height: 180,
+                top: 60,
+                right: 60,
+                width: 200,
+                height: 200,
                 borderRadius: "50%",
                 backgroundColor: palette.softGlow,
                 opacity: 0.45,
@@ -250,13 +296,13 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             <div
               style={{
                 position: "absolute",
-                bottom: -110,
-                left: -110,
+                bottom: -120,
+                left: -120,
                 width: 440,
                 height: 440,
                 borderRadius: "50%",
                 backgroundColor: palette.secondaryOrb,
-                opacity: 0.45,
+                opacity: 0.5,
               }}
             />
             <div
@@ -268,13 +314,16 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                 height: 260,
                 borderRadius: "50%",
                 backgroundColor: palette.accent,
-                opacity: 0.55,
+                opacity: 0.6,
               }}
             />
 
             {/* Header: Brand & Identity */}
             <div
               style={{
+                position: "absolute",
+                top: 85,
+                left: 75,
                 display: "flex",
                 flexDirection: "column",
                 zIndex: 10,
@@ -282,7 +331,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             >
               <span
                 style={{
-                  fontSize: 148,
+                  fontSize: 136,
                   fontWeight: 900,
                   letterSpacing: "-0.06em",
                   lineHeight: 0.9,
@@ -293,7 +342,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               </span>
               <span
                 style={{
-                  fontSize: 34,
+                  fontSize: 32,
                   color: "#0E0E0E",
                   opacity: 0.55,
                   fontWeight: 500,
@@ -305,143 +354,166 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               </span>
             </div>
 
-            {/* 5 Albums Vertical List with Large Artwork */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 24,
-                zIndex: 10,
-                margin: "8px 0",
-              }}
-            >
-              {[1, 2, 3, 4, 5].map((pos) => {
-                const album = userAlbums.find((a) => a.position === pos);
-                return (
+            {/* 5 Polaroid Rotation Cards */}
+            {storyCards.map((cfg) => {
+              const album = userAlbums.find((a) => a.position === cfg.pos);
+              const title = album ? album.title : `Slot 0${cfg.pos} uncurated`;
+              const subtitle = album
+                ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
+                : "Empty vinyl slot";
+
+              return (
+                <div
+                  key={cfg.pos}
+                  style={{
+                    position: "absolute",
+                    left: cfg.left,
+                    top: cfg.top,
+                    width: cfg.width,
+                    height: cfg.height,
+                    display: "flex",
+                    flexDirection: "column",
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: 10,
+                    paddingTop: cfg.paddingTop,
+                    paddingLeft: cfg.paddingSide,
+                    paddingRight: cfg.paddingSide,
+                    paddingBottom: cfg.paddingBottom,
+                    boxShadow: "0 24px 50px rgba(0, 0, 0, 0.22)",
+                    borderWidth: 1,
+                    borderStyle: "solid",
+                    borderColor: "rgba(0, 0, 0, 0.08)",
+                    transform: `rotate(${cfg.rotation}deg)`,
+                    zIndex: cfg.zIndex,
+                  }}
+                >
+                  {/* Square Album Cover */}
                   <div
-                    key={pos}
                     style={{
+                      width: cfg.artSize,
+                      height: cfg.artSize,
                       display: "flex",
-                      alignItems: "center",
-                      backgroundColor: "rgba(255, 255, 255, 0.88)",
-                      border: "2px solid rgba(14, 14, 14, 0.08)",
-                      borderRadius: 26,
-                      padding: "20px 26px",
-                      gap: 28,
-                      boxShadow: "0 10px 25px rgba(0,0,0,0.03)",
+                      position: "relative",
+                      borderRadius: 4,
+                      overflow: "hidden",
+                      backgroundColor: "#111111",
                     }}
                   >
-                    {/* Rank Badge */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: 76,
-                        height: 76,
-                        borderRadius: 20,
-                        backgroundColor: pos === 1 ? palette.accent : "#0E0E0E",
-                        color: pos === 1 ? (palette.textOnAccent || "#0E0E0E") : "#F7F7F7",
-                        fontSize: 36,
-                        fontWeight: 800,
-                        flexShrink: 0,
-                      }}
-                    >
-                      0{pos}
-                    </div>
-
-                    {/* Album Cover */}
                     {album?.coverDataUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={album.coverDataUrl}
                         alt={album.title}
-                        width={215}
-                        height={215}
+                        width={cfg.artSize}
+                        height={cfg.artSize}
                         style={{
-                          width: 215,
-                          height: 215,
-                          borderRadius: 22,
+                          width: cfg.artSize,
+                          height: cfg.artSize,
                           objectFit: "cover",
-                          flexShrink: 0,
-                          border: "1px solid rgba(0,0,0,0.1)",
                         }}
                       />
                     ) : (
                       <div
                         style={{
-                          width: 215,
-                          height: 215,
-                          borderRadius: 22,
-                          backgroundColor: "#0E0E0E",
+                          width: cfg.artSize,
+                          height: cfg.artSize,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          color: "#F7F7F7",
-                          fontSize: 24,
-                          flexShrink: 0,
+                          backgroundColor: "#111111",
+                          color: "#FFFFFF",
+                          fontSize: Math.round(cfg.artSize * 0.08),
+                          fontWeight: 600,
                         }}
                       >
                         vinyl slot
                       </div>
                     )}
+                  </div>
 
-                    {/* Metadata */}
+                  {/* Polaroid Chin: Number + Metadata */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginTop: 12,
+                      width: cfg.artSize,
+                      gap: cfg.gap,
+                    }}
+                  >
+                    {/* Rank Number (Accent color for #1, solid black for 2-5) */}
+                    <span
+                      style={{
+                        fontSize: cfg.numberSize,
+                        fontWeight: 900,
+                        lineHeight: 1,
+                        color: cfg.pos === 1 ? palette.accent : "#0E0E0E",
+                        letterSpacing: "-0.04em",
+                      }}
+                    >
+                      0{cfg.pos}
+                    </span>
+
+                    {/* Title & Artist */}
                     <div
                       style={{
                         display: "flex",
                         flexDirection: "column",
-                        gap: 10,
                         overflow: "hidden",
                         flex: 1,
+                        gap: 2,
                       }}
                     >
                       <span
                         style={{
-                          fontSize: 42,
-                          fontWeight: 700,
+                          fontSize: cfg.titleSize,
+                          fontWeight: 800,
                           letterSpacing: "-0.02em",
+                          lineHeight: 1.15,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          color: "#0E0E0E",
+                        }}
+                      >
+                        {title}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: cfg.artistSize,
+                          color: "#0E0E0E",
+                          opacity: 0.6,
+                          fontWeight: 500,
                           lineHeight: 1.15,
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {album ? album.title : `Slot 0${pos} uncurated`}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 28,
-                          color: "#0E0E0E",
-                          opacity: 0.6,
-                          fontWeight: 500,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {album
-                          ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
-                          : "Empty vinyl slot"}
+                        {subtitle}
                       </span>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
 
-            {/* Curator text */}
+            {/* Footer */}
             <div
               style={{
+                position: "absolute",
+                bottom: 65,
+                left: 75,
+                right: 75,
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
+                flexDirection: "column",
                 zIndex: 10,
               }}
             >
               <span
                 style={{
-                  fontSize: 36,
+                  fontSize: 32,
                   fontWeight: 700,
                   letterSpacing: "-0.02em",
                   color: "#0E0E0E",
@@ -449,22 +521,18 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               >
                 Curated rotation by @{user.username}
               </span>
-            </div>
-
-            {/* Footer */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                borderTop: "2px solid rgba(14, 14, 14, 0.12)",
-                paddingTop: 30,
-                zIndex: 10,
-              }}
-            >
+              <div
+                style={{
+                  width: "100%",
+                  height: 2,
+                  backgroundColor: "rgba(14, 14, 14, 0.12)",
+                  marginTop: 20,
+                  marginBottom: 16,
+                }}
+              />
               <span
                 style={{
-                  fontSize: 30,
+                  fontSize: 26,
                   color: "#0E0E0E",
                   opacity: 0.5,
                   fontWeight: 600,
@@ -480,8 +548,96 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
       );
     }
 
-    // 2. SQUARE FORMAT (1080x1080, 1:1)
+    // 2. SQUARE FORMAT (1080x1080, 1:1) - Polaroid Composition Layout
     if (format === "square") {
+      const squareCards = [
+        {
+          pos: 1,
+          left: 55,
+          top: 215,
+          width: 320,
+          height: 410,
+          artSize: 284,
+          rotation: -3.5,
+          paddingTop: 18,
+          paddingSide: 18,
+          paddingBottom: 20,
+          numberSize: 36,
+          titleSize: 22,
+          artistSize: 15,
+          gap: 10,
+          zIndex: 5,
+        },
+        {
+          pos: 2,
+          left: 420,
+          top: 195,
+          width: 265,
+          height: 345,
+          artSize: 233,
+          rotation: 3.5,
+          paddingTop: 16,
+          paddingSide: 16,
+          paddingBottom: 18,
+          numberSize: 30,
+          titleSize: 18,
+          artistSize: 13,
+          gap: 9,
+          zIndex: 4,
+        },
+        {
+          pos: 3,
+          left: 745,
+          top: 230,
+          width: 255,
+          height: 335,
+          artSize: 223,
+          rotation: -2.5,
+          paddingTop: 16,
+          paddingSide: 16,
+          paddingBottom: 18,
+          numberSize: 28,
+          titleSize: 17,
+          artistSize: 12,
+          gap: 8,
+          zIndex: 4,
+        },
+        {
+          pos: 4,
+          left: 650,
+          top: 560,
+          width: 265,
+          height: 345,
+          artSize: 233,
+          rotation: 2.8,
+          paddingTop: 16,
+          paddingSide: 16,
+          paddingBottom: 18,
+          numberSize: 30,
+          titleSize: 18,
+          artistSize: 13,
+          gap: 9,
+          zIndex: 6,
+        },
+        {
+          pos: 5,
+          left: 285,
+          top: 585,
+          width: 260,
+          height: 340,
+          artSize: 228,
+          rotation: -4.0,
+          paddingTop: 16,
+          paddingSide: 16,
+          paddingBottom: 18,
+          numberSize: 30,
+          titleSize: 18,
+          artistSize: 13,
+          gap: 9,
+          zIndex: 5,
+        },
+      ];
+
       return new ImageResponse(
         (
           <div
@@ -489,24 +645,22 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               width: "100%",
               height: "100%",
               display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
               backgroundColor: "#F7F7F7",
               color: "#0E0E0E",
-              padding: "60px 48px",
               fontFamily: '"KHTeka", sans-serif',
               position: "relative",
+              overflow: "hidden",
             }}
           >
-            {/* Decorative Concentric Lateral Circles */}
+            {/* Concentric Palette Orbs */}
             {/* Upper Right Concentric Disc */}
             <div
               style={{
                 position: "absolute",
-                top: -140,
-                right: -140,
-                width: 520,
-                height: 520,
+                top: -110,
+                right: -110,
+                width: 440,
+                height: 440,
                 borderRadius: "50%",
                 backgroundColor: palette.secondaryOrb,
                 opacity: 0.55,
@@ -515,10 +669,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             <div
               style={{
                 position: "absolute",
-                top: -50,
-                right: -50,
-                width: 320,
-                height: 320,
+                top: -30,
+                right: -30,
+                width: 280,
+                height: 280,
                 borderRadius: "50%",
                 backgroundColor: palette.accent,
                 opacity: 0.65,
@@ -527,50 +681,10 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             <div
               style={{
                 position: "absolute",
-                top: 20,
-                right: 20,
+                top: 40,
+                right: 40,
                 width: 140,
                 height: 140,
-                borderRadius: "50%",
-                backgroundColor: palette.softGlow,
-                opacity: 0.45,
-              }}
-            />
-
-            {/* Left Edge Satellite Circle */}
-            <div
-              style={{
-                position: "absolute",
-                top: 480,
-                left: -70,
-                width: 190,
-                height: 190,
-                borderRadius: "50%",
-                backgroundColor: palette.accent,
-                opacity: 0.5,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: 510,
-                left: -40,
-                width: 120,
-                height: 120,
-                borderRadius: "50%",
-                backgroundColor: palette.secondaryOrb,
-                opacity: 0.6,
-              }}
-            />
-
-            {/* Right Lower Graphic Dot */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: 200,
-                right: -50,
-                width: 150,
-                height: 150,
                 borderRadius: "50%",
                 backgroundColor: palette.softGlow,
                 opacity: 0.45,
@@ -581,31 +695,34 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             <div
               style={{
                 position: "absolute",
-                bottom: -100,
-                left: -100,
-                width: 380,
-                height: 380,
+                bottom: -90,
+                left: -90,
+                width: 320,
+                height: 320,
                 borderRadius: "50%",
                 backgroundColor: palette.secondaryOrb,
-                opacity: 0.45,
+                opacity: 0.5,
               }}
             />
             <div
               style={{
                 position: "absolute",
-                bottom: -30,
-                left: -30,
-                width: 220,
-                height: 220,
+                bottom: -20,
+                left: -20,
+                width: 190,
+                height: 190,
                 borderRadius: "50%",
                 backgroundColor: palette.accent,
-                opacity: 0.55,
+                opacity: 0.6,
               }}
             />
 
             {/* Header: Brand & Identity */}
             <div
               style={{
+                position: "absolute",
+                top: 48,
+                left: 55,
                 display: "flex",
                 flexDirection: "column",
                 zIndex: 10,
@@ -613,7 +730,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             >
               <span
                 style={{
-                  fontSize: 120,
+                  fontSize: 96,
                   fontWeight: 900,
                   letterSpacing: "-0.06em",
                   lineHeight: 0.9,
@@ -624,7 +741,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               </span>
               <span
                 style={{
-                  fontSize: 26,
+                  fontSize: 22,
                   color: "#0E0E0E",
                   opacity: 0.55,
                   fontWeight: 500,
@@ -636,198 +753,185 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               </span>
             </div>
 
-            {/* Middle: 5 Horizontal Album Shelf Showcase */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-                zIndex: 10,
-              }}
-            >
-              {/* 5 Columns Shelf */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  width: "100%",
-                }}
-              >
-                {[1, 2, 3, 4, 5].map((pos) => {
-                  const album = userAlbums.find((a) => a.position === pos);
-                  return (
-                    <div
-                      key={pos}
-                      style={{
-                        width: 186,
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 12,
-                      }}
-                    >
-                      {/* Album Cover Card with Corner Rank Badge */}
-                      <div
-                        style={{
-                          position: "relative",
-                          width: 186,
-                          height: 186,
-                          borderRadius: 20,
-                          overflow: "hidden",
-                          display: "flex",
-                          border: "2px solid rgba(14, 14, 14, 0.08)",
-                          backgroundColor: "#0E0E0E",
-                          boxShadow: "0 12px 28px rgba(0,0,0,0.08)",
-                        }}
-                      >
-                        {album?.coverDataUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={album.coverDataUrl}
-                            alt={album.title}
-                            width={186}
-                            height={186}
-                            style={{
-                              width: 186,
-                              height: 186,
-                              borderRadius: 18,
-                              objectFit: "cover",
-                            }}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              width: 186,
-                              height: 186,
-                              backgroundColor: "#0E0E0E",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: "#F7F7F7",
-                              fontSize: 18,
-                            }}
-                          >
-                            vinyl slot
-                          </div>
-                        )}
+            {/* 5 Polaroid Rotation Cards */}
+            {squareCards.map((cfg) => {
+              const album = userAlbums.find((a) => a.position === cfg.pos);
+              const title = album ? album.title : `Slot 0${cfg.pos}`;
+              const subtitle = album
+                ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
+                : "Uncurated";
 
-                        {/* Corner Rank Badge */}
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: 10,
-                            left: 10,
-                            width: 42,
-                            height: 42,
-                            borderRadius: 12,
-                            backgroundColor:
-                              pos === 1
-                                ? palette.accent
-                                : "rgba(14, 14, 14, 0.88)",
-                            color: pos === 1 ? (palette.textOnAccent || "#0E0E0E") : "#F7F7F7",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 22,
-                            fontWeight: 800,
-                          }}
-                        >
-                          0{pos}
-                        </div>
-                      </div>
-
-                      {/* Metadata */}
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 4,
-                          overflow: "hidden",
-                          width: 186,
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontSize: 23,
-                            fontWeight: 700,
-                            letterSpacing: "-0.02em",
-                            lineHeight: 1.15,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {album ? album.title : `Slot 0${pos}`}
-                        </span>
-                        <span
-                          style={{
-                            fontSize: 18,
-                            color: "#0E0E0E",
-                            opacity: 0.6,
-                            fontWeight: 500,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {album
-                            ? `${album.artistName}${album.releaseYear ? ` · ${album.releaseYear}` : ""}`
-                            : "Uncurated"}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Editorial Shelf Pedestal Line */}
-              <div
-                style={{
-                  width: "100%",
-                  height: 3,
-                  backgroundColor: "rgba(14, 14, 14, 0.12)",
-                  borderRadius: 2,
-                  marginTop: 22,
-                }}
-              />
-
-              {/* Curator text */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  width: "100%",
-                  marginTop: 22,
-                }}
-              >
-                <span
+              return (
+                <div
+                  key={cfg.pos}
                   style={{
-                    fontSize: 28,
-                    fontWeight: 700,
-                    letterSpacing: "-0.02em",
-                    color: "#0E0E0E",
+                    position: "absolute",
+                    left: cfg.left,
+                    top: cfg.top,
+                    width: cfg.width,
+                    height: cfg.height,
+                    display: "flex",
+                    flexDirection: "column",
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: 8,
+                    paddingTop: cfg.paddingTop,
+                    paddingLeft: cfg.paddingSide,
+                    paddingRight: cfg.paddingSide,
+                    paddingBottom: cfg.paddingBottom,
+                    boxShadow: "0 18px 40px rgba(0, 0, 0, 0.20)",
+                    borderWidth: 1,
+                    borderStyle: "solid",
+                    borderColor: "rgba(0, 0, 0, 0.08)",
+                    transform: `rotate(${cfg.rotation}deg)`,
+                    zIndex: cfg.zIndex,
                   }}
                 >
-                  Curated rotation by @{user.username}
-                </span>
-              </div>
-            </div>
+                  {/* Square Album Cover */}
+                  <div
+                    style={{
+                      width: cfg.artSize,
+                      height: cfg.artSize,
+                      display: "flex",
+                      position: "relative",
+                      borderRadius: 4,
+                      overflow: "hidden",
+                      backgroundColor: "#111111",
+                    }}
+                  >
+                    {album?.coverDataUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={album.coverDataUrl}
+                        alt={album.title}
+                        width={cfg.artSize}
+                        height={cfg.artSize}
+                        style={{
+                          width: cfg.artSize,
+                          height: cfg.artSize,
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: cfg.artSize,
+                          height: cfg.artSize,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "#111111",
+                          color: "#FFFFFF",
+                          fontSize: Math.round(cfg.artSize * 0.08),
+                          fontWeight: 600,
+                        }}
+                      >
+                        vinyl slot
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Polaroid Chin: Number + Metadata */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginTop: 10,
+                      width: cfg.artSize,
+                      gap: cfg.gap,
+                    }}
+                  >
+                    {/* Rank Number (Accent color for #1, solid black for 2-5) */}
+                    <span
+                      style={{
+                        fontSize: cfg.numberSize,
+                        fontWeight: 900,
+                        lineHeight: 1,
+                        color: cfg.pos === 1 ? palette.accent : "#0E0E0E",
+                        letterSpacing: "-0.04em",
+                      }}
+                    >
+                      0{cfg.pos}
+                    </span>
+
+                    {/* Title & Artist */}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        overflow: "hidden",
+                        flex: 1,
+                        gap: 2,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: cfg.titleSize,
+                          fontWeight: 800,
+                          letterSpacing: "-0.02em",
+                          lineHeight: 1.15,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          color: "#0E0E0E",
+                        }}
+                      >
+                        {title}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: cfg.artistSize,
+                          color: "#0E0E0E",
+                          opacity: 0.6,
+                          fontWeight: 500,
+                          lineHeight: 1.15,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {subtitle}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
 
             {/* Footer */}
             <div
               style={{
+                position: "absolute",
+                bottom: 40,
+                left: 55,
+                right: 55,
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                borderTop: "2px solid rgba(14, 14, 14, 0.12)",
-                paddingTop: 22,
+                flexDirection: "column",
                 zIndex: 10,
               }}
             >
               <span
                 style={{
-                  fontSize: 24,
+                  fontSize: 22,
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
+                  color: "#0E0E0E",
+                }}
+              >
+                Curated rotation by @{user.username}
+              </span>
+              <div
+                style={{
+                  width: "100%",
+                  height: 2,
+                  backgroundColor: "rgba(14, 14, 14, 0.12)",
+                  marginTop: 14,
+                  marginBottom: 10,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 18,
                   color: "#0E0E0E",
                   opacity: 0.5,
                   fontWeight: 600,
