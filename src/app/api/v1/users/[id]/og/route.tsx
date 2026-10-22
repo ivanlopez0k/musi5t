@@ -24,9 +24,11 @@ async function getKHTekaFonts() {
   if (cachedFonts) return cachedFonts;
   try {
     const fontsDir = path.join(process.cwd(), "public", "fonts");
-    const [reg, med] = await Promise.all([
+    const [reg, med, bold, black] = await Promise.all([
       fs.readFile(path.join(fontsDir, "KHTeka-Regular.otf")),
       fs.readFile(path.join(fontsDir, "KHTeka-Medium.otf")),
+      fs.readFile(path.join(fontsDir, "Inter-Bold.ttf")),
+      fs.readFile(path.join(fontsDir, "Inter-Black.ttf")),
     ]);
     const regBuf = reg.buffer.slice(
       reg.byteOffset,
@@ -36,14 +38,24 @@ async function getKHTekaFonts() {
       med.byteOffset,
       med.byteOffset + med.byteLength
     );
+    const boldBuf = bold.buffer.slice(
+      bold.byteOffset,
+      bold.byteOffset + bold.byteLength
+    );
+    const blackBuf = black.buffer.slice(
+      black.byteOffset,
+      black.byteOffset + black.byteLength
+    );
 
     cachedFonts = [
       { name: "KHTeka", data: regBuf, weight: 400, style: "normal" },
       { name: "KHTeka", data: medBuf, weight: 500, style: "normal" },
-      { name: "KHTeka", data: medBuf, weight: 600, style: "normal" },
-      { name: "KHTeka", data: medBuf, weight: 700, style: "normal" },
-      { name: "KHTeka", data: medBuf, weight: 800, style: "normal" },
-      { name: "KHTeka", data: medBuf, weight: 900, style: "normal" },
+      { name: "KHTeka", data: boldBuf, weight: 600, style: "normal" },
+      { name: "KHTeka", data: boldBuf, weight: 700, style: "normal" },
+      { name: "KHTeka", data: boldBuf, weight: 800, style: "normal" },
+      { name: "KHTeka", data: blackBuf, weight: 900, style: "normal" },
+      { name: "Inter", data: boldBuf, weight: 700, style: "normal" },
+      { name: "Inter", data: blackBuf, weight: 900, style: "normal" },
     ];
     return cachedFonts;
   } catch {
@@ -62,8 +74,14 @@ async function getSafeCoverDataUrl(
       : `${origin}${coverUrl.startsWith("/") ? "" : "/"}${coverUrl}`;
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
-    const res = await fetch(absoluteUrl, { signal: controller.signal });
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
+    const res = await fetch(absoluteUrl, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "musi5t/1.0 (https://musi5t.com; contact@musi5t.com)",
+        Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*",
+      },
+    });
     clearTimeout(timeoutId);
     if (!res.ok) return null;
     const arrayBuffer = await res.arrayBuffer();
@@ -154,88 +172,98 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
       const storyCards = [
         {
           pos: 1,
-          left: 75,
-          top: 380,
-          width: 485,
-          height: 615,
-          artSize: 445,
-          rotation: -4.5,
-          paddingTop: 20,
-          paddingSide: 20,
-          paddingBottom: 22,
-          numberSize: 54,
-          titleSize: 32,
-          artistSize: 20,
-          gap: 14,
+          left: 65,
+          top: 360,
+          width: 550,
+          height: 700,
+          artSize: 506,
+          rotation: -5.5,
+          paddingTop: 22,
+          paddingSide: 22,
+          paddingBottom: 24,
+          chinMarginTop: 24,
+          numberSize: 64,
+          numWidth: 88,
+          numMarginRight: 16,
+          titleSize: 34,
+          artistSize: 22,
           zIndex: 5,
         },
         {
           pos: 2,
           left: 615,
-          top: 410,
-          width: 380,
-          height: 485,
-          artSize: 344,
+          top: 380,
+          width: 390,
+          height: 500,
+          artSize: 352,
           rotation: 3.5,
-          paddingTop: 18,
-          paddingSide: 18,
-          paddingBottom: 20,
-          numberSize: 42,
-          titleSize: 25,
-          artistSize: 17,
-          gap: 12,
+          paddingTop: 19,
+          paddingSide: 19,
+          paddingBottom: 21,
+          chinMarginTop: 20,
+          numberSize: 46,
+          numWidth: 64,
+          numMarginRight: 12,
+          titleSize: 27,
+          artistSize: 18,
           zIndex: 4,
         },
         {
           pos: 3,
-          left: 635,
-          top: 960,
-          width: 360,
-          height: 460,
-          artSize: 324,
+          left: 650,
+          top: 890,
+          width: 365,
+          height: 470,
+          artSize: 327,
           rotation: -2.8,
-          paddingTop: 18,
-          paddingSide: 18,
-          paddingBottom: 20,
-          numberSize: 40,
-          titleSize: 24,
-          artistSize: 16,
-          gap: 12,
-          zIndex: 4,
-        },
-        {
-          pos: 4,
-          left: 355,
-          top: 1205,
-          width: 345,
-          height: 440,
-          artSize: 309,
-          rotation: 2.2,
-          paddingTop: 18,
-          paddingSide: 18,
-          paddingBottom: 20,
-          numberSize: 38,
-          titleSize: 22,
-          artistSize: 15,
-          gap: 10,
+          paddingTop: 19,
+          paddingSide: 19,
+          paddingBottom: 21,
+          chinMarginTop: 20,
+          numberSize: 44,
+          numWidth: 62,
+          numMarginRight: 12,
+          titleSize: 26,
+          artistSize: 17,
           zIndex: 6,
         },
         {
-          pos: 5,
-          left: 75,
-          top: 1320,
-          width: 280,
-          height: 365,
-          artSize: 248,
-          rotation: -5.5,
-          paddingTop: 16,
-          paddingSide: 16,
-          paddingBottom: 18,
-          numberSize: 32,
-          titleSize: 19,
-          artistSize: 13,
-          gap: 8,
+          pos: 4,
+          left: 345,
+          top: 1190,
+          width: 340,
+          height: 435,
+          artSize: 302,
+          rotation: 2.2,
+          paddingTop: 19,
+          paddingSide: 19,
+          paddingBottom: 21,
+          chinMarginTop: 18,
+          numberSize: 40,
+          numWidth: 56,
+          numMarginRight: 10,
+          titleSize: 23,
+          artistSize: 15,
           zIndex: 5,
+        },
+        {
+          pos: 5,
+          left: 70,
+          top: 1300,
+          width: 275,
+          height: 355,
+          artSize: 241,
+          rotation: 5.5,
+          paddingTop: 17,
+          paddingSide: 17,
+          paddingBottom: 19,
+          chinMarginTop: 16,
+          numberSize: 34,
+          numWidth: 48,
+          numMarginRight: 8,
+          titleSize: 20,
+          artistSize: 14,
+          zIndex: 7,
         },
       ];
 
@@ -322,7 +350,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             <div
               style={{
                 position: "absolute",
-                top: 85,
+                top: 75,
                 left: 75,
                 display: "flex",
                 flexDirection: "column",
@@ -331,10 +359,11 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             >
               <span
                 style={{
-                  fontSize: 136,
+                  fontSize: 172,
                   fontWeight: 900,
-                  letterSpacing: "-0.06em",
-                  lineHeight: 0.9,
+                  fontFamily: '"Inter", "KHTeka", sans-serif',
+                  letterSpacing: "-0.065em",
+                  lineHeight: 0.88,
                   color: "#0E0E0E",
                 }}
               >
@@ -342,11 +371,11 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
               </span>
               <span
                 style={{
-                  fontSize: 32,
+                  fontSize: 34,
                   color: "#0E0E0E",
                   opacity: 0.55,
                   fontWeight: 500,
-                  marginTop: 14,
+                  marginTop: 18,
                   letterSpacing: "-0.02em",
                 }}
               >
@@ -437,32 +466,42 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
-                      marginTop: 12,
+                      marginTop: cfg.chinMarginTop,
                       width: cfg.artSize,
-                      gap: cfg.gap,
                     }}
                   >
                     {/* Rank Number (Accent color for #1, solid black for 2-5) */}
-                    <span
+                    <div
                       style={{
-                        fontSize: cfg.numberSize,
-                        fontWeight: 900,
-                        lineHeight: 1,
-                        color: cfg.pos === 1 ? palette.accent : "#0E0E0E",
-                        letterSpacing: "-0.04em",
+                        display: "flex",
+                        alignItems: "center",
+                        width: cfg.numWidth,
+                        flexShrink: 0,
+                        marginRight: cfg.numMarginRight,
                       }}
                     >
-                      0{cfg.pos}
-                    </span>
+                      <span
+                        style={{
+                          fontSize: cfg.numberSize,
+                          fontWeight: 900,
+                          fontFamily: '"Inter", "KHTeka", sans-serif',
+                          lineHeight: 1,
+                          color: cfg.pos === 1 ? palette.accent : "#0E0E0E",
+                          letterSpacing: "-0.04em",
+                        }}
+                      >
+                        0{cfg.pos}
+                      </span>
+                    </div>
 
                     {/* Title & Artist */}
                     <div
                       style={{
                         display: "flex",
                         flexDirection: "column",
-                        overflow: "hidden",
-                        flex: 1,
-                        gap: 2,
+                        justifyContent: "center",
+                        width: cfg.artSize - cfg.numWidth - cfg.numMarginRight,
+                        flexShrink: 0,
                       }}
                     >
                       <span
@@ -470,7 +509,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                           fontSize: cfg.titleSize,
                           fontWeight: 800,
                           letterSpacing: "-0.02em",
-                          lineHeight: 1.15,
+                          lineHeight: 1.2,
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -485,7 +524,8 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                           color: "#0E0E0E",
                           opacity: 0.6,
                           fontWeight: 500,
-                          lineHeight: 1.15,
+                          lineHeight: 1.2,
+                          marginTop: 3,
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -730,10 +770,11 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
             >
               <span
                 style={{
-                  fontSize: 96,
+                  fontSize: 115,
                   fontWeight: 900,
-                  letterSpacing: "-0.06em",
-                  lineHeight: 0.9,
+                  fontFamily: '"Inter", "KHTeka", sans-serif',
+                  letterSpacing: "-0.065em",
+                  lineHeight: 0.88,
                   color: "#0E0E0E",
                 }}
               >
@@ -745,7 +786,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                   color: "#0E0E0E",
                   opacity: 0.55,
                   fontWeight: 500,
-                  marginTop: 8,
+                  marginTop: 10,
                   letterSpacing: "-0.02em",
                 }}
               >
@@ -836,7 +877,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
-                      marginTop: 10,
+                      marginTop: 14,
                       width: cfg.artSize,
                     }}
                   >
@@ -847,12 +888,14 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                         alignItems: "center",
                         width: cfg.numWidth,
                         flexShrink: 0,
+                        marginRight: 6,
                       }}
                     >
                       <span
                         style={{
                           fontSize: cfg.numberSize,
                           fontWeight: 900,
+                          fontFamily: '"Inter", "KHTeka", sans-serif',
                           lineHeight: 1,
                           color: cfg.pos === 1 ? palette.accent : "#0E0E0E",
                         }}
@@ -866,9 +909,8 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
                       style={{
                         display: "flex",
                         flexDirection: "column",
-                        flex: 1,
-                        minWidth: 0,
-                        paddingLeft: 4,
+                        width: cfg.artSize - cfg.numWidth - 6,
+                        flexShrink: 0,
                         justifyContent: "center",
                       }}
                     >

@@ -133,33 +133,53 @@ export function ShareTop5Modal({
     }
     ctx.restore();
 
-    // Ensure KH Teka font is loaded in browser canvas
+    // Ensure KH Teka & Inter bold fonts are loaded in browser canvas
     try {
-      if (typeof FontFace !== "undefined" && !document.fonts.check("500 30px KHTeka")) {
-        const font = new FontFace("KHTeka", "url(/fonts/KHTeka-Medium.otf)", {
-          weight: "500",
-          style: "normal",
-        });
-        await font.load();
-        document.fonts.add(font);
+      if (typeof FontFace !== "undefined") {
+        if (!document.fonts.check("500 30px KHTeka")) {
+          const font = new FontFace("KHTeka", "url(/fonts/KHTeka-Medium.otf)", {
+            weight: "500",
+            style: "normal",
+          });
+          await font.load();
+          document.fonts.add(font);
+        }
+        if (!document.fonts.check("900 30px InterBlack")) {
+          const fontBlack = new FontFace("InterBlack", "url(/fonts/Inter-Black.ttf)", {
+            weight: "900",
+            style: "normal",
+          });
+          await fontBlack.load();
+          document.fonts.add(fontBlack);
+        }
+        if (!document.fonts.check("700 30px InterBold")) {
+          const fontBold = new FontFace("InterBold", "url(/fonts/Inter-Bold.ttf)", {
+            weight: "700",
+            style: "normal",
+          });
+          await fontBold.load();
+          document.fonts.add(fontBold);
+        }
       }
     } catch {
       // Graceful fallback
     }
 
+    const fontBlack = '"InterBlack", "Inter", -apple-system, BlinkMacSystemFont, sans-serif';
+    const fontBold = '"InterBold", "Inter", -apple-system, BlinkMacSystemFont, sans-serif';
     const fontBase = '"KHTeka", -apple-system, BlinkMacSystemFont, sans-serif';
 
     // Header: Brand & Identity
     ctx.fillStyle = "#0E0E0E";
-    ctx.font = `900 ${format === "story" ? "185px" : "125px"} ${fontBase}`;
-    ctx.fillText("musi5t", format === "story" ? 75 : 55, format === "story" ? 230 : 145);
+    ctx.font = `900 ${format === "story" ? "172px" : "115px"} ${fontBlack}`;
+    ctx.fillText("musi5t", format === "story" ? 75 : 55, format === "story" ? 215 : 145);
 
     ctx.fillStyle = "rgba(14, 14, 14, 0.55)";
-    ctx.font = `500 ${format === "story" ? "36px" : "24px"} ${fontBase}`;
+    ctx.font = `500 ${format === "story" ? "34px" : "22px"} ${fontBase}`;
     ctx.fillText(
       `@${user.username}'s definitive album rotation`,
       format === "story" ? 75 : 55,
-      format === "story" ? 285 : 185
+      format === "story" ? 275 : 185
     );
 
     // Pre-load all album covers asynchronously
@@ -184,88 +204,98 @@ export function ShareTop5Modal({
     const storyCards = [
       {
         pos: 1,
-        left: 60,
-        top: 350,
-        width: 565,
-        height: 720,
-        artSize: 521,
-        rotation: -5.0,
+        left: 65,
+        top: 360,
+        width: 550,
+        height: 700,
+        artSize: 506,
+        rotation: -5.5,
         paddingTop: 22,
         paddingSide: 22,
         paddingBottom: 24,
-        numberSize: 62,
-        titleSize: 36,
+        chinMarginTop: 24,
+        numberSize: 64,
+        numWidth: 88,
+        numMarginRight: 16,
+        titleSize: 34,
         artistSize: 22,
-        numWidth: 84,
-        zIndex: 4,
+        zIndex: 5,
       },
       {
         pos: 2,
-        left: 610,
-        top: 370,
-        width: 395,
-        height: 505,
-        artSize: 357,
+        left: 615,
+        top: 380,
+        width: 390,
+        height: 500,
+        artSize: 352,
         rotation: 3.5,
         paddingTop: 19,
         paddingSide: 19,
         paddingBottom: 21,
-        numberSize: 44,
-        titleSize: 26,
+        chinMarginTop: 20,
+        numberSize: 46,
+        numWidth: 64,
+        numMarginRight: 12,
+        titleSize: 27,
         artistSize: 18,
-        numWidth: 60,
-        zIndex: 3,
+        zIndex: 4,
       },
       {
         pos: 3,
-        left: 645,
-        top: 870,
-        width: 370,
-        height: 475,
-        artSize: 332,
+        left: 650,
+        top: 890,
+        width: 365,
+        height: 470,
+        artSize: 327,
         rotation: -2.8,
         paddingTop: 19,
         paddingSide: 19,
         paddingBottom: 21,
-        numberSize: 42,
-        titleSize: 25,
+        chinMarginTop: 20,
+        numberSize: 44,
+        numWidth: 62,
+        numMarginRight: 12,
+        titleSize: 26,
         artistSize: 17,
-        numWidth: 58,
-        zIndex: 3,
+        zIndex: 6,
       },
       {
         pos: 4,
-        left: 350,
-        top: 1225,
-        width: 335,
-        height: 430,
-        artSize: 297,
+        left: 345,
+        top: 1190,
+        width: 340,
+        height: 435,
+        artSize: 302,
         rotation: 2.2,
         paddingTop: 19,
         paddingSide: 19,
         paddingBottom: 21,
-        numberSize: 38,
-        titleSize: 22,
+        chinMarginTop: 18,
+        numberSize: 40,
+        numWidth: 56,
+        numMarginRight: 10,
+        titleSize: 23,
         artistSize: 15,
-        numWidth: 54,
         zIndex: 5,
       },
       {
         pos: 5,
-        left: 65,
-        top: 1315,
-        width: 260,
-        height: 345,
-        artSize: 226,
-        rotation: -5.5,
+        left: 70,
+        top: 1300,
+        width: 275,
+        height: 355,
+        artSize: 241,
+        rotation: 5.5,
         paddingTop: 17,
         paddingSide: 17,
         paddingBottom: 19,
-        numberSize: 32,
-        titleSize: 19,
-        artistSize: 13,
+        chinMarginTop: 16,
+        numberSize: 34,
         numWidth: 48,
-        zIndex: 4,
+        numMarginRight: 8,
+        titleSize: 20,
+        artistSize: 14,
+        zIndex: 7,
       },
     ];
 
@@ -421,22 +451,23 @@ export function ShareTop5Modal({
       }
 
       // Chin: Number + Metadata
-      const chinY = artY + artSize + 14;
+      const chinY = artY + artSize + (("chinMarginTop" in card ? (card as unknown as { chinMarginTop: number }).chinMarginTop : 16) || 16);
       const numX = artX;
+      const numMarginRight = ("numMarginRight" in card ? (card as unknown as { numMarginRight: number }).numMarginRight : 6) || 6;
 
       // Rank Number
       ctx.fillStyle = card.pos === 1 ? activePalette.accent : "#0E0E0E";
-      ctx.font = `900 ${card.numberSize}px ${fontBase}`;
+      ctx.font = `900 ${card.numberSize}px ${fontBlack}`;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
       ctx.fillText(`0${card.pos}`, numX, chinY);
 
-      const textX = numX + card.numWidth + 4;
-      const maxTextWidth = card.artSize - card.numWidth - 4;
+      const textX = numX + card.numWidth + numMarginRight;
+      const maxTextWidth = card.artSize - card.numWidth - numMarginRight;
 
       // Title
       ctx.fillStyle = "#0E0E0E";
-      ctx.font = `800 ${card.titleSize}px ${fontBase}`;
+      ctx.font = `700 ${card.titleSize}px ${fontBold}`;
       let title = album ? album.title : `Slot 0${card.pos}`;
       if (ctx.measureText(title).width > maxTextWidth) {
         while (title.length > 0 && ctx.measureText(title + "...").width > maxTextWidth) {
@@ -458,7 +489,7 @@ export function ShareTop5Modal({
         }
         subtitle += "...";
       }
-      ctx.fillText(subtitle, textX, chinY + card.titleSize + 4);
+      ctx.fillText(subtitle, textX, chinY + card.titleSize + 6);
 
       ctx.restore();
     }
