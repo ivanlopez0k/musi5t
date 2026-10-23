@@ -91,7 +91,42 @@ export async function ensurePhase3Tables(): Promise<void> {
     `);
     await ensureArtistTables();
     await ensureAccountTokenTables();
+    await ensureListTables();
     globalForDb.phase3Initialized = true;
+  } catch {
+    // Ignore if DB is offline during build/static analysis
+  }
+}
+
+export async function ensureListTables(): Promise<void> {
+  try {
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS user_lists (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title text NOT NULL,
+        description text,
+        is_public boolean NOT NULL DEFAULT true,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE INDEX IF NOT EXISTS idx_user_lists_user_id ON user_lists (user_id);
+      CREATE INDEX IF NOT EXISTS idx_user_lists_created_at ON user_lists (created_at);
+      CREATE INDEX IF NOT EXISTS idx_user_lists_public_created_at ON user_lists (is_public, created_at);
+
+      CREATE TABLE IF NOT EXISTS user_list_items (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        list_id uuid NOT NULL REFERENCES user_lists(id) ON DELETE CASCADE,
+        album_id uuid NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+        position smallint NOT NULL,
+        notes text,
+        cover_url text,
+        created_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS user_list_items_list_pos_idx ON user_list_items (list_id, position);
+      CREATE INDEX IF NOT EXISTS idx_user_list_items_list_id ON user_list_items (list_id);
+      CREATE INDEX IF NOT EXISTS idx_user_list_items_album_id ON user_list_items (album_id);
+    `);
   } catch {
     // Ignore if DB is offline during build/static analysis
   }

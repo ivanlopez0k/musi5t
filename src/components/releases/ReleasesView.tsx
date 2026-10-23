@@ -89,6 +89,10 @@ export function ReleasesView({ data, currentUser }: ReleasesViewProps) {
                       Feed
                     </Link>
                     <span className="opacity-35">•</span>
+                    <Link href="/lists" className="nav-btn cursor-pointer">
+                      Lists
+                    </Link>
+                    <span className="opacity-35">•</span>
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>

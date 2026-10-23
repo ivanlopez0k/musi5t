@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { eq, sql, asc, and } from "drizzle-orm";
 import { ProfileView } from "@/components/profile/ProfileView";
 import { getUserVisiblePosts } from "@/lib/feed/visibility";
+import { getListsFeed } from "@/lib/lists/service";
 
 export const instant = false;
 
@@ -164,6 +165,12 @@ export default async function UserProfilePage({ params }: PageProps) {
     .where(and(eq(posts.authorId, user.id), sql`${posts.deletedAt} IS NULL`));
   const totalPostsCount = postsCountResult?.count ?? userPosts.length;
 
+  const userLists = await getListsFeed({
+    userId: user.id,
+    includePrivate: isOwner,
+    limit: 50,
+  });
+
   return (
     <ProfileView
       user={user}
@@ -177,6 +184,7 @@ export default async function UserProfilePage({ params }: PageProps) {
       topSongs={userSongs}
       userPosts={userPosts}
       totalPostsCount={totalPostsCount}
+      initialLists={userLists}
     />
   );
 }

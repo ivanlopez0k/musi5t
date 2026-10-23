@@ -15,6 +15,9 @@ import { UserFollowButton } from "./UserFollowButton";
 import type { FeedPost } from "@/lib/feed/visibility";
 import { InteractivePostList, type CurrentUserSummary } from "@/components/feed/FeedView";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { ListCard } from "@/components/lists/ListCard";
+import { CreateListModal } from "@/components/lists/CreateListModal";
+import type { ListSummary } from "@/lib/lists/service";
 
 export interface ProfileUser {
   id: string;
@@ -61,6 +64,7 @@ interface ProfileViewProps {
   topSongs: TopSongItem[];
   userPosts?: FeedPost[];
   totalPostsCount?: number;
+  initialLists?: ListSummary[];
 }
 
 export function ProfileView({
@@ -75,9 +79,12 @@ export function ProfileView({
   topSongs: initialSongs,
   userPosts = [],
   totalPostsCount = userPosts.length,
+  initialLists = [],
 }: ProfileViewProps) {
   const router = useRouter();
   const [currentThemeKey, setCurrentThemeKey] = useState(user.themeKey || "lima");
+  const [lists, setLists] = useState<ListSummary[]>(initialLists);
+  const [isCreateListModalOpen, setIsCreateListModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || "");
@@ -550,20 +557,48 @@ export function ProfileView({
                   </Link>
                 </div>
 
-                {/* Center Navigation Group (Feed • Rankings) */}
+                {/* Center Navigation Group (Overview • Records • Tracks • Lists • Discussions) */}
                 <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
                   <span className="nav-group nav-blend flex items-center gap-[0.6vw]">
-                    <Link href="/feed" className="nav-btn cursor-pointer">
-                      Feed
-                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#overview")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Overview
+                    </button>
                     <span className="opacity-35">•</span>
-                    <Link href="/rankings" className="nav-btn cursor-pointer">
-                      Rankings
-                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#records")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Records
+                    </button>
                     <span className="opacity-35">•</span>
-                    <Link href="/releases" className="nav-btn cursor-pointer">
-                      Releases
-                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#tracks")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Tracks
+                    </button>
+                    <span className="opacity-35">•</span>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#lists")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Lists
+                    </button>
+                    <span className="opacity-35">•</span>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#discussions")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Discussions
+                    </button>
                   </span>
                 </div>
 
@@ -1403,7 +1438,78 @@ export function ProfileView({
                   </div>
                 </section>
 
-                {/* 4. LISTENER DISCUSSIONS SECTION (#discussions) */}
+                {/* 4. CURATED LISTS SECTION (#lists) */}
+                <section
+                  id="lists"
+                  data-nav-color="secondary"
+                  className="w-full bg-transparent text-secondary py-[6vw] sm:py-[4vw] relative z-10 select-none"
+                >
+                  <div className="layout-grid mb-[4vw] sm:mb-[2.5vw]">
+                    <div className="col-span-full flex justify-between items-center">
+                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
+                        <div className="drop-shadow rounded-[0.25vw]">
+                          <div
+                            className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] transition-colors duration-500"
+                            style={{ backgroundColor: activePalette.accent }}
+                          />
+                        </div>
+                        <span className="mediumText">curated lists</span>
+                      </div>
+                      <div className="flex items-center gap-[2.5vw] sm:gap-[1vw]">
+                        <h2 className="mediumText">lists ({lists.length})</h2>
+                        {isOwner && (
+                          <button
+                            type="button"
+                            onClick={() => setIsCreateListModalOpen(true)}
+                            className="extraSmallText font-medium px-[3vw] py-[1.2vw] sm:px-[1vw] sm:py-[0.4vw] rounded-[0.3vw] transition-colors cursor-pointer"
+                            style={{
+                              backgroundColor: activePalette.accent,
+                              color: activePalette.textOnAccent || "#0E0E0E",
+                            }}
+                          >
+                            + Create List
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="layout-grid">
+                    {lists.length > 0 ? (
+                      <div className="col-span-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[5vw] sm:gap-[1.8vw]">
+                        {lists.map((l) => (
+                          <ListCard key={l.id} list={l} accentColor={activePalette.accent} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="col-span-full border border-dashed border-secondary/15 rounded-[0.4vw] py-[10vw] sm:py-[4.5vw] px-[4vw] text-center flex flex-col items-center justify-center gap-[2vw] sm:gap-[0.8vw]">
+                        <p className="smallText text-secondary/60 font-light">
+                          No curated lists yet.
+                        </p>
+                        <p className="extraSmallText text-secondary/40 max-w-[36ch]">
+                          {isOwner
+                            ? "Organize your favorite albums by theme, decade, genre, or mood."
+                            : `@${user.username} hasn't published any curated lists yet.`}
+                        </p>
+                        {isOwner && (
+                          <button
+                            type="button"
+                            onClick={() => setIsCreateListModalOpen(true)}
+                            className="extraSmallText font-medium px-[4vw] py-[1.5vw] sm:px-[1.2vw] sm:py-[0.45vw] rounded-[0.3vw] transition-colors cursor-pointer mt-[1.5vw] sm:mt-[0.5vw]"
+                            style={{
+                              backgroundColor: activePalette.accent,
+                              color: activePalette.textOnAccent || "#0E0E0E",
+                            }}
+                          >
+                            + Create your first list
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* 5. LISTENER DISCUSSIONS SECTION (#discussions) */}
                 <section
                   id="discussions"
                   data-nav-color="secondary"
@@ -1566,6 +1672,10 @@ export function ProfileView({
                         feed
                       </Link>
                       <span>,</span>
+                      <Link href="/lists" className="hover:text-primary transition-colors">
+                        lists
+                      </Link>
+                      <span>,</span>
                       <span className="opacity-40">@{user.username}</span>
                     </div>
                   </div>
@@ -1615,6 +1725,21 @@ export function ProfileView({
           activePalette={activePalette}
         />
       </div>
+
+      {/* Create List Modal */}
+      {isCreateListModalOpen && (
+        <div data-lenis-prevent>
+          <CreateListModal
+            isOpen={isCreateListModalOpen}
+            accentColor={activePalette.accent}
+            onClose={() => setIsCreateListModalOpen(false)}
+            onSuccess={(created) => {
+              const createdList = created as ListSummary;
+              setLists((prev) => [createdList, ...prev.filter((l) => l.id !== createdList.id)]);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

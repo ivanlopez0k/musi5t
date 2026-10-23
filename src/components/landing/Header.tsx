@@ -64,6 +64,9 @@ export function Header() {
               <Link href="/feed" className="nav-btn cursor-pointer">
                 Feed,
               </Link>
+              <Link href="/lists" className="nav-btn cursor-pointer">
+                Lists,
+              </Link>
               <Link href="/rankings" className="nav-btn cursor-pointer">
                 Rankings,
               </Link>

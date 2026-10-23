@@ -105,6 +105,10 @@ export function RankingsView({
                       Feed
                     </Link>
                     <span className="opacity-35">•</span>
+                    <Link href="/lists" className="nav-btn cursor-pointer">
+                      Lists
+                    </Link>
+                    <span className="opacity-35">•</span>
                     <button
                       type="button"
                       onClick={() => scrollTo("#rankings-top")}
