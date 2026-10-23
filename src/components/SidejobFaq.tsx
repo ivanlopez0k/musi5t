@@ -31,7 +31,7 @@ const FAQS: FaqItem[] = [
     id: "04",
     question: "what is the purpose of custom profile color palettes?",
     answer:
-      "every person's record collection has a distinct mood. You can customize your public profile (@handle) with one of our 5 editorial palettes — lima, coral, cobalto, violeta, or mandarina — without polluting the rest of the application.",
+      "every person's record collection has a distinct mood. You can customize your public profile (@handle) with one of our editorial palettes — Lime, Coral, Cobalt, Violet, Tangerine, Obsidian, or Forest Green — without polluting the rest of the application.",
   },
 ];
 

@@ -37,7 +37,7 @@ const FAQS: FaqItem[] = [
   {
     question: "Can I customize my profile palette?",
     answer:
-      "Yes. Every member can select an accent palette for their public profile (/@username) from 5 curated options: Lima, Coral, Cobalto, Violeta, or Mandarina, making each listener's space distinctive.",
+      "Yes. Every member can select an accent palette for their public profile (/@username) from our curated options: Lime, Coral, Cobalt, Violet, Tangerine, Obsidian, or Forest Green, making each listener's space distinctive.",
   },
   {
     question: "How do ratings and reviews work?",

@@ -159,9 +159,23 @@ body {
 
 .route-surface > .header.header-actions {
   z-index: 101;
+  pointer-events: none;
+}
+
+.route-surface > .header.header-actions * {
+  pointer-events: none;
+}
+
+.route-surface > .header.header-actions .pointer-events-auto,
+.route-surface > .header.header-actions .pointer-events-auto * {
+  pointer-events: auto;
 }
 
 .route-surface > .header .layout-fixed {
+  pointer-events: none;
+}
+
+.route-surface > .header.header-blend .layout-fixed {
   pointer-events: auto;
 }
 

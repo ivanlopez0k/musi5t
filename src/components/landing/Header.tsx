@@ -5,12 +5,13 @@ import { getLenis } from "@/lib/lenis-store";
 
 export function Header() {
   const scrollTo = (hash: string) => {
+    const target = document.querySelector(hash) as HTMLElement | null;
+    if (!target) return;
     const lenis = getLenis();
     if (lenis) {
-      lenis.scrollTo(hash, { duration: 1.2 });
+      lenis.scrollTo(target, { duration: 1.2, offset: 0 });
     } else {
-      const el = document.querySelector(hash);
-      el?.scrollIntoView({ behavior: "smooth" });
+      target.scrollIntoView({ behavior: "smooth" });
     }
   };
 

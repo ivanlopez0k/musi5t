@@ -471,7 +471,7 @@ export function SettingsView({
                                 isEmailVerified={Boolean(user.emailVerifiedAt)}
                                 onLockedClick={(label) => {
                                   setStatusMessage(
-                                    `El tema "${label}" es exclusivo para cuentas con email verificado.`
+                                    `The "${label}" palette is exclusive to members with a verified email.`
                                   );
                                 }}
                               />

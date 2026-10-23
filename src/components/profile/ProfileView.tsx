@@ -613,7 +613,7 @@ export function ProfileView({
                         isEmailVerified={Boolean(emailVerified)}
                         onLockedClick={(label) => {
                           setVerificationNotice(
-                            `El color "${label}" es exclusivo para cuentas con email verificado.`
+                            `The "${label}" palette is exclusive to members with a verified email.`
                           );
                         }}
                       />

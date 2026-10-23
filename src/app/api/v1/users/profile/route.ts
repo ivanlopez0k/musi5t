@@ -4,14 +4,27 @@ import { users } from "@/db/schema";
 import { clearSessionCookie, getCurrentUser } from "@/lib/auth/session";
 import { eq } from "drizzle-orm";
 
-const ALLOWED_THEMES = ["lima", "coral", "cobalto", "violeta", "mandarina", "obsidiana", "bosque"];
-const VERIFIED_ONLY_THEMES = ["obsidiana", "bosque"];
+const THEME_KEY_MAP: Record<string, string> = {
+  lime: "lima",
+  cobalt: "cobalto",
+  violet: "violeta",
+  tangerine: "mandarina",
+  obsidian: "obsidiana",
+  forest: "bosque",
+  "forest green": "bosque",
+};
+
+const ALLOWED_THEMES = [
+  "lima", "coral", "cobalto", "violeta", "mandarina", "obsidiana", "bosque",
+  "lime", "cobalt", "violet", "tangerine", "obsidian", "forest", "forest green",
+];
+const VERIFIED_ONLY_THEMES = ["obsidiana", "bosque", "obsidian", "forest", "forest green"];
 
 export async function PATCH(req: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
     const body = await req.json();
@@ -20,27 +33,29 @@ export async function PATCH(req: Request) {
     };
 
     if (body.themeKey !== undefined) {
-      if (!ALLOWED_THEMES.includes(body.themeKey)) {
+      const normalizedTheme = String(body.themeKey).toLowerCase().trim();
+      if (!ALLOWED_THEMES.includes(normalizedTheme)) {
         return NextResponse.json(
-          { error: `Paleta inválida. Debe ser una de: ${ALLOWED_THEMES.join(", ")}` },
+          { error: "Invalid palette theme selected." },
           { status: 400 }
         );
       }
 
-      if (VERIFIED_ONLY_THEMES.includes(body.themeKey) && !user.emailVerifiedAt) {
+      if (VERIFIED_ONLY_THEMES.includes(normalizedTheme) && !user.emailVerifiedAt) {
         return NextResponse.json(
-          { error: "Debes verificar tu email para desbloquear esta paleta exclusiva." },
+          { error: "Verify your email to unlock this exclusive palette." },
           { status: 403 }
         );
       }
 
-      updateData.themeKey = body.themeKey;
+      // Store canonical key
+      updateData.themeKey = THEME_KEY_MAP[normalizedTheme] || normalizedTheme;
     }
 
     if (body.displayName !== undefined) {
       if (typeof body.displayName !== "string" || body.displayName.trim().length === 0) {
         return NextResponse.json(
-          { error: "El nombre a mostrar no puede estar vacío." },
+          { error: "Display name cannot be empty." },
           { status: 400 }
         );
       }

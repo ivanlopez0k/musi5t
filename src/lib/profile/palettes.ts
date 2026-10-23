@@ -13,7 +13,7 @@ export interface ProfilePalette {
 export const PROFILE_PALETTES: ProfilePalette[] = [
   {
     key: "lima",
-    label: "lima",
+    label: "lime",
     bg: "#F4F7E8",
     text: "#1B1F10",
     accent: "#B6E02E",
@@ -33,7 +33,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
   },
   {
     key: "cobalto",
-    label: "cobalto",
+    label: "cobalt",
     bg: "#EEF3FF",
     text: "#0F1A33",
     accent: "#2F5BFF",
@@ -43,7 +43,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
   },
   {
     key: "violeta",
-    label: "violeta",
+    label: "violet",
     bg: "#F5EEFF",
     text: "#1D1230",
     accent: "#8A4DFF",
@@ -53,7 +53,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
   },
   {
     key: "mandarina",
-    label: "mandarina",
+    label: "tangerine",
     bg: "#FFF6E5",
     text: "#2B1D08",
     accent: "#FF9F1C",
@@ -63,7 +63,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
   },
   {
     key: "obsidiana",
-    label: "obsidiana",
+    label: "obsidian",
     bg: "#F0F0F2",
     text: "#0E0E0E",
     accent: "#18181B",
@@ -74,7 +74,7 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
   },
   {
     key: "bosque",
-    label: "verde bosque",
+    label: "forest green",
     bg: "#EEF5F1",
     text: "#0D2619",
     accent: "#1B5E3B",
@@ -85,6 +85,22 @@ export const PROFILE_PALETTES: ProfilePalette[] = [
   },
 ];
 
+const THEME_ALIASES: Record<string, string> = {
+  lime: "lima",
+  cobalt: "cobalto",
+  violet: "violeta",
+  tangerine: "mandarina",
+  obsidian: "obsidiana",
+  forest: "bosque",
+  "forest green": "bosque",
+};
+
 export function getProfilePalette(key?: string | null): ProfilePalette {
-  return PROFILE_PALETTES.find((p) => p.key === key) || PROFILE_PALETTES[0];
+  if (!key) return PROFILE_PALETTES[0];
+  const normalized = key.toLowerCase().trim();
+  const canonical = THEME_ALIASES[normalized] || normalized;
+  return (
+    PROFILE_PALETTES.find((p) => p.key === canonical || p.key === normalized || p.label === normalized) ||
+    PROFILE_PALETTES[0]
+  );
 }

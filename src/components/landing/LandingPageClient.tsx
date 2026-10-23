@@ -466,13 +466,13 @@ export function LandingPageClient() {
                       © 2026 musi5t. The album-centric social network.
                     </span>
                     <div className="flex gap-[2vw] sm:gap-[1vw] detailText text-primary/50 text-[3.2vw] sm:text-inherit flex-wrap">
-                      <a href="#about" className="hover:text-primary transition-colors">
+                      <Link href="/privacy" className="hover:text-primary transition-colors">
                         privacy
-                      </a>
+                      </Link>
                       <span>,</span>
-                      <a href="#about" className="hover:text-primary transition-colors">
+                      <Link href="/terms" className="hover:text-primary transition-colors">
                         terms of use
-                      </a>
+                      </Link>
                       <span>,</span>
                       <span className="opacity-40">musi5t core</span>
                     </div>
