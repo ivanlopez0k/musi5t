@@ -14,7 +14,7 @@ const globalForDb = globalThis as unknown as {
 const maxConnections = process.env.DB_MAX_CONNECTIONS
   ? parseInt(process.env.DB_MAX_CONNECTIONS, 10)
   : process.env.NODE_ENV === "production"
-    ? 25
+    ? 5
     : 10;
 
 const conn =
@@ -24,6 +24,11 @@ const conn =
     idle_timeout: 20,
     connect_timeout: 10,
     prepare: false,
+    ssl:
+      connectionString.includes("supabase.co") ||
+      connectionString.includes("sslmode=require")
+        ? "require"
+        : undefined,
   });
 if (process.env.NODE_ENV !== "production") globalForDb.conn = conn;
 

@@ -45,15 +45,48 @@ export async function POST(request: NextRequest) {
     }
 
     const filename = `${user.id}-${Date.now()}.${extension}`;
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "avatars");
-    fs.mkdirSync(uploadDir, { recursive: true });
-
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const filePath = path.join(uploadDir, filename);
-    fs.writeFileSync(filePath, buffer);
 
-    const avatarUrl = `/uploads/avatars/${filename}`;
+    let avatarUrl: string;
+
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+    // Use Supabase Storage in production / cloud environments
+    if (supabaseUrl && supabaseKey) {
+      const cleanUrl = supabaseUrl.replace(/\/+$/, "");
+      const uploadRes = await fetch(
+        `${cleanUrl}/storage/v1/object/avatars/${filename}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${supabaseKey}`,
+            "Content-Type": file.type,
+            "x-upsert": "true",
+          },
+          body: arrayBuffer,
+        }
+      );
+
+      if (!uploadRes.ok) {
+        const errorText = await uploadRes.text();
+        console.error("[supabase storage upload error]:", errorText);
+        return NextResponse.json(
+          { error: "Failed to upload avatar to cloud storage." },
+          { status: 500 }
+        );
+      }
+
+      avatarUrl = `${cleanUrl}/storage/v1/object/public/avatars/${filename}`;
+    } else {
+      // Local fallback for local development without Supabase Storage
+      const uploadDir = path.join(process.cwd(), "public", "uploads", "avatars");
+      fs.mkdirSync(uploadDir, { recursive: true });
+      const buffer = Buffer.from(arrayBuffer);
+      const filePath = path.join(uploadDir, filename);
+      fs.writeFileSync(filePath, buffer);
+      avatarUrl = `/uploads/avatars/${filename}`;
+    }
 
     await db
       .update(users)
