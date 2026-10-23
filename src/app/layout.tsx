@@ -23,6 +23,15 @@ export const metadata: Metadata = {
   title: "musi5t — Social platform for album lovers",
   description:
     "Share your Top 5 albums and songs. Connect with listeners through shared taste and album-centric discussion.",
+  icons: {
+    icon: [
+      { url: "/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({
