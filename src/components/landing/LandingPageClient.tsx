@@ -132,11 +132,28 @@ export function LandingPageClient() {
   }, []);
 
   const scrollTo = (hash: string) => {
+    const target = document.querySelector(hash) as HTMLElement | null;
+    if (!target) return;
     const lenis = getLenis();
     if (lenis) {
-      lenis.scrollTo(hash, { duration: 1.2 });
+      try {
+        lenis.scrollTo(target, { duration: 1.2, offset: 0 });
+        return;
+      } catch (err) {
+        console.warn("Lenis scrollTo failed, falling back:", err);
+      }
+    }
+    const scroller = mainRef.current || document.getElementById("swup") || document.querySelector("main");
+    if (scroller) {
+      const targetTop = target.getBoundingClientRect().top;
+      const scrollerTop = scroller.getBoundingClientRect().top;
+      const scrollPos = scroller.scrollTop + targetTop - scrollerTop;
+      scroller.scrollTo({
+        top: scrollPos,
+        behavior: "smooth",
+      });
     } else {
-      document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" });
+      target.scrollIntoView({ behavior: "smooth" });
     }
   };
 

@@ -5,11 +5,28 @@ import { getLenis } from "@/lib/lenis-store";
 
 export function Header() {
   const scrollTo = (hash: string) => {
+    const scroller = document.getElementById("swup") || document.querySelector("main");
     const target = document.querySelector(hash) as HTMLElement | null;
     if (!target) return;
+
     const lenis = getLenis();
     if (lenis) {
-      lenis.scrollTo(target, { duration: 1.2, offset: 0 });
+      try {
+        lenis.scrollTo(target, { duration: 1.2, offset: 0 });
+        return;
+      } catch (err) {
+        console.warn("Lenis scrollTo failed, falling back:", err);
+      }
+    }
+
+    if (scroller) {
+      const targetTop = target.getBoundingClientRect().top;
+      const scrollerTop = scroller.getBoundingClientRect().top;
+      const scrollPos = scroller.scrollTop + targetTop - scrollerTop;
+      scroller.scrollTo({
+        top: scrollPos,
+        behavior: "smooth",
+      });
     } else {
       target.scrollIntoView({ behavior: "smooth" });
     }
@@ -60,20 +77,8 @@ export function Header() {
                 onClick={() => scrollTo("#how-it-works")}
                 className="nav-btn cursor-pointer"
               >
-                How it works,
+                How it works
               </button>
-              <Link href="/feed" className="nav-btn cursor-pointer">
-                Feed,
-              </Link>
-              <Link href="/lists" className="nav-btn cursor-pointer">
-                Lists,
-              </Link>
-              <Link href="/rankings" className="nav-btn cursor-pointer">
-                Rankings,
-              </Link>
-              <Link href="/releases" className="nav-btn cursor-pointer">
-                Releases
-              </Link>
             </span>
           </div>
 
