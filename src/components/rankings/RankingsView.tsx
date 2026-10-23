@@ -9,6 +9,7 @@ import { setLenis, getLenis } from "@/lib/lenis-store";
 import { setupNavColorTriggers } from "@/lib/nav-theme";
 import type { CurrentUserSummary } from "@/components/feed/FeedView";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { LogoutButton } from "@/components/ui/LogoutButton";
 
 export interface RankedAlbumItem {
   id: string;
@@ -133,6 +134,7 @@ export function RankingsView({
                       >
                         Settings
                       </Link>
+                      <LogoutButton className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer" />
                       <Link
                         href={`/@${currentUser.username}`}
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
