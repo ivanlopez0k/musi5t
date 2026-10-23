@@ -157,6 +157,21 @@ body {
   color: inherit;
 }
 
+.route-surface > .header .layout-fixed {
+  pointer-events: none;
+}
+
+.route-surface > .header button,
+.route-surface > .header a,
+.route-surface > .header .nav-btn,
+.route-surface > .header [role="button"],
+.route-surface > .header .pointer-events-auto,
+.route-surface > .header button *,
+.route-surface > .header a *,
+.route-surface > .header .pointer-events-auto * {
+  pointer-events: auto;
+}
+
 .route-surface > .header.header-actions {
   z-index: 101;
   pointer-events: none;
@@ -169,21 +184,6 @@ body {
 .route-surface > .header.header-actions .pointer-events-auto,
 .route-surface > .header.header-actions .pointer-events-auto * {
   pointer-events: auto;
-}
-
-.route-surface > .header .layout-fixed {
-  pointer-events: none;
-}
-
-.route-surface > .header.header-blend .layout-fixed {
-  pointer-events: none;
-}
-
-.route-surface > .header.header-blend button,
-.route-surface > .header.header-blend a,
-.route-surface > .header.header-blend .nav-btn {
-  pointer-events: auto;
-  cursor: pointer;
 }
 
 
