@@ -102,8 +102,8 @@ export default function PrivacyPage() {
                 <h2 className="smallText font-bold text-secondary">6. Contact Us</h2>
                 <p className="extraSmallText text-secondary/80 leading-relaxed">
                   If you have inquiries regarding your privacy or data protection rights, contact the team at{" "}
-                  <a href="mailto:privacy@musi5t.com" className="underline underline-offset-4 font-medium hover:text-yellow">
-                    privacy@musi5t.com
+                  <a href="mailto:musi5t.contact@gmail.com" className="underline underline-offset-4 font-medium hover:text-yellow">
+                    musi5t.contact@gmail.com
                   </a>.
                 </p>
               </section>

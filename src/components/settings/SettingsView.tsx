@@ -9,6 +9,7 @@ import { setLenis, getLenis } from "@/lib/lenis-store";
 import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { PaletteSelector, PROFILE_PALETTES } from "@/components/profile/PaletteSelector";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { LogoutButton } from "@/components/ui/LogoutButton";
 
 export interface ModeratedUserItem {
   id: string;
@@ -268,6 +269,7 @@ export function SettingsView({
 
                 {/* Right Actions: User Profile Badge */}
                 <div className="col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
+                  <LogoutButton className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer" />
                   <Link
                     href={`/@${user.username}`}
                     className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
