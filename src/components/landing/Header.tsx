@@ -103,10 +103,10 @@ export function Header() {
       </header>
 
       {/* 2. Normal Stacking UI Header (keeps yellow button un-blended) */}
-      <header className="header header-actions">
-        <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-none select-none">
-          <div className="col-span-3 sm:col-span-9" />
-          <div className="col-span-3 sm:col-span-3 flex justify-end items-center pointer-events-auto">
+      <header className="header header-actions" style={{ pointerEvents: "none" }}>
+        <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] select-none" style={{ pointerEvents: "none" }}>
+          
+          <div className="col-start-10 col-span-3 sm:col-start-10 sm:col-span-3 flex justify-end items-center" style={{ pointerEvents: "auto" }}>
             <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
               <Link
                 href="/register"
