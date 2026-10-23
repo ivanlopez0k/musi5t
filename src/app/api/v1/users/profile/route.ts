@@ -4,7 +4,8 @@ import { users } from "@/db/schema";
 import { clearSessionCookie, getCurrentUser } from "@/lib/auth/session";
 import { eq } from "drizzle-orm";
 
-const ALLOWED_THEMES = ["lima", "coral", "cobalto", "violeta", "mandarina"];
+const ALLOWED_THEMES = ["lima", "coral", "cobalto", "violeta", "mandarina", "obsidiana", "bosque"];
+const VERIFIED_ONLY_THEMES = ["obsidiana", "bosque"];
 
 export async function PATCH(req: Request) {
   try {
@@ -25,6 +26,14 @@ export async function PATCH(req: Request) {
           { status: 400 }
         );
       }
+
+      if (VERIFIED_ONLY_THEMES.includes(body.themeKey) && !user.emailVerifiedAt) {
+        return NextResponse.json(
+          { error: "Debes verificar tu email para desbloquear esta paleta exclusiva." },
+          { status: 403 }
+        );
+      }
+
       updateData.themeKey = body.themeKey;
     }
 

@@ -15,6 +15,7 @@ import {
 } from "@/components/feed/FeedView";
 import type { FeedPost } from "@/lib/feed/visibility";
 import type { ArtistData } from "@/lib/catalog/artist";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 interface ArtistDetailViewProps {
   artist: ArtistData;
@@ -104,6 +105,10 @@ export function ArtistDetailView({
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>
+                    <span className="opacity-35">•</span>
+                    <Link href="/releases" className="nav-btn cursor-pointer">
+                      Releases
+                    </Link>
                   </span>
                 </div>
 
@@ -122,19 +127,12 @@ export function ArtistDetailView({
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
                         title={`@${currentUser.username}`}
                       >
-                        {currentUser.avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={currentUser.avatarUrl}
-                            alt={currentUser.displayName || currentUser.username}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <span className="text-[3.2vw] sm:text-[0.9vw] font-semibold text-secondary">
-                            {currentUser.displayName?.[0] ||
-                              currentUser.username[0]?.toUpperCase()}
-                          </span>
-                        )}
+                        <UserAvatar
+                          avatarUrl={currentUser.avatarUrl}
+                          displayName={currentUser.displayName || currentUser.username}
+                          themeKey={currentUser.themeKey}
+                          textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                        />
                       </Link>
                     </>
                   ) : (

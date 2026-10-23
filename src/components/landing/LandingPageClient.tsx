@@ -11,6 +11,7 @@ import { HeroPhotos } from "@/components/landing/HeroPhotos";
 import { Services } from "@/components/landing/Services";
 import { WorkCarousel } from "@/components/landing/WorkCarousel";
 import { FaqList } from "@/components/landing/FaqList";
+import { VinylStack } from "@/components/landing/VinylStack";
 import {
   StepCurateCollage,
   StepConnectAnimation,
@@ -229,16 +230,7 @@ export function LandingPageClient() {
                         <span className="mediumText text-[4.8vw] sm:text-inherit">album-first social</span>
                       </div>
 
-                      <div className="relative w-full sm:flex-1 sm:min-h-[16vw]">
-                        <div className="drop-shadow w-full h-[52vw] sm:w-[24vw] sm:h-[16vw] bg-primary overflow-hidden rounded-[2vw] sm:rounded-[0.25vw]">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src="/images/musi5t/about_vinyl.webp"
-                            alt="Spinning vinyl"
-                            className="w-full h-full object-cover bg-yellow opacity-90 select-none"
-                          />
-                        </div>
-                      </div>
+                      <VinylStack />
                     </div>
 
                     {/* Right Column: 3 Paragraphs */}

@@ -15,6 +15,7 @@ import {
 } from "@/components/feed/FeedView";
 import type { FeedPost } from "@/lib/feed/visibility";
 import type { AlbumTracklist } from "@/lib/catalog/tracks";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export interface TopListenerItem {
   position: number;
@@ -129,6 +130,10 @@ export function AlbumDetailView({
                     <Link href="/rankings" className="nav-btn cursor-pointer">
                       Rankings
                     </Link>
+                    <span className="opacity-35">•</span>
+                    <Link href="/releases" className="nav-btn cursor-pointer">
+                      Releases
+                    </Link>
                   </span>
                 </div>
 
@@ -147,18 +152,12 @@ export function AlbumDetailView({
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
                         title={`@${currentUser.username}`}
                       >
-                        {currentUser.avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={currentUser.avatarUrl}
-                            alt={currentUser.displayName || currentUser.username}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
-                            {(currentUser.displayName || currentUser.username).slice(0, 2).toUpperCase()}
-                          </span>
-                        )}
+                        <UserAvatar
+                          avatarUrl={currentUser.avatarUrl}
+                          displayName={currentUser.displayName || currentUser.username}
+                          themeKey={currentUser.themeKey}
+                          textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                        />
                       </Link>
                     </>
                   ) : (
@@ -397,17 +396,13 @@ export function AlbumDetailView({
                                 </span>
                               </div>
 
-                              <div className="w-[14vw] sm:w-[3.8vw] aspect-square rounded-[0.35vw] overflow-hidden bg-yellow flex items-center justify-center text-secondary smallText font-medium mb-[2vw] sm:mb-[0.8vw] drop-shadow group-hover:scale-105 transition-transform">
-                                {listener.avatarUrl ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={listener.avatarUrl}
-                                    alt={listener.displayName}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  listener.displayName.slice(0, 2).toUpperCase()
-                                )}
+                              <div className="w-[14vw] sm:w-[3.8vw] aspect-square rounded-[0.35vw] overflow-hidden flex items-center justify-center mb-[2vw] sm:mb-[0.8vw] drop-shadow group-hover:scale-105 transition-transform">
+                                <UserAvatar
+                                  avatarUrl={listener.avatarUrl}
+                                  displayName={listener.displayName}
+                                  themeKey={listener.themeKey}
+                                  textClassName="smallText font-medium leading-none"
+                                />
                               </div>
 
                               <span className="smallText font-medium text-secondary truncate w-full group-hover:underline">

@@ -1,3 +1,6 @@
+import { db } from "@/db";
+import { albumTracks } from "@/db/schema";
+import { asc, eq } from "drizzle-orm";
 import {
   cleanDisplayAlbumTitle,
   normalizeAlbumTitle,
@@ -48,6 +51,28 @@ interface ItunesSongItem {
   discNumber?: number;
 }
 
+async function persistTracks(
+  albumId: string | undefined,
+  tracks: AlbumTrack[]
+): Promise<void> {
+  if (!albumId || tracks.length === 0) return;
+  try {
+    await db
+      .insert(albumTracks)
+      .values(
+        tracks.map((t) => ({
+          albumId,
+          position: t.position,
+          title: t.title,
+          durationSeconds: t.durationSeconds,
+        }))
+      )
+      .onConflictDoNothing();
+  } catch {
+    // Ignore cache persistence errors gracefully
+  }
+}
+
 export function formatTrackDuration(durationSeconds: number): string {
   if (!durationSeconds || durationSeconds <= 0) return "--:--";
   const mins = Math.floor(durationSeconds / 60);
@@ -81,10 +106,12 @@ function isNextDigest(err: unknown): boolean {
 
 /**
  * Resolves the full tracklist for an album, prioritizing Deezer and falling back to Apple Music / iTunes.
+ * Caches resolved tracks into PostgreSQL album_tracks table for sub-millisecond local reads.
  */
 export async function getAlbumTracklist(
   artistName: string,
-  albumTitle: string
+  albumTitle: string,
+  albumId?: string
 ): Promise<AlbumTracklist> {
   const emptyTracklist: AlbumTracklist = {
     tracks: [],
@@ -97,6 +124,40 @@ export async function getAlbumTracklist(
 
   if (!cleanArtist || !cleanTitle) {
     return emptyTracklist;
+  }
+
+  // 0. Check PostgreSQL write-through cache first
+  if (albumId) {
+    try {
+      const cached = await db
+        .select({
+          position: albumTracks.position,
+          title: albumTracks.title,
+          durationSeconds: albumTracks.durationSeconds,
+        })
+        .from(albumTracks)
+        .where(eq(albumTracks.albumId, albumId))
+        .orderBy(asc(albumTracks.position));
+
+      if (cached.length > 0) {
+        const totalSeconds = cached.reduce(
+          (sum, t) => sum + (t.durationSeconds || 0),
+          0
+        );
+        return {
+          tracks: cached.map((t) => ({
+            position: t.position,
+            title: t.title,
+            durationSeconds: t.durationSeconds,
+            durationFormatted: formatTrackDuration(t.durationSeconds),
+          })),
+          totalTracks: cached.length,
+          totalDurationFormatted: formatTotalDuration(totalSeconds),
+        };
+      }
+    } catch {
+      // Gracefully continue to external search on DB read error
+    }
   }
 
   const targetArtistNorm = normalizeText(cleanArtist);
@@ -198,6 +259,10 @@ export async function getAlbumTracklist(
             const totalTracks = tracks.length;
             const totalSeconds = tracks.reduce((sum, t) => sum + t.durationSeconds, 0);
 
+            if (albumId && tracks.length > 0) {
+              await persistTracks(albumId, tracks);
+            }
+
             return {
               tracks,
               totalTracks,
@@ -285,6 +350,10 @@ export async function getAlbumTracklist(
 
           const totalTracks = tracks.length;
           const totalSeconds = tracks.reduce((sum, t) => sum + t.durationSeconds, 0);
+
+          if (albumId && tracks.length > 0) {
+            await persistTracks(albumId, tracks);
+          }
 
           return {
             tracks,

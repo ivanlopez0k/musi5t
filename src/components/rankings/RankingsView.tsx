@@ -8,6 +8,7 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
 import { setupNavColorTriggers } from "@/lib/nav-theme";
 import type { CurrentUserSummary } from "@/components/feed/FeedView";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export interface RankedAlbumItem {
   id: string;
@@ -23,11 +24,15 @@ export interface RankedAlbumItem {
 interface RankingsViewProps {
   rankedAlbums: RankedAlbumItem[];
   currentUser: CurrentUserSummary | null;
+  timeframe?: "all" | "year" | "month";
+  currentYear?: number;
 }
 
 export function RankingsView({
   rankedAlbums,
   currentUser,
+  timeframe = "all",
+  currentYear = new Date().getFullYear(),
 }: RankingsViewProps) {
   const router = useRouter();
   const mainRef = useRef<HTMLElement>(null);
@@ -100,6 +105,10 @@ export function RankingsView({
                       Feed
                     </Link>
                     <span className="opacity-35">•</span>
+                    <Link href="/lists" className="nav-btn cursor-pointer">
+                      Lists
+                    </Link>
+                    <span className="opacity-35">•</span>
                     <button
                       type="button"
                       onClick={() => scrollTo("#rankings-top")}
@@ -107,6 +116,10 @@ export function RankingsView({
                     >
                       Rankings
                     </button>
+                    <span className="opacity-35">•</span>
+                    <Link href="/releases" className="nav-btn cursor-pointer">
+                      Releases
+                    </Link>
                   </span>
                 </div>
 
@@ -125,18 +138,12 @@ export function RankingsView({
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
                         title={`@${currentUser.username}`}
                       >
-                        {currentUser.avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={currentUser.avatarUrl}
-                            alt={currentUser.displayName || currentUser.username}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
-                            {(currentUser.displayName || currentUser.username).slice(0, 2).toUpperCase()}
-                          </span>
-                        )}
+                        <UserAvatar
+                          avatarUrl={currentUser.avatarUrl}
+                          displayName={currentUser.displayName || currentUser.username}
+                          themeKey={currentUser.themeKey}
+                          textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                        />
                       </Link>
                     </>
                   ) : (
@@ -197,7 +204,7 @@ export function RankingsView({
                       </div>
 
                       {/* Hero Section */}
-                      <div className="flex flex-col gap-[1.5vw] sm:gap-[0.7vw] pb-[3.5vw] sm:pb-[1.8vw] mb-[4vw] sm:mb-[2.5vw] border-b border-secondary/15">
+                      <div className="flex flex-col gap-[1.5vw] sm:gap-[0.7vw] pb-[3.5vw] sm:pb-[1.8vw] mb-[3vw] sm:mb-[1.8vw] border-b border-secondary/15">
                         <div className="flex items-center gap-[2vw] sm:gap-[1vw]">
                           <div className="drop-shadow rounded-[0.25vw]">
                             <div className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] bg-yellow" />
@@ -207,6 +214,51 @@ export function RankingsView({
                         <p className="smallText text-secondary/60">
                           the highest rated and most curated records across musi5t
                         </p>
+                      </div>
+
+                      {/* Timeframe Filter Tabs */}
+                      <div className="flex items-center gap-[4vw] sm:gap-[1.5vw] mb-[4vw] sm:mb-[2.5vw] border-b border-secondary/15 pb-[1.5vw] sm:pb-[0.8vw]">
+                        <Link
+                          href="/rankings?timeframe=all"
+                          className={`smallText lowercase flex items-center gap-[1vw] sm:gap-[0.4vw] pb-[0.5vw] sm:pb-[0.2vw] border-b-2 transition-all cursor-pointer ${
+                            timeframe === "all"
+                              ? "text-secondary font-medium border-secondary"
+                              : "text-secondary/40 hover:text-secondary/75 border-transparent"
+                          }`}
+                        >
+                          {timeframe === "all" && (
+                            <span className="w-[1.5vw] h-[1.5vw] sm:w-[0.4vw] sm:h-[0.4vw] rounded-full bg-yellow inline-block" />
+                          )}
+                          <span>all time</span>
+                        </Link>
+
+                        <Link
+                          href="/rankings?timeframe=year"
+                          className={`smallText lowercase flex items-center gap-[1vw] sm:gap-[0.4vw] pb-[0.5vw] sm:pb-[0.2vw] border-b-2 transition-all cursor-pointer ${
+                            timeframe === "year"
+                              ? "text-secondary font-medium border-secondary"
+                              : "text-secondary/40 hover:text-secondary/75 border-transparent"
+                          }`}
+                        >
+                          {timeframe === "year" && (
+                            <span className="w-[1.5vw] h-[1.5vw] sm:w-[0.4vw] sm:h-[0.4vw] rounded-full bg-yellow inline-block" />
+                          )}
+                          <span>this year ({currentYear})</span>
+                        </Link>
+
+                        <Link
+                          href="/rankings?timeframe=month"
+                          className={`smallText lowercase flex items-center gap-[1vw] sm:gap-[0.4vw] pb-[0.5vw] sm:pb-[0.2vw] border-b-2 transition-all cursor-pointer ${
+                            timeframe === "month"
+                              ? "text-secondary font-medium border-secondary"
+                              : "text-secondary/40 hover:text-secondary/75 border-transparent"
+                          }`}
+                        >
+                          {timeframe === "month" && (
+                            <span className="w-[1.5vw] h-[1.5vw] sm:w-[0.4vw] sm:h-[0.4vw] rounded-full bg-yellow inline-block" />
+                          )}
+                          <span>this month</span>
+                        </Link>
                       </div>
 
                       {/* Ranked Records List */}

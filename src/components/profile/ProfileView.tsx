@@ -10,9 +10,14 @@ import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { PaletteSelector, PROFILE_PALETTES } from "./PaletteSelector";
 import { AlbumSearchModal } from "./AlbumSearchModal";
 import { SongSearchModal } from "./SongSearchModal";
+import { ShareTop5Modal } from "./ShareTop5Modal";
 import { UserFollowButton } from "./UserFollowButton";
 import type { FeedPost } from "@/lib/feed/visibility";
 import { InteractivePostList, type CurrentUserSummary } from "@/components/feed/FeedView";
+import { UserAvatar } from "@/components/ui/UserAvatar";
+import { ListCard } from "@/components/lists/ListCard";
+import { CreateListModal } from "@/components/lists/CreateListModal";
+import type { ListSummary } from "@/lib/lists/service";
 
 export interface ProfileUser {
   id: string;
@@ -22,6 +27,7 @@ export interface ProfileUser {
   avatarUrl: string | null;
   themeKey: string;
   createdAt: Date;
+  emailVerifiedAt?: Date | string | null;
 }
 
 export interface TopAlbumItem {
@@ -42,6 +48,10 @@ export interface TopSongItem {
   coverUrl: string | null;
 }
 
+interface ApiUserPost extends Omit<FeedPost, "createdAt"> {
+  createdAt: string;
+}
+
 interface ProfileViewProps {
   user: ProfileUser;
   isOwner: boolean;
@@ -53,6 +63,8 @@ interface ProfileViewProps {
   topAlbums: TopAlbumItem[];
   topSongs: TopSongItem[];
   userPosts?: FeedPost[];
+  totalPostsCount?: number;
+  initialLists?: ListSummary[];
 }
 
 export function ProfileView({
@@ -66,9 +78,13 @@ export function ProfileView({
   topAlbums: initialAlbums,
   topSongs: initialSongs,
   userPosts = [],
+  totalPostsCount = userPosts.length,
+  initialLists = [],
 }: ProfileViewProps) {
   const router = useRouter();
   const [currentThemeKey, setCurrentThemeKey] = useState(user.themeKey || "lima");
+  const [lists, setLists] = useState<ListSummary[]>(initialLists);
+  const [isCreateListModalOpen, setIsCreateListModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || "");
@@ -76,6 +92,11 @@ export function ProfileView({
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Email verification state
+  const [resendingVerification, setResendingVerification] = useState(false);
+  const [verificationNotice, setVerificationNotice] = useState<string | null>(null);
+  const [emailVerified] = useState(Boolean(user.emailVerifiedAt));
 
   // Moderation state for non-owners
   const [muted, setMuted] = useState(initialMuted);
@@ -88,6 +109,14 @@ export function ProfileView({
   // Modals state
   const [albumModalPos, setAlbumModalPos] = useState<number | null>(null);
   const [songModalPos, setSongModalPos] = useState<number | null>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  // User profile visible posts pagination
+  const [profilePosts, setProfilePosts] = useState<FeedPost[]>(userPosts);
+  const [postsCursor, setPostsCursor] = useState<string | null>(
+    userPosts.length >= 10 ? userPosts[userPosts.length - 1].createdAt.toISOString() : null
+  );
+  const [loadingMorePosts, setLoadingMorePosts] = useState(false);
 
   // Carousel hover & GSAP refs
   const [hoveredAlbumIndex, setHoveredAlbumIndex] = useState<number | null>(null);
@@ -300,6 +329,28 @@ export function ProfileView({
     }
   };
 
+  const handleResendVerification = async () => {
+    if (resendingVerification) return;
+    setResendingVerification(true);
+    setVerificationNotice(null);
+    try {
+      const res = await fetch("/api/v1/auth/verify-email/resend", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setVerificationNotice(data.message || "Verification link sent! Check your inbox.");
+      } else {
+        setVerificationNotice(data.error || "Failed to send verification link.");
+      }
+    } catch (err) {
+      console.error("Failed to resend verification:", err);
+      setVerificationNotice("An error occurred. Please try again.");
+    } finally {
+      setResendingVerification(false);
+    }
+  };
+
   // Top 5 Album Actions
   const handleSelectAlbum = async (
     albumId: string,
@@ -451,6 +502,34 @@ export function ProfileView({
     }
   };
 
+  const handleLoadMorePosts = async () => {
+    if (!postsCursor || loadingMorePosts) return;
+    setLoadingMorePosts(true);
+    try {
+      const res = await fetch(
+        `/api/v1/users/${user.id}/posts?cursor=${encodeURIComponent(postsCursor)}&limit=10`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const rawPosts = (data.posts || []) as ApiUserPost[];
+        const loaded: FeedPost[] = rawPosts.map((p) => ({
+          ...p,
+          createdAt: new Date(p.createdAt),
+        }));
+        setProfilePosts((prev) => {
+          const existingIds = new Set(prev.map((item) => item.id));
+          const uniqueNewPosts = loaded.filter((item) => !existingIds.has(item.id));
+          return [...prev, ...uniqueNewPosts];
+        });
+        setPostsCursor(loaded.length >= 10 ? data.nextCursor : null);
+      }
+    } catch (err) {
+      console.error("Failed to load more profile posts:", err);
+    } finally {
+      setLoadingMorePosts(false);
+    }
+  };
+
   const joinedLabel = new Date(user.createdAt).toLocaleDateString("en-US", {
     month: "short",
     year: "numeric",
@@ -478,16 +557,48 @@ export function ProfileView({
                   </Link>
                 </div>
 
-                {/* Center Navigation Group (Feed • Rankings) */}
+                {/* Center Navigation Group (Overview • Records • Tracks • Lists • Discussions) */}
                 <div className="smallText col-span-5 justify-center items-center hidden sm:flex">
                   <span className="nav-group nav-blend flex items-center gap-[0.6vw]">
-                    <Link href="/feed" className="nav-btn cursor-pointer">
-                      Feed
-                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#overview")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Overview
+                    </button>
                     <span className="opacity-35">•</span>
-                    <Link href="/rankings" className="nav-btn cursor-pointer">
-                      Rankings
-                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#records")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Records
+                    </button>
+                    <span className="opacity-35">•</span>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#tracks")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Tracks
+                    </button>
+                    <span className="opacity-35">•</span>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#lists")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Lists
+                    </button>
+                    <span className="opacity-35">•</span>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo("#discussions")}
+                      className="nav-btn cursor-pointer"
+                    >
+                      Discussions
+                    </button>
                   </span>
                 </div>
 
@@ -499,6 +610,12 @@ export function ProfileView({
                       <PaletteSelector
                         selectedTheme={currentThemeKey}
                         onSelect={handlePaletteChange}
+                        isEmailVerified={Boolean(emailVerified)}
+                        onLockedClick={(label) => {
+                          setVerificationNotice(
+                            `El color "${label}" es exclusivo para cuentas con email verificado.`
+                          );
+                        }}
                       />
                       <Link
                         href="/settings"
@@ -518,10 +635,22 @@ export function ProfileView({
                         <button
                           type="button"
                           onClick={() => setIsEditing(!isEditing)}
-                          className="main-btn smallText text-secondary transition-colors duration-500"
-                          style={{ backgroundColor: activePalette.accent }}
+                          className="main-btn smallText transition-colors duration-500"
+                          style={{
+                            backgroundColor: activePalette.accent,
+                            color: activePalette.textOnAccent || "#0E0E0E",
+                          }}
                         >
-                          <span className="main-btn__icon" aria-hidden="true" />
+                          <span
+                            className="main-btn__icon"
+                            aria-hidden="true"
+                            style={{
+                              backgroundColor:
+                                activePalette.textOnAccent === "#FFFFFF"
+                                  ? "#FFFFFF"
+                                  : undefined,
+                            }}
+                          />
                           <span className="main-btn__label">
                             <span className="main-btn__clip">
                               <span className="main-btn__from">
@@ -539,18 +668,12 @@ export function ProfileView({
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
                         title={`@${user.username}`}
                       >
-                        {avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={avatarUrl}
-                            alt={displayName || user.username}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
-                            {(displayName || user.username).slice(0, 2).toUpperCase()}
-                          </span>
-                        )}
+                        <UserAvatar
+                          avatarUrl={avatarUrl}
+                          displayName={displayName || user.username}
+                          themeKey={activePalette.key}
+                          textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                        />
                       </Link>
                     </>
                   ) : currentUser ? (
@@ -559,27 +682,33 @@ export function ProfileView({
                       className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
                       title={`@${currentUser.username}`}
                     >
-                      {currentUser.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={currentUser.avatarUrl}
-                          alt={currentUser.displayName || currentUser.username}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      ) : (
-                        <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
-                          {(currentUser.displayName || currentUser.username).slice(0, 2).toUpperCase()}
-                        </span>
-                      )}
+                      <UserAvatar
+                        avatarUrl={currentUser.avatarUrl}
+                        displayName={currentUser.displayName || currentUser.username}
+                        themeKey={currentUser.themeKey}
+                        textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                      />
                     </Link>
                   ) : (
                     <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
                       <Link
                         href="/login"
-                        className="main-btn smallText text-secondary transition-colors duration-500"
-                        style={{ backgroundColor: activePalette.accent }}
+                        className="main-btn smallText transition-colors duration-500"
+                        style={{
+                          backgroundColor: activePalette.accent,
+                          color: activePalette.textOnAccent || "#0E0E0E",
+                        }}
                       >
-                        <span className="main-btn__icon" aria-hidden="true" />
+                        <span
+                          className="main-btn__icon"
+                          aria-hidden="true"
+                          style={{
+                            backgroundColor:
+                              activePalette.textOnAccent === "#FFFFFF"
+                                ? "#FFFFFF"
+                                : undefined,
+                          }}
+                        />
                         <span className="main-btn__label">
                           <span className="main-btn__clip">
                             <span className="main-btn__from">Sign in</span>
@@ -679,6 +808,38 @@ export function ProfileView({
                   className="w-full bg-transparent text-secondary pt-[24vw] sm:pt-[9.5vw] pb-[6vw] sm:pb-[4vw] relative z-10"
                 >
                   <div className="layout-grid w-full items-start">
+                    {/* Unverified Email Warning Banner for Owner */}
+                    {isOwner && !emailVerified && (
+                      <div className="col-span-full mb-[4vw] sm:mb-[2.5vw] p-[3.5vw] sm:p-[1.4vw] rounded-[0.5vw] border border-yellow/40 bg-yellow/10 flex flex-col sm:flex-row sm:items-center justify-between gap-[2.5vw] sm:gap-[1.5vw] drop-shadow-soft">
+                        <div className="flex items-center gap-[2.5vw] sm:gap-[1vw]">
+                          <span className="w-[2.5vw] h-[2.5vw] sm:w-[0.75vw] sm:h-[0.75vw] rounded-full bg-yellow shrink-0 animate-pulse" />
+                          <div>
+                            <p className="extraSmallTextBold text-secondary">
+                              Your email is unverified
+                            </p>
+                            <p className="extraSmallText text-secondary/70">
+                              Verify your email address to secure your account and enable password recovery.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-[2vw] sm:gap-[1vw]">
+                          {verificationNotice && (
+                            <span className="extraSmallText text-secondary/80 font-medium">
+                              {verificationNotice}
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            disabled={resendingVerification}
+                            onClick={handleResendVerification}
+                            className="extraSmallText px-[3.5vw] py-[1.5vw] sm:px-[1.1vw] sm:py-[0.45vw] rounded-[0.3vw] bg-secondary text-primary font-medium hover:bg-secondary/85 transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                          >
+                            {resendingVerification ? "Sending..." : "Resend verification email"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Left 8 Columns: Giant Editorial Name (+ member since), Bio & Visitor Actions */}
                     <div className="col-span-full sm:col-span-8 flex flex-col justify-between profile-hero-reveal">
                       <div className="flex flex-wrap items-baseline gap-x-[2vw] sm:gap-x-[1vw] gap-y-[1vw]">
@@ -760,7 +921,10 @@ export function ProfileView({
                               className="w-[70%] h-[70%] rounded-full border border-secondary/15 flex items-center justify-center transition-colors duration-700"
                               style={{ backgroundColor: activePalette.secondaryOrb }}
                             >
-                              <span className="mediumText font-medium text-secondary select-none">
+                              <span
+                                className="mediumText font-medium select-none"
+                                style={{ color: activePalette.textOnAccent || "#0E0E0E" }}
+                              >
                                 {displayName.slice(0, 2).toUpperCase()}
                               </span>
                             </div>
@@ -907,7 +1071,34 @@ export function ProfileView({
                         </div>
                         <span className="mediumText">top 5 records</span>
                       </div>
-                      <h2 className="mediumText">curated ({initialAlbums.length}/5)</h2>
+                      <div className="flex items-center gap-[2.5vw] sm:gap-[1vw]">
+                        {isOwner && (
+                          <button
+                            type="button"
+                            onClick={() => setIsShareModalOpen(true)}
+                            className="inline-flex items-center gap-[1.2vw] sm:gap-[0.45vw] extraSmallText text-secondary/80 hover:text-secondary bg-primary hover:bg-secondary/[0.04] border border-secondary/15 hover:border-secondary/35 rounded-[0.3vw] px-[2.4vw] py-[1vw] sm:px-[0.85vw] sm:py-[0.35vw] drop-shadow-soft transition-all cursor-pointer group"
+                            title="Generate shareable Top 5 poster for Instagram, Twitter or download"
+                          >
+                            <svg
+                              className="w-[3.5vw] h-[3.5vw] sm:w-[0.9vw] sm:h-[0.9vw] transition-transform group-hover:scale-110"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <circle cx="18" cy="5" r="3" />
+                              <circle cx="6" cy="12" r="3" />
+                              <circle cx="18" cy="19" r="3" />
+                              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                            </svg>
+                            <span>share poster</span>
+                          </button>
+                        )}
+                        <h2 className="mediumText">curated ({initialAlbums.length}/5)</h2>
+                      </div>
                     </div>
                   </div>
 
@@ -932,8 +1123,11 @@ export function ProfileView({
                               <div className="w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary relative">
                                 {/* Top-left rank badge */}
                                 <div
-                                  className="absolute top-[2.5vw] left-[2.5vw] sm:top-[0.85vw] sm:left-[0.85vw] z-20 px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] text-secondary detailText font-medium drop-shadow transition-colors duration-500 pointer-events-none"
-                                  style={{ backgroundColor: activePalette.accent }}
+                                  className="absolute top-[2.5vw] left-[2.5vw] sm:top-[0.85vw] sm:left-[0.85vw] z-20 px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] detailText font-medium drop-shadow transition-colors duration-500 pointer-events-none"
+                                  style={{
+                                    backgroundColor: activePalette.accent,
+                                    color: activePalette.textOnAccent || "#0E0E0E",
+                                  }}
                                 >
                                   0{pos}
                                 </div>
@@ -987,8 +1181,14 @@ export function ProfileView({
                                 >
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
                                   <img
-                                    src={album.coverUrl}
+                                    src={album.coverUrl || "/images/musi5t/vinyl_player.webp"}
                                     alt={`${album.artistName} - ${album.title}`}
+                                    onError={(e) => {
+                                      const target = e.currentTarget;
+                                      if (!target.src.includes("vinyl_player.webp")) {
+                                        target.src = "/images/musi5t/vinyl_player.webp";
+                                      }
+                                    }}
                                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 select-none"
                                   />
                                 </Link>
@@ -1035,8 +1235,11 @@ export function ProfileView({
                               {/* Top Rank Badge */}
                               <div className="flex items-center justify-between z-10">
                                 <span
-                                  className="px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] text-secondary detailText font-medium transition-colors duration-500"
-                                  style={{ backgroundColor: activePalette.accent }}
+                                  className="px-[1.8vw] py-[0.6vw] sm:px-[0.5vw] sm:py-[0.18vw] rounded-[0.2vw] detailText font-medium transition-colors duration-500"
+                                  style={{
+                                    backgroundColor: activePalette.accent,
+                                    color: activePalette.textOnAccent || "#0E0E0E",
+                                  }}
                                 >
                                   0{pos}
                                 </span>
@@ -1111,8 +1314,11 @@ export function ProfileView({
                             {/* Index Number */}
                             <div className="col-span-1 flex items-center">
                               <span
-                                className="px-[1.8vw] py-[0.6vw] sm:px-[0.65vw] sm:py-[0.25vw] rounded-[0.2vw] extraSmallTextBold text-secondary drop-shadow transition-colors duration-500"
-                                style={{ backgroundColor: activePalette.accent }}
+                                className="px-[1.8vw] py-[0.6vw] sm:px-[0.65vw] sm:py-[0.25vw] rounded-[0.2vw] extraSmallTextBold drop-shadow transition-colors duration-500"
+                                style={{
+                                  backgroundColor: activePalette.accent,
+                                  color: activePalette.textOnAccent || "#0E0E0E",
+                                }}
                               >
                                 0{pos}
                               </span>
@@ -1125,6 +1331,12 @@ export function ProfileView({
                                 <img
                                   src={song.coverUrl}
                                   alt={song.title}
+                                  onError={(e) => {
+                                    const target = e.currentTarget;
+                                    if (!target.src.includes("vinyl_player.webp")) {
+                                      target.src = "/images/musi5t/vinyl_player.webp";
+                                    }
+                                  }}
                                   className="w-[11vw] h-[11vw] sm:w-[3.8vw] sm:h-[3.8vw] rounded-[0.3vw] object-cover drop-shadow-soft shrink-0"
                                 />
                               ) : (
@@ -1226,7 +1438,78 @@ export function ProfileView({
                   </div>
                 </section>
 
-                {/* 4. LISTENER DISCUSSIONS SECTION (#discussions) */}
+                {/* 4. CURATED LISTS SECTION (#lists) */}
+                <section
+                  id="lists"
+                  data-nav-color="secondary"
+                  className="w-full bg-transparent text-secondary py-[6vw] sm:py-[4vw] relative z-10 select-none"
+                >
+                  <div className="layout-grid mb-[4vw] sm:mb-[2.5vw]">
+                    <div className="col-span-full flex justify-between items-center">
+                      <div className="flex items-center gap-[1.5vw] sm:gap-[1vw]">
+                        <div className="drop-shadow rounded-[0.25vw]">
+                          <div
+                            className="sm:w-[1.8vw] sm:h-[1.8vw] w-[5vw] h-[5vw] sm:rounded-[0.2vw] rounded-[0.5vw] transition-colors duration-500"
+                            style={{ backgroundColor: activePalette.accent }}
+                          />
+                        </div>
+                        <span className="mediumText">curated lists</span>
+                      </div>
+                      <div className="flex items-center gap-[2.5vw] sm:gap-[1vw]">
+                        <h2 className="mediumText">lists ({lists.length})</h2>
+                        {isOwner && (
+                          <button
+                            type="button"
+                            onClick={() => setIsCreateListModalOpen(true)}
+                            className="extraSmallText font-medium px-[3vw] py-[1.2vw] sm:px-[1vw] sm:py-[0.4vw] rounded-[0.3vw] transition-colors cursor-pointer"
+                            style={{
+                              backgroundColor: activePalette.accent,
+                              color: activePalette.textOnAccent || "#0E0E0E",
+                            }}
+                          >
+                            + Create List
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="layout-grid">
+                    {lists.length > 0 ? (
+                      <div className="col-span-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[5vw] sm:gap-[1.8vw]">
+                        {lists.map((l) => (
+                          <ListCard key={l.id} list={l} accentColor={activePalette.accent} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="col-span-full border border-dashed border-secondary/15 rounded-[0.4vw] py-[10vw] sm:py-[4.5vw] px-[4vw] text-center flex flex-col items-center justify-center gap-[2vw] sm:gap-[0.8vw]">
+                        <p className="smallText text-secondary/60 font-light">
+                          No curated lists yet.
+                        </p>
+                        <p className="extraSmallText text-secondary/40 max-w-[36ch]">
+                          {isOwner
+                            ? "Organize your favorite albums by theme, decade, genre, or mood."
+                            : `@${user.username} hasn't published any curated lists yet.`}
+                        </p>
+                        {isOwner && (
+                          <button
+                            type="button"
+                            onClick={() => setIsCreateListModalOpen(true)}
+                            className="extraSmallText font-medium px-[4vw] py-[1.5vw] sm:px-[1.2vw] sm:py-[0.45vw] rounded-[0.3vw] transition-colors cursor-pointer mt-[1.5vw] sm:mt-[0.5vw]"
+                            style={{
+                              backgroundColor: activePalette.accent,
+                              color: activePalette.textOnAccent || "#0E0E0E",
+                            }}
+                          >
+                            + Create your first list
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* 5. LISTENER DISCUSSIONS SECTION (#discussions) */}
                 <section
                   id="discussions"
                   data-nav-color="secondary"
@@ -1243,7 +1526,7 @@ export function ProfileView({
                         </div>
                         <span className="mediumText">listener notes</span>
                       </div>
-                      <h2 className="mediumText">discussions ({userPosts.length})</h2>
+                      <h2 className="mediumText">discussions ({totalPostsCount})</h2>
                     </div>
                   </div>
 
@@ -1281,7 +1564,7 @@ export function ProfileView({
 
                     {/* Right Column: Feed Posts */}
                     <div className="col-span-full sm:col-span-8">
-                      {userPosts.length === 0 ? (
+                      {profilePosts.length === 0 ? (
                         <div className="p-[6vw] sm:p-[3vw] border border-secondary/15 rounded-[0.5vw] bg-primary/80 backdrop-blur-sm flex flex-col items-start justify-between gap-[1.5vw]">
                           <span className="smallText font-medium text-secondary">
                             No visible notes from @{user.username} yet.
@@ -1291,11 +1574,39 @@ export function ProfileView({
                           </p>
                         </div>
                       ) : (
-                        <InteractivePostList
-                          posts={userPosts}
-                          currentUser={currentUser}
-                          variant="light"
-                        />
+                        <div className="flex flex-col gap-[3vw] sm:gap-[1.5vw]">
+                          <InteractivePostList
+                            posts={profilePosts}
+                            currentUser={currentUser}
+                            onPostsChange={setProfilePosts}
+                            variant="light"
+                          />
+                          {postsCursor && (
+                            <div className="w-full flex justify-center pt-[4vw] sm:pt-[2vw]">
+                              <button
+                                type="button"
+                                disabled={loadingMorePosts}
+                                onClick={handleLoadMorePosts}
+                                className="inline-flex items-center gap-[1.2vw] sm:gap-[0.45vw] px-[4vw] py-[2vw] sm:px-[1.4vw] sm:py-[0.6vw] rounded-[0.35vw] border border-secondary/20 hover:border-secondary/40 bg-primary hover:bg-secondary/[0.04] text-secondary font-medium extraSmallText drop-shadow-soft transition-all cursor-pointer disabled:opacity-50"
+                              >
+                                {loadingMorePosts ? (
+                                  <>
+                                    <div className="w-[3vw] h-[3vw] sm:w-[0.8vw] sm:h-[0.8vw] border-2 border-secondary/30 border-t-secondary rounded-full animate-spin" />
+                                    <span>Loading notes...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span
+                                      className="w-[1.6vw] h-[1.6vw] sm:w-[0.45vw] sm:h-[0.45vw] rounded-full"
+                                      style={{ backgroundColor: activePalette.accent }}
+                                    />
+                                    <span>+ Load more notes</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1361,6 +1672,10 @@ export function ProfileView({
                         feed
                       </Link>
                       <span>,</span>
+                      <Link href="/lists" className="hover:text-primary transition-colors">
+                        lists
+                      </Link>
+                      <span>,</span>
                       <span className="opacity-40">@{user.username}</span>
                     </div>
                   </div>
@@ -1393,6 +1708,35 @@ export function ProfileView({
             onClose={() => setSongModalPos(null)}
             onSelectSong={handleSelectSong}
             accentColor={activePalette.accent}
+          />
+        </div>
+      )}
+
+      {/* Share Top 5 Poster Modal */}
+      <div data-lenis-prevent>
+        <ShareTop5Modal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          user={{
+            username: user.username,
+            displayName: user.displayName,
+          }}
+          albums={initialAlbums}
+          activePalette={activePalette}
+        />
+      </div>
+
+      {/* Create List Modal */}
+      {isCreateListModalOpen && (
+        <div data-lenis-prevent>
+          <CreateListModal
+            isOpen={isCreateListModalOpen}
+            accentColor={activePalette.accent}
+            onClose={() => setIsCreateListModalOpen(false)}
+            onSuccess={(created) => {
+              const createdList = created as ListSummary;
+              setLists((prev) => [createdList, ...prev.filter((l) => l.id !== createdList.id)]);
+            }}
           />
         </div>
       )}

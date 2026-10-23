@@ -8,6 +8,7 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { setLenis, getLenis } from "@/lib/lenis-store";
 import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { PaletteSelector, PROFILE_PALETTES } from "@/components/profile/PaletteSelector";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export interface ModeratedUserItem {
   id: string;
@@ -25,6 +26,7 @@ interface SettingsViewProps {
     bio: string | null;
     avatarUrl: string | null;
     themeKey: string;
+    emailVerifiedAt?: Date | null;
   };
   initialMutedUsers: ModeratedUserItem[];
   initialBlockedUsers: ModeratedUserItem[];
@@ -271,18 +273,12 @@ export function SettingsView({
                     className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
                     title={`@${user.username}`}
                   >
-                    {avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={avatarUrl}
-                        alt={displayName || user.displayName || user.username}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                    ) : (
-                      <span className="w-full h-full bg-yellow text-secondary flex items-center justify-center text-[3.2vw] sm:text-[0.8vw] font-bold">
-                        {(displayName || user.displayName || user.username).slice(0, 2).toUpperCase()}
-                      </span>
-                    )}
+                    <UserAvatar
+                      avatarUrl={avatarUrl}
+                      displayName={displayName || user.displayName || user.username}
+                      themeKey={activePalette.key}
+                      textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
+                    />
                   </Link>
                 </div>
               </div>
@@ -384,24 +380,13 @@ export function SettingsView({
                               profile photo
                             </label>
                             <div className="flex flex-wrap items-center gap-[3vw] sm:gap-[1.2vw] p-[2.5vw] sm:p-[1vw] rounded-[0.4vw] border border-secondary/15 bg-secondary/[0.02]">
-                              <div
-                                className="aspect-square rounded-[0.4vw] w-[14vw] sm:w-[4.5vw] drop-shadow-soft overflow-hidden flex items-center justify-center flex-shrink-0 transition-colors duration-500"
-                                style={{ backgroundColor: activePalette.accent }}
-                              >
-                                {avatarUrl ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={avatarUrl}
-                                    alt={displayName || user.displayName}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <span className="mediumText font-medium text-secondary select-none">
-                                    {(displayName || user.displayName || "U")
-                                      .slice(0, 2)
-                                      .toUpperCase()}
-                                  </span>
-                                )}
+                              <div className="aspect-square rounded-[0.4vw] w-[14vw] sm:w-[4.5vw] drop-shadow-soft overflow-hidden flex items-center justify-center flex-shrink-0">
+                                <UserAvatar
+                                  avatarUrl={avatarUrl}
+                                  displayName={displayName || user.displayName || user.username}
+                                  themeKey={activePalette.key}
+                                  textClassName="smallText font-medium select-none"
+                                />
                               </div>
 
                               <input
@@ -483,6 +468,12 @@ export function SettingsView({
                               <PaletteSelector
                                 selectedTheme={themeKey}
                                 onSelect={(key) => setThemeKey(key)}
+                                isEmailVerified={Boolean(user.emailVerifiedAt)}
+                                onLockedClick={(label) => {
+                                  setStatusMessage(
+                                    `El tema "${label}" es exclusivo para cuentas con email verificado.`
+                                  );
+                                }}
                               />
                             </div>
                           </div>

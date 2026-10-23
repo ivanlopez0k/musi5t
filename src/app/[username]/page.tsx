@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/db";
-import { users, albums, songs, userTopAlbums, userTopSongs, follows, mutes, blocks } from "@/db/schema";
+import { users, albums, songs, userTopAlbums, userTopSongs, follows, mutes, blocks, posts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { eq, sql, asc, and } from "drizzle-orm";
 import { ProfileView } from "@/components/profile/ProfileView";
 import { getUserVisiblePosts } from "@/lib/feed/visibility";
+import { getListsFeed } from "@/lib/lists/service";
 
 export const instant = false;
 
@@ -36,6 +37,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${user.displayName} (@${user.username}) — musi5t`,
     description: user.bio || `Explore ${user.displayName}'s Top 5 essential albums and songs on musi5t.`,
+    openGraph: {
+      title: `${user.displayName}'s Top 5 Albums — musi5t`,
+      description: user.bio || `Explore ${user.displayName}'s Top 5 essential albums on musi5t.`,
+      images: [
+        {
+          url: `/api/v1/users/${username}/og`,
+          width: 1200,
+          height: 630,
+          alt: `${user.displayName}'s Top 5 Albums on musi5t`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${user.displayName}'s Top 5 Albums — musi5t`,
+      description: user.bio || `Explore ${user.displayName}'s Top 5 essential albums on musi5t.`,
+      images: [`/api/v1/users/${username}/og`],
+    },
   };
 }
 
@@ -52,6 +71,7 @@ export default async function UserProfilePage({ params }: PageProps) {
       bio: users.bio,
       avatarUrl: users.avatarUrl,
       themeKey: users.themeKey,
+      emailVerifiedAt: users.emailVerifiedAt,
       createdAt: users.createdAt,
     })
     .from(users)
@@ -136,7 +156,19 @@ export default async function UserProfilePage({ params }: PageProps) {
   const userPosts = await getUserVisiblePosts({
     profileUserId: user.id,
     viewerUserId: currentUser?.id || null,
-    limit: 20,
+    limit: 10,
+  });
+
+  const [postsCountResult] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(posts)
+    .where(and(eq(posts.authorId, user.id), sql`${posts.deletedAt} IS NULL`));
+  const totalPostsCount = postsCountResult?.count ?? userPosts.length;
+
+  const userLists = await getListsFeed({
+    userId: user.id,
+    includePrivate: isOwner,
+    limit: 50,
   });
 
   return (
@@ -151,6 +183,8 @@ export default async function UserProfilePage({ params }: PageProps) {
       topAlbums={userAlbums}
       topSongs={userSongs}
       userPosts={userPosts}
+      totalPostsCount={totalPostsCount}
+      initialLists={userLists}
     />
   );
 }

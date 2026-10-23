@@ -61,6 +61,7 @@ export async function getCurrentUser(req?: Request) {
       bio: users.bio,
       avatarUrl: users.avatarUrl,
       themeKey: users.themeKey,
+      emailVerifiedAt: users.emailVerifiedAt,
       createdAt: users.createdAt,
     })
     .from(users)

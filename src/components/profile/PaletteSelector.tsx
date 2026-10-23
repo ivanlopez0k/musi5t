@@ -1,69 +1,22 @@
 "use client";
 
-export interface ProfilePalette {
-  key: string;
-  label: string;
-  bg: string;
-  text: string;
-  accent: string;
-  secondaryOrb: string;
-  softGlow: string;
-}
+import { PROFILE_PALETTES, type ProfilePalette } from "@/lib/profile/palettes";
 
-export const PROFILE_PALETTES: ProfilePalette[] = [
-  {
-    key: "lima",
-    label: "lima",
-    bg: "#F4F7E8",
-    text: "#1B1F10",
-    accent: "#B6E02E",
-    secondaryOrb: "#D9F970",
-    softGlow: "#82B515",
-  },
-  {
-    key: "coral",
-    label: "coral",
-    bg: "#FFF1EC",
-    text: "#2A1511",
-    accent: "#FF5A3C",
-    secondaryOrb: "#FF8E72",
-    softGlow: "#E03516",
-  },
-  {
-    key: "cobalto",
-    label: "cobalto",
-    bg: "#EEF3FF",
-    text: "#0F1A33",
-    accent: "#2F5BFF",
-    secondaryOrb: "#6E90FF",
-    softGlow: "#1939B7",
-  },
-  {
-    key: "violeta",
-    label: "violeta",
-    bg: "#F5EEFF",
-    text: "#1D1230",
-    accent: "#8A4DFF",
-    secondaryOrb: "#B488FF",
-    softGlow: "#5E22D9",
-  },
-  {
-    key: "mandarina",
-    label: "mandarina",
-    bg: "#FFF6E5",
-    text: "#2B1D08",
-    accent: "#FF9F1C",
-    secondaryOrb: "#FFC15E",
-    softGlow: "#E87A00",
-  },
-];
+export { PROFILE_PALETTES, type ProfilePalette };
 
 interface PaletteSelectorProps {
   selectedTheme: string;
   onSelect: (themeKey: string) => void;
+  isEmailVerified?: boolean;
+  onLockedClick?: (paletteLabel: string) => void;
 }
 
-export function PaletteSelector({ selectedTheme, onSelect }: PaletteSelectorProps) {
+export function PaletteSelector({
+  selectedTheme,
+  onSelect,
+  isEmailVerified = false,
+  onLockedClick,
+}: PaletteSelectorProps) {
   return (
     <div
       role="group"
@@ -72,22 +25,56 @@ export function PaletteSelector({ selectedTheme, onSelect }: PaletteSelectorProp
     >
       {PROFILE_PALETTES.map((p) => {
         const isSelected = selectedTheme === p.key;
+        const isLocked = Boolean(p.requiresVerification && !isEmailVerified);
+
         return (
           <button
             key={p.key}
             type="button"
-            onClick={() => onSelect(p.key)}
-            aria-label={`Select ${p.label} palette`}
-            title={p.label}
-            className={`relative w-[3.4vw] h-[3.4vw] sm:w-[0.95vw] sm:h-[0.95vw] rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center ${
-              isSelected
-                ? "scale-115 ring-1 ring-secondary ring-offset-1 ring-offset-primary"
-                : "hover:scale-110 opacity-75 hover:opacity-100"
+            onClick={() => {
+              if (isLocked) {
+                onLockedClick?.(p.label);
+              } else {
+                onSelect(p.key);
+              }
+            }}
+            aria-label={
+              isLocked
+                ? `${p.label} (locked — verify your email to unlock)`
+                : `Select ${p.label} palette`
+            }
+            title={
+              isLocked
+                ? `${p.label} — verify email to unlock this exclusive palette`
+                : p.label
+            }
+            className={`relative w-[3.4vw] h-[3.4vw] sm:w-[0.95vw] sm:h-[0.95vw] rounded-full transition-all duration-300 flex items-center justify-center ${
+              isLocked
+                ? "cursor-not-allowed opacity-55 hover:opacity-85"
+                : isSelected
+                ? "scale-115 ring-1 ring-secondary ring-offset-1 ring-offset-primary cursor-pointer"
+                : "hover:scale-110 opacity-75 hover:opacity-100 cursor-pointer"
             }`}
             style={{
               background: `radial-gradient(circle at 35% 35%, ${p.secondaryOrb}, ${p.accent} 65%, ${p.softGlow})`,
             }}
-          />
+          >
+            {isLocked && (
+              <svg
+                className="w-[1.8vw] h-[1.8vw] sm:w-[0.55vw] sm:h-[0.55vw] text-secondary/90 drop-shadow"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            )}
+          </button>
         );
       })}
     </div>

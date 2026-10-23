@@ -1,4 +1,4 @@
-import { db, ensureArtistTables } from "@/db";
+import { db } from "@/db";
 import { albums, albumRatings, artistRatings, artistFollows } from "@/db/schema";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import {
@@ -68,8 +68,6 @@ export async function getArtistData(
   artistName: string,
   viewerUserId?: string | null
 ): Promise<ArtistData> {
-  await ensureArtistTables();
-
   const cleanArtistName = decodeURIComponent(artistName).trim();
   const normalizedArtist = normalizeText(cleanArtistName);
 

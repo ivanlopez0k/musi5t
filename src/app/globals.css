@@ -141,6 +141,8 @@ body {
   top: 0;
   left: 0;
   pointer-events: none;
+  z-index: 50;
+  color: rgb(var(--rgb-secondary));
 }
 
 .route-surface > .header.header-blend {

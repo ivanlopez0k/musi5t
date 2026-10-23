@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { db, ensurePhase3Tables } from "@/db";
+import { db } from "@/db";
 import { blocks, postReplies, posts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
@@ -41,7 +41,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await ensurePhase3Tables();
     const user = await getCurrentUser(request);
     const { id: postId } = await params;
 
@@ -127,7 +126,6 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await ensurePhase3Tables();
     const user = await getCurrentUser(request);
     if (!user) {
       return NextResponse.json({ error: "No autorizado." }, { status: 401 });

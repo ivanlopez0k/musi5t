@@ -3,6 +3,8 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { hashPassword } from "@/lib/auth/password";
 import { setSessionCookie } from "@/lib/auth/session";
+import { createAccountToken } from "@/lib/auth/tokens";
+import { sendVerificationEmail } from "@/lib/email/mailer";
 import { eq, or, sql } from "drizzle-orm";
 
 export async function POST(req: Request) {
@@ -87,6 +89,21 @@ export async function POST(req: Request) {
       username: newUser.username,
       email: newUser.email,
     });
+
+    try {
+      const verificationToken = await createAccountToken({
+        userId: newUser.id,
+        type: "email_verification",
+        expiresInHours: 24,
+      });
+      await sendVerificationEmail({
+        to: newUser.email,
+        username: newUser.username,
+        token: verificationToken,
+      });
+    } catch (mailErr) {
+      console.error("[register verification mail error]:", mailErr);
+    }
 
     return NextResponse.json({ user: newUser }, { status: 201 });
   } catch (error) {

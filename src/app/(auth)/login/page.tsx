@@ -127,6 +127,12 @@ export default function LoginPage() {
                 <label className="block extraSmallTextBold uppercase tracking-wider text-secondary/70 font-mono">
                   Password
                 </label>
+                <Link
+                  href="/forgot-password"
+                  className="extraSmallText text-secondary/60 hover:text-secondary underline transition-colors"
+                >
+                  Forgot password?
+                </Link>
               </div>
               <input
                 type="password"
