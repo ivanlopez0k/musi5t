@@ -176,7 +176,7 @@ body {
 }
 
 .route-surface > .header.header-blend .layout-fixed {
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .route-surface > .header.header-blend button,
@@ -197,6 +197,8 @@ body {
   grid-area: main;
   min-height: 0;
   overflow: hidden auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .hide-scrollbar {
