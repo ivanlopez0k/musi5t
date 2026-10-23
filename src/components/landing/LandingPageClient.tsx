@@ -443,16 +443,16 @@ export function LandingPageClient() {
                     </span>
                     <div className="flex flex-col gap-[0.5vw]">
                       <a
-                        href="mailto:hello@musi5t.com"
+                        href="mailto:musi5t.contact@gmail.com"
                         className="footer-link-clip w-fit mediumText hover:text-yellow transition-colors duration-300 text-[5vw] sm:text-inherit"
                       >
-                        hello@musi5t.com
+                        musi5t.contact@gmail.com
                       </a>
                       <a
-                        href="mailto:press@musi5t.com"
+                        href="mailto:dev.angelivan@gmail.com"
                         className="footer-link-clip w-fit mediumText hover:text-yellow transition-colors duration-300 text-[5vw] sm:text-inherit"
                       >
-                        press@musi5t.com
+                        dev.angelivan@gmail.com
                       </a>
                     </div>
                   </div>
