@@ -19,6 +19,16 @@ import { ListCard } from "@/components/lists/ListCard";
 import { CreateListModal } from "@/components/lists/CreateListModal";
 import type { ListSummary } from "@/lib/lists/service";
 
+const PALETTE_NAMES: Record<string, string> = {
+  lima: "Lima",
+  coral: "Coral",
+  cobalto: "Cobalto",
+  violeta: "Violeta",
+  mandarina: "Mandarina",
+  obsidiana: "Obsidiana",
+  bosque: "Bosque",
+};
+
 export interface ProfileUser {
   id: string;
   username: string;
@@ -110,6 +120,7 @@ export function ProfileView({
   const [albumModalPos, setAlbumModalPos] = useState<number | null>(null);
   const [songModalPos, setSongModalPos] = useState<number | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // User profile visible posts pagination
   const [profilePosts, setProfilePosts] = useState<FeedPost[]>(userPosts);
@@ -244,6 +255,17 @@ export function ProfileView({
       }
     });
   }, [hoveredAlbumIndex]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileMenuOpen]);
 
   const scrollTo = (hash: string) => {
     const lenis = getLenis();
@@ -603,23 +625,25 @@ export function ProfileView({
                 </div>
 
                 {/* Right Navbar Actions */}
-                <div className="col-span-4 sm:col-span-5 flex justify-end items-center gap-[1.8vw] sm:gap-[0.75vw]">
+                <div className="col-span-4 sm:col-span-5 flex justify-end items-center gap-[2.5vw] sm:gap-[0.75vw]">
                   {isOwner ? (
                     <>
-                      {/* Palette selector only visible for the owner of this profile */}
-                      <PaletteSelector
-                        selectedTheme={currentThemeKey}
-                        onSelect={handlePaletteChange}
-                        isEmailVerified={Boolean(emailVerified)}
-                        onLockedClick={(label) => {
-                          setVerificationNotice(
-                            `The "${label}" palette is exclusive to members with a verified email.`
-                          );
-                        }}
-                      />
+                      {/* Palette selector only visible for the owner of this profile on desktop */}
+                      <div className="hidden sm:inline-flex">
+                        <PaletteSelector
+                          selectedTheme={currentThemeKey}
+                          onSelect={handlePaletteChange}
+                          isEmailVerified={Boolean(emailVerified)}
+                          onLockedClick={(label) => {
+                            setVerificationNotice(
+                              `The "${label}" palette is exclusive to members with a verified email.`
+                            );
+                          }}
+                        />
+                      </div>
                       <Link
                         href="/settings"
-                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                        className="hidden sm:inline-block nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
@@ -627,11 +651,11 @@ export function ProfileView({
                         type="button"
                         onClick={handleLogout}
                         disabled={isLoggingOut}
-                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer"
+                        className="hidden sm:inline-block nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer"
                       >
                         {isLoggingOut ? "..." : "Logout"}
                       </button>
-                      <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                      <div className="hidden sm:block drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
                         <button
                           type="button"
                           onClick={() => setIsEditing(!isEditing)}
@@ -690,7 +714,7 @@ export function ProfileView({
                       />
                     </Link>
                   ) : (
-                    <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                    <div className="hidden sm:block drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
                       <Link
                         href="/login"
                         className="main-btn smallText transition-colors duration-500"
@@ -720,6 +744,29 @@ export function ProfileView({
                       </Link>
                     </div>
                   )}
+
+                  {/* Mobile Hamburger Button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen(true)}
+                    aria-label="Open mobile menu"
+                    className="sm:hidden flex items-center justify-center w-[8.5vw] h-[8.5vw] rounded-full bg-secondary/[0.08] hover:bg-secondary/[0.15] text-secondary transition-colors cursor-pointer shrink-0"
+                  >
+                    <svg
+                      className="w-[4.8vw] h-[4.8vw]"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <line x1="4" y1="7" x2="20" y2="7" />
+                      <line x1="4" y1="12" x2="20" y2="12" />
+                      <line x1="4" y1="17" x2="20" y2="17" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </header>
@@ -1103,8 +1150,8 @@ export function ProfileView({
                   </div>
 
                   {/* 5-Column Record Grid */}
-                  <div className="w-full overflow-x-auto sm:overflow-visible hide-scrollbar py-[2.5vw] px-[var(--margin)]">
-                    <div className="flex sm:grid sm:grid-cols-5 gap-[2.5vw] sm:gap-[1.5vw] w-fit sm:w-full items-start">
+                  <div className="w-full py-[2.5vw] px-[var(--margin)]">
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-[3.5vw] sm:gap-[1.5vw] w-full items-start">
                       {[1, 2, 3, 4, 5].map((pos, i) => {
                         const album = initialAlbums.find((a) => a.position === pos);
 
@@ -1117,7 +1164,11 @@ export function ProfileView({
                               }}
                               onMouseEnter={() => setHoveredAlbumIndex(i)}
                               onMouseLeave={() => setHoveredAlbumIndex(null)}
-                              className="w-[55vw] sm:w-full shrink-0 min-w-0 flex flex-col gap-[1.5vw] sm:gap-[0.65vw] will-change-transform group"
+                              className={`shrink-0 min-w-0 flex flex-col gap-[1.5vw] sm:gap-[0.65vw] will-change-transform group ${
+                                pos === 5
+                                  ? "col-span-2 sm:col-span-1 max-w-[calc(50%-1.75vw)] mx-auto sm:max-w-none w-full sm:w-full"
+                                  : "col-span-1 w-full"
+                              }`}
                             >
                               {/* Square Record Cover */}
                               <div className="w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary relative">
@@ -1227,9 +1278,11 @@ export function ProfileView({
                             onMouseEnter={() => setHoveredAlbumIndex(i)}
                             onMouseLeave={() => setHoveredAlbumIndex(null)}
                             onClick={() => isOwner && setAlbumModalPos(pos)}
-                            className={`w-[55vw] sm:w-full shrink-0 min-w-0 flex flex-col gap-[1.5vw] sm:gap-[0.65vw] will-change-transform group ${
-                              isOwner ? "cursor-pointer" : "opacity-80"
-                            }`}
+                            className={`shrink-0 min-w-0 flex flex-col gap-[1.5vw] sm:gap-[0.65vw] will-change-transform group ${
+                              pos === 5
+                                ? "col-span-2 sm:col-span-1 max-w-[calc(50%-1.75vw)] mx-auto sm:max-w-none w-full sm:w-full"
+                                : "col-span-1 w-full"
+                            } ${isOwner ? "cursor-pointer" : "opacity-80"}`}
                           >
                             <div className="w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary text-primary relative flex flex-col justify-between p-[3.5vw] sm:p-[1.2vw]">
                               {/* Top Rank Badge */}
@@ -1738,6 +1791,285 @@ export function ProfileView({
               setLists((prev) => [createdList, ...prev.filter((l) => l.id !== createdList.id)]);
             }}
           />
+        </div>
+      )}
+
+      {/* Mobile Navigation Drawer */}
+      {isMobileMenuOpen && (
+        <div data-lenis-prevent className="fixed inset-0 z-50 sm:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Drawer Sheet */}
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation drawer"
+            className="fixed inset-y-0 right-0 w-[86vw] max-w-[360px] bg-primary text-secondary border-l border-secondary/15 drop-shadow-soft flex flex-col justify-between overflow-hidden z-10 animate-in slide-in-from-right duration-200"
+          >
+            {/* Top Bar with user info and close button */}
+            <div className="p-5 border-b border-secondary/10 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-full overflow-hidden border border-secondary/25 shrink-0 flex items-center justify-center">
+                  <UserAvatar
+                    avatarUrl={isOwner ? avatarUrl : (currentUser?.avatarUrl || user.avatarUrl)}
+                    displayName={isOwner ? displayName : (currentUser?.displayName || user.displayName)}
+                    themeKey={isOwner ? activePalette.key : (currentUser?.themeKey || user.themeKey)}
+                    textClassName="text-sm font-bold leading-none"
+                  />
+                </div>
+                <div className="min-w-0 flex flex-col">
+                  <span className="text-sm font-semibold text-secondary truncate">
+                    {isOwner
+                      ? displayName || user.username
+                      : currentUser
+                      ? currentUser.displayName || currentUser.username
+                      : user.displayName || user.username}
+                  </span>
+                  <span className="text-xs text-secondary/60 truncate">
+                    @{isOwner ? user.username : (currentUser ? currentUser.username : user.username)}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-secondary/60 hover:text-secondary hover:bg-secondary/10 transition-colors cursor-pointer"
+                aria-label="Close menu"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Scrollable Drawer Content */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-5">
+              {/* Prominent Feed Button */}
+              <Link
+                href={isLoggedIn ? "/feed" : "/"}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium shadow-sm transition-transform active:scale-98 cursor-pointer text-sm"
+                style={{
+                  backgroundColor: activePalette.accent,
+                  color: activePalette.textOnAccent || "#0E0E0E",
+                }}
+              >
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                <span>{isLoggedIn ? "Feed" : "Home"}</span>
+              </Link>
+
+              {/* Anchor Shortcuts for Profile Sections */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] uppercase tracking-wider text-secondary/40 font-semibold px-1">
+                  Sections
+                </span>
+                <div className="flex flex-col gap-1">
+                  {[
+                    { id: "#overview", label: "Overview" },
+                    { id: "#records", label: "Top 5 Records" },
+                    { id: "#tracks", label: "Top 5 Tracks" },
+                    { id: "#lists", label: "Custom Lists" },
+                    { id: "#discussions", label: "Discussions" },
+                  ].map((sec) => (
+                    <button
+                      key={sec.id}
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        scrollTo(sec.id);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-secondary/80 hover:text-secondary hover:bg-secondary/[0.06] transition-colors text-left text-sm font-medium cursor-pointer"
+                    >
+                      <span>{sec.label}</span>
+                      <span className="text-secondary/30 text-xs">↓</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Owner Palette Selector */}
+              {isOwner && (
+                <div className="space-y-2 pt-3 border-t border-secondary/10">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-[11px] uppercase tracking-wider text-secondary/40 font-semibold">
+                      Color Palette
+                    </span>
+                    <span className="text-xs text-secondary/50 font-medium">
+                      {PALETTE_NAMES[activePalette.key] || activePalette.label}
+                    </span>
+                  </div>
+
+                  {verificationNotice && (
+                    <div className="p-2.5 rounded-lg bg-secondary/[0.05] border border-secondary/15 text-secondary text-xs flex flex-col gap-1.5">
+                      <span>{verificationNotice}</span>
+                      <button
+                        type="button"
+                        disabled={resendingVerification}
+                        onClick={handleResendVerification}
+                        className="text-left underline font-medium text-xs text-secondary/80 hover:text-secondary cursor-pointer"
+                      >
+                        {resendingVerification ? "Sending..." : "Resend verification link"}
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {PROFILE_PALETTES.map((p) => {
+                      const isSelected = currentThemeKey === p.key;
+                      const isLocked = Boolean(p.requiresVerification && !emailVerified);
+                      const name =
+                        PALETTE_NAMES[p.key] || (p.label.charAt(0).toUpperCase() + p.label.slice(1));
+
+                      return (
+                        <button
+                          key={p.key}
+                          type="button"
+                          onClick={() => {
+                            if (isLocked) {
+                              setVerificationNotice(
+                                `The "${p.label}" palette is exclusive to members with a verified email.`
+                              );
+                            } else {
+                              handlePaletteChange(p.key);
+                            }
+                          }}
+                          className={`flex items-center gap-2 p-2 rounded-lg border transition-all text-left ${
+                            isSelected
+                              ? "border-secondary bg-secondary/[0.08]"
+                              : "border-secondary/15 hover:border-secondary/30 bg-secondary/[0.02]"
+                          } ${isLocked ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                        >
+                          <div
+                            className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center relative shadow-sm"
+                            style={{
+                              background: `radial-gradient(circle at 35% 35%, ${p.secondaryOrb}, ${p.accent} 65%, ${p.softGlow})`,
+                            }}
+                          >
+                            {isLocked ? (
+                              <svg
+                                className="w-3 h-3 text-white drop-shadow"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                              >
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                              </svg>
+                            ) : isSelected ? (
+                              <div className="w-1.5 h-1.5 rounded-full bg-white shadow" />
+                            ) : null}
+                          </div>
+                          <span className="text-xs font-medium text-secondary truncate">
+                            {name}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Profile Controls (Edit Profile & Share Top 5 Poster) */}
+              {isOwner && (
+                <div className="space-y-2 pt-3 border-t border-secondary/10">
+                  <span className="text-[11px] uppercase tracking-wider text-secondary/40 font-semibold px-1">
+                    Actions
+                  </span>
+                  <div className="flex flex-col gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditing(!isEditing);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border border-secondary/20 hover:bg-secondary/[0.06] transition-colors text-left text-sm font-medium cursor-pointer"
+                    >
+                      <svg className="w-4 h-4 text-secondary/70 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                      <span>{isEditing ? "Close edit" : "Edit Profile"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsShareModalOpen(true);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border border-secondary/20 hover:bg-secondary/[0.06] transition-colors text-left text-sm font-medium cursor-pointer"
+                    >
+                      <svg className="w-4 h-4 text-secondary/70 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="18" cy="5" r="3" />
+                        <circle cx="6" cy="12" r="3" />
+                        <circle cx="18" cy="19" r="3" />
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                      </svg>
+                      <span>Share Top 5 Poster</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Settings & Logout / Sign In */}
+              <div className="space-y-1.5 pt-3 border-t border-secondary/10">
+                {isOwner || isLoggedIn || currentUser ? (
+                  <>
+                    <Link
+                      href="/settings"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-secondary/80 hover:text-secondary hover:bg-secondary/[0.06] transition-colors text-sm font-medium"
+                    >
+                      <svg className="w-4 h-4 text-secondary/70 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                      </svg>
+                      <span>Settings</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      disabled={isLoggingOut}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors text-left text-sm font-medium cursor-pointer"
+                    >
+                      <svg className="w-4 h-4 text-red-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                      </svg>
+                      <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-secondary text-primary font-medium text-sm transition-opacity hover:opacity-90 cursor-pointer"
+                  >
+                    Sign in
+                  </Link>
+                )}
+              </div>
+            </div>
+          </aside>
         </div>
       )}
     </div>

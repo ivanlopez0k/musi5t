@@ -36,13 +36,13 @@ export function Header() {
     <>
       {/* 1. Difference Blended Typography Header */}
       <header className="header header-blend">
-        <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-auto select-none">
+        <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] pointer-events-none select-none">
           {/* Brand Wordmark */}
           <div className="mediumText col-span-3 sm:col-span-3 flex justify-start items-center">
             <button
               type="button"
               onClick={() => scrollTo("#hero")}
-              className="nav-btn cursor-pointer text-left"
+              className="pointer-events-auto nav-btn cursor-pointer text-left"
             >
               musi5t
             </button>
@@ -86,7 +86,7 @@ export function Header() {
           <div className="col-span-3 sm:col-span-3 flex justify-end items-center gap-2 sm:gap-4">
             <Link
               href="/login"
-              className="text-[3.5vw] sm:text-[0.85vw] font-medium opacity-70 hover:opacity-100 transition-opacity"
+              className="pointer-events-auto text-[3.5vw] sm:text-[0.85vw] font-medium opacity-70 hover:opacity-100 transition-opacity"
             >
               Sign in
             </Link>
@@ -106,11 +106,11 @@ export function Header() {
       <header className="header header-actions" style={{ pointerEvents: "none" }}>
         <div className="layout-fixed layout-grid relative w-full z-30 mt-[4vw] sm:mt-[2vw] select-none" style={{ pointerEvents: "none" }}>
           
-          <div className="col-start-10 col-span-3 sm:col-start-10 sm:col-span-3 flex justify-end items-center" style={{ pointerEvents: "none" }}>
-            <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]" style={{ pointerEvents: "auto" }}>
+          <div className="col-start-4 col-span-3 sm:col-start-10 sm:col-span-3 flex justify-end items-center pointer-events-none" style={{ pointerEvents: "none" }}>
+            <div className="pointer-events-auto drop-shadow rounded-[1vw] sm:rounded-[0.25vw]" style={{ pointerEvents: "auto" }}>
               <Link
                 href="/register"
-                className="main-btn smallText !px-[3vw] sm:!px-[0.6vw] !py-[1.5vw] sm:!py-[0.25vw] !gap-[1.5vw] sm:!gap-[0.5vw]"
+                className="pointer-events-auto main-btn smallText !px-[3vw] sm:!px-[0.6vw] !py-[1.5vw] sm:!py-[0.25vw] !gap-[1.5vw] sm:!gap-[0.5vw]"
               >
                 <span className="main-btn__icon" aria-hidden="true" />
                 <span className="main-btn__label">

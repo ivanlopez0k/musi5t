@@ -63,6 +63,8 @@ export function LandingPageClient() {
       lerp: 0.18,
       wheelMultiplier: 1.05,
       smoothWheel: true,
+      syncTouch: true,
+      syncTouchLerp: 0.1,
     });
     setLenis(lenis);
 
@@ -179,7 +181,7 @@ export function LandingPageClient() {
                   ref={heroRef}
                   id="hero"
                   data-nav-color="secondary"
-                  className="w-full h-lvh bg-primary flex items-end relative overflow-hidden select-none"
+                  className="w-full h-lvh bg-primary flex items-end relative select-none touch-pan-y"
                 >
                   {/* Giant 3D Hero Wordmark */}
                   <h1 className="inline-block whitespace-nowrap will-change-transform text-[26vw] sm:text-[30vw] md:text-[20vw] tracking-[-0.07em] absolute top-[26%] left-1/2 -translate-x-1/2 translate-y-[-30%] leading-none text-secondary select-none pointer-events-none [perspective:1400px]">
