@@ -15,6 +15,13 @@
       "when": 1792115025121,
       "tag": "0001_classy_timeslip",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792806510550,
+      "tag": "0002_plain_pretty_boy",
+      "breakpoints": true
     }
   ]
 }
