@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Lenis from "lenis";
@@ -10,6 +10,7 @@ import { setupNavColorTriggers } from "@/lib/nav-theme";
 import type { CurrentUserSummary } from "@/components/feed/FeedView";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { LogoutButton } from "@/components/ui/LogoutButton";
+import { MobileMenuButton, MobileNavDrawer } from "@/components/ui/MobileNavDrawer";
 import type { ReleasesFeedData } from "@/lib/catalog/releases";
 
 interface ReleasesViewProps {
@@ -21,6 +22,7 @@ export function ReleasesView({ data, currentUser }: ReleasesViewProps) {
   const router = useRouter();
   const mainRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { groups, totalReleases, activeView, followedArtistsCount } = data;
 
@@ -55,6 +57,17 @@ export function ReleasesView({ data, currentUser }: ReleasesViewProps) {
       setLenis(null);
     };
   }, []);
+
+  // Stop Lenis background scroll when MobileNavDrawer is open
+  useEffect(() => {
+    const lenis = getLenis();
+    if (!lenis) return;
+    if (isMobileMenuOpen) {
+      lenis.stop();
+    } else {
+      lenis.start();
+    }
+  }, [isMobileMenuOpen]);
 
   const scrollTo = (hash: string) => {
     const lenis = getLenis();
@@ -114,11 +127,13 @@ export function ReleasesView({ data, currentUser }: ReleasesViewProps) {
                     <>
                       <Link
                         href="/settings"
-                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                        className="hidden sm:inline-block nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
-                      <LogoutButton className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer" />
+                      <div className="hidden sm:inline-block">
+                        <LogoutButton className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer" />
+                      </div>
                       <Link
                         href={`/@${currentUser.username}`}
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
@@ -133,16 +148,17 @@ export function ReleasesView({ data, currentUser }: ReleasesViewProps) {
                           textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
                         />
                       </Link>
+                      <MobileMenuButton onClick={() => setIsMobileMenuOpen(true)} />
                     </>
                   ) : (
                     <>
                       <Link
                         href="/login"
-                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                        className="hidden sm:inline-block nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Sign in
                       </Link>
-                      <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                      <div className="hidden sm:block drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
                         <Link href="/register" className="main-btn smallText">
                           <span className="main-btn__icon" aria-hidden="true" />
                           <span className="main-btn__label">
@@ -155,6 +171,7 @@ export function ReleasesView({ data, currentUser }: ReleasesViewProps) {
                           </span>
                         </Link>
                       </div>
+                      <MobileMenuButton onClick={() => setIsMobileMenuOpen(true)} />
                     </>
                   )}
                 </div>
@@ -520,6 +537,14 @@ export function ReleasesView({ data, currentUser }: ReleasesViewProps) {
           </div>
         </div>
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      <MobileNavDrawer
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        currentUser={currentUser}
+        currentPath="/releases"
+      />
     </div>
   );
 }

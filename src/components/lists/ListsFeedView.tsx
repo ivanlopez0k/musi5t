@@ -5,10 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
-import { setLenis } from "@/lib/lenis-store";
+import { setLenis, getLenis } from "@/lib/lenis-store";
 import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { LogoutButton } from "@/components/ui/LogoutButton";
+import { MobileMenuButton, MobileNavDrawer } from "@/components/ui/MobileNavDrawer";
 import { ListCard } from "./ListCard";
 import { CreateListModal } from "./CreateListModal";
 import type { ListSummary } from "@/lib/lists/service";
@@ -32,6 +33,7 @@ export function ListsFeedView({ initialLists, currentUser }: ListsFeedViewProps)
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const mainRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -67,6 +69,16 @@ export function ListsFeedView({ initialLists, currentUser }: ListsFeedViewProps)
       setLenis(null);
     };
   }, []);
+
+  useEffect(() => {
+    const lenis = getLenis();
+    if (!lenis) return;
+    if (isMobileMenuOpen) {
+      lenis.stop();
+    } else {
+      lenis.start();
+    }
+  }, [isMobileMenuOpen]);
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -144,11 +156,13 @@ export function ListsFeedView({ initialLists, currentUser }: ListsFeedViewProps)
                     <>
                       <Link
                         href="/settings"
-                        className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                        className="hidden sm:inline-block nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
-                      <LogoutButton className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer" />
+                      <div className="hidden sm:inline-block">
+                        <LogoutButton className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer" />
+                      </div>
                       <Link
                         href={`/@${currentUser.username}`}
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-current/25 hover:border-current transition-all drop-shadow flex items-center justify-center shrink-0 group"
@@ -161,14 +175,18 @@ export function ListsFeedView({ initialLists, currentUser }: ListsFeedViewProps)
                           textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
                         />
                       </Link>
+                      <MobileMenuButton onClick={() => setIsMobileMenuOpen(true)} />
                     </>
                   ) : (
-                    <Link
-                      href="/login"
-                      className="nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
-                    >
-                      Sign in
-                    </Link>
+                    <>
+                      <Link
+                        href="/login"
+                        className="hidden sm:inline-block nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                      >
+                        Sign in
+                      </Link>
+                      <MobileMenuButton onClick={() => setIsMobileMenuOpen(true)} />
+                    </>
                   )}
                 </div>
               </div>
@@ -279,6 +297,14 @@ export function ListsFeedView({ initialLists, currentUser }: ListsFeedViewProps)
           </div>
         </div>
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      <MobileNavDrawer
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        currentUser={currentUser}
+        currentPath="/lists"
+      />
 
       {/* Create List Modal */}
       {isCreateModalOpen && (

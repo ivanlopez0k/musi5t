@@ -11,6 +11,7 @@ import type { FeedPost } from "@/lib/feed/visibility";
 import { AlbumSearchModal } from "@/components/profile/AlbumSearchModal";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { LogoutButton } from "@/components/ui/LogoutButton";
+import { MobileMenuButton, MobileNavDrawer } from "@/components/ui/MobileNavDrawer";
 
 export interface PostReplyItem {
   id: string;
@@ -532,6 +533,7 @@ export function FeedView({
 
   // Tag album modal state
   const [isTaggingAlbum, setIsTaggingAlbum] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Lenis refs
   const mainRef = useRef<HTMLElement>(null);
@@ -570,16 +572,16 @@ export function FeedView({
     };
   }, []);
 
-  // Stop Lenis background scroll when AlbumSearchModal is open
+  // Stop Lenis background scroll when AlbumSearchModal or MobileNavDrawer is open
   useEffect(() => {
     const lenis = getLenis();
     if (!lenis) return;
-    if (isTaggingAlbum) {
+    if (isTaggingAlbum || isMobileMenuOpen) {
       lenis.stop();
     } else {
       lenis.start();
     }
-  }, [isTaggingAlbum]);
+  }, [isTaggingAlbum, isMobileMenuOpen]);
 
   const scrollTo = (hash: string) => {
     const lenis = getLenis();
@@ -763,11 +765,13 @@ export function FeedView({
                     <>
                       <Link
                         href="/settings"
-                        className="opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
+                        className="hidden sm:inline-block opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"
                       >
                         Settings
                       </Link>
-                      <LogoutButton className="opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer" />
+                      <div className="hidden sm:inline-block">
+                        <LogoutButton className="opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity cursor-pointer" />
+                      </div>
                       <Link
                         href={`/@${currentUser.username}`}
                         className="w-[8vw] h-[8vw] sm:w-[2.2vw] sm:h-[2.2vw] rounded-full overflow-hidden border border-secondary/25 hover:border-secondary transition-all drop-shadow flex items-center justify-center shrink-0 group"
@@ -780,16 +784,17 @@ export function FeedView({
                           textClassName="text-[3.2vw] sm:text-[0.8vw] font-bold leading-none"
                         />
                       </Link>
+                      <MobileMenuButton onClick={() => setIsMobileMenuOpen(true)} />
                     </>
                   ) : (
                     <>
                       <Link
                         href="/login"
-                        className="text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
+                        className="hidden sm:inline-block text-secondary/60 hover:text-secondary text-[3.2vw] sm:text-[0.85vw] font-medium transition-colors"
                       >
                         Sign in
                       </Link>
-                      <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
+                      <div className="hidden sm:block drop-shadow rounded-[1vw] sm:rounded-[0.25vw]">
                         <Link href="/register" className="main-btn smallText">
                           <span className="main-btn__icon" aria-hidden="true" />
                           <span className="main-btn__label">
@@ -802,6 +807,7 @@ export function FeedView({
                           </span>
                         </Link>
                       </div>
+                      <MobileMenuButton onClick={() => setIsMobileMenuOpen(true)} />
                     </>
                   )}
                 </div>
@@ -1148,6 +1154,54 @@ export function FeedView({
       </div>
 
       {/* Album Tagging Modal (Rendered outside clip-path main) */}
+      {/* Mobile Navigation Drawer */}
+      <MobileNavDrawer
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        currentUser={currentUser}
+        currentPath="/feed"
+        accentColor="#FFE600"
+        extraContent={
+          <div className="space-y-2 pt-2 border-t border-secondary/10">
+            <span className="text-[11px] uppercase tracking-wider text-secondary/40 font-semibold px-1">
+              Feed Filter
+            </span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  switchFeedType("for-you");
+                  setIsMobileMenuOpen(false);
+                  scrollTo("#feed-top");
+                }}
+                className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  feedType === "for-you"
+                    ? "bg-secondary text-primary"
+                    : "bg-secondary/10 text-secondary hover:bg-secondary/15"
+                }`}
+              >
+                For You
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  switchFeedType("global");
+                  setIsMobileMenuOpen(false);
+                  scrollTo("#feed-top");
+                }}
+                className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  feedType === "global"
+                    ? "bg-secondary text-primary"
+                    : "bg-secondary/10 text-secondary hover:bg-secondary/15"
+                }`}
+              >
+                Global
+              </button>
+            </div>
+          </div>
+        }
+      />
+
       {isTaggingAlbum && (
         <div data-lenis-prevent>
           <AlbumSearchModal
