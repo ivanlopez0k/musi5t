@@ -12,6 +12,7 @@ export interface AlbumTrack {
   title: string;
   durationSeconds: number;
   durationFormatted: string; // e.g. "3:57"
+  previewUrl?: string | null;
 }
 
 export interface AlbumTracklist {
@@ -37,6 +38,7 @@ interface DeezerTrackItem {
   duration?: number;
   track_position?: number;
   disk_number?: number;
+  preview?: string;
 }
 
 interface ItunesSongItem {
@@ -49,6 +51,7 @@ interface ItunesSongItem {
   trackNumber?: number;
   trackTimeMillis?: number;
   discNumber?: number;
+  previewUrl?: string;
 }
 
 async function persistTracks(
@@ -150,6 +153,7 @@ export async function getAlbumTracklist(
             title: t.title,
             durationSeconds: t.durationSeconds,
             durationFormatted: formatTrackDuration(t.durationSeconds),
+            previewUrl: null,
           })),
           totalTracks: cached.length,
           totalDurationFormatted: formatTotalDuration(totalSeconds),
@@ -253,6 +257,7 @@ export async function getAlbumTracklist(
                 title: item.title_short || item.title || `Track ${index + 1}`,
                 durationSeconds,
                 durationFormatted: formatTrackDuration(durationSeconds),
+                previewUrl: item.preview || null,
               };
             });
 
@@ -345,6 +350,7 @@ export async function getAlbumTracklist(
               title: item.trackName || `Track ${index + 1}`,
               durationSeconds,
               durationFormatted: formatTrackDuration(durationSeconds),
+              previewUrl: item.previewUrl || null,
             };
           });
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { AppProviders } from "@/components/providers/AppProviders";
 
 const khTeka = localFont({
   src: [
@@ -42,9 +43,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={khTeka.variable}>
       <body className={`${khTeka.className} min-h-full flex flex-col font-sans`}>
-        {children}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
 }
-

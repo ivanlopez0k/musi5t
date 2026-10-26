@@ -17,6 +17,7 @@ import type { FeedPost } from "@/lib/feed/visibility";
 import type { AlbumTracklist } from "@/lib/catalog/tracks";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { LogoutButton } from "@/components/ui/LogoutButton";
+import { useAudioPlayer } from "@/lib/audio/AudioPlayerContext";
 
 export interface TopListenerItem {
   position: number;
@@ -58,6 +59,7 @@ export function AlbumDetailView({
   tracklist,
 }: AlbumDetailViewProps) {
   const router = useRouter();
+  const { currentTrack, isPlaying, isLoading, playTrack, pause, resume } = useAudioPlayer();
   const mainRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -325,24 +327,102 @@ export function AlbumDetailView({
                               : "sm:max-w-[50%]"
                           } gap-y-0`}
                         >
-                          {tracklist.tracks.map((track, idx) => (
-                            <div
-                              key={`${track.position}-${track.title}-${idx}`}
-                              className="flex items-center justify-between py-[2.2vw] sm:py-[0.85vw] border-b border-secondary/10 hover:bg-secondary/[0.02] px-[1vw] rounded-[0.2vw] transition-colors group"
-                            >
-                              <div className="flex items-center min-w-0">
-                                <span className="px-[0.8vw] py-[0.2vw] sm:px-[0.35vw] sm:py-[0.1vw] rounded-[0.2vw] bg-secondary/5 text-secondary/50 detailText font-mono mr-[2vw] sm:mr-[1vw] group-hover:bg-yellow group-hover:text-secondary transition-colors shrink-0">
-                                  {String(track.position).padStart(2, "0")}
-                                </span>
-                                <span className="smallText font-medium text-secondary truncate max-w-[55vw] sm:max-w-[28vw] group-hover:underline">
-                                  {track.title}
-                                </span>
+                          {tracklist.tracks.map((track, idx) => {
+                            const isThisTrackActive =
+                              currentTrack !== null &&
+                              currentTrack.title.toLowerCase() === track.title.toLowerCase() &&
+                              currentTrack.artistName.toLowerCase() === album.artistName.toLowerCase();
+                            const isThisTrackPlaying = isThisTrackActive && isPlaying;
+                            const isThisTrackLoading = isThisTrackActive && isLoading;
+
+                            const handleTrackPlayback = () => {
+                              if (isThisTrackPlaying) {
+                                pause();
+                              } else if (isThisTrackActive) {
+                                resume();
+                              } else {
+                                playTrack({
+                                  title: track.title,
+                                  artistName: album.artistName,
+                                  coverUrl: album.defaultCoverUrl,
+                                  previewUrl: track.previewUrl,
+                                });
+                              }
+                            };
+
+                            return (
+                              <div
+                                key={`${track.position}-${track.title}-${idx}`}
+                                onClick={handleTrackPlayback}
+                                className={`flex items-center justify-between py-[2.2vw] sm:py-[0.85vw] border-b border-secondary/10 hover:bg-secondary/[0.04] px-[1vw] rounded-[0.2vw] transition-colors group cursor-pointer ${
+                                  isThisTrackActive ? "bg-secondary/[0.06]" : ""
+                                }`}
+                              >
+                                <div className="flex items-center min-w-0">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleTrackPlayback();
+                                    }}
+                                    aria-label={
+                                      isThisTrackPlaying
+                                        ? `Pause ${track.title}`
+                                        : `Play ${track.title}`
+                                    }
+                                    className={`w-6 h-6 sm:w-5 sm:h-5 rounded-[0.2vw] flex items-center justify-center detailText font-mono mr-[2vw] sm:mr-[1vw] transition-colors shrink-0 cursor-pointer ${
+                                      isThisTrackActive
+                                        ? "bg-yellow text-secondary"
+                                        : "bg-secondary/5 text-secondary/50 group-hover:bg-yellow group-hover:text-secondary"
+                                    }`}
+                                  >
+                                    {isThisTrackLoading ? (
+                                      <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                      </svg>
+                                    ) : isThisTrackPlaying ? (
+                                      <span className="flex items-end gap-[1.5px] h-2.5">
+                                        <span className="w-[2px] h-2.5 bg-secondary animate-pulse" />
+                                        <span className="w-[2px] h-1.5 bg-secondary animate-pulse [animation-delay:150ms]" />
+                                        <span className="w-[2px] h-2.5 bg-secondary animate-pulse [animation-delay:300ms]" />
+                                      </span>
+                                    ) : isThisTrackActive ? (
+                                      <svg className="w-2.5 h-2.5 fill-current ml-0.5" viewBox="0 0 24 24">
+                                        <polygon points="5 3 19 12 5 21 5 3" />
+                                      </svg>
+                                    ) : (
+                                      <>
+                                        <span className="group-hover:hidden">
+                                          {String(track.position).padStart(2, "0")}
+                                        </span>
+                                        <svg className="w-2.5 h-2.5 fill-current ml-0.5 hidden group-hover:block" viewBox="0 0 24 24">
+                                          <polygon points="5 3 19 12 5 21 5 3" />
+                                        </svg>
+                                      </>
+                                    )}
+                                  </button>
+                                  <span
+                                    className={`smallText font-medium truncate max-w-[55vw] sm:max-w-[28vw] group-hover:underline transition-colors ${
+                                      isThisTrackActive ? "text-yellow font-semibold" : "text-secondary"
+                                    }`}
+                                  >
+                                    {track.title}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0 ml-[2vw] sm:ml-[1vw]">
+                                  {isThisTrackPlaying && (
+                                    <span className="extraSmallText text-yellow font-mono text-[11px] hidden sm:inline-block">
+                                      previewing
+                                    </span>
+                                  )}
+                                  <span className="extraSmallText text-secondary/45 font-mono">
+                                    {track.durationFormatted}
+                                  </span>
+                                </div>
                               </div>
-                              <span className="extraSmallText text-secondary/45 font-mono ml-[2vw] sm:ml-[1vw] shrink-0">
-                                {track.durationFormatted}
-                              </span>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </div>

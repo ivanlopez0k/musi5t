@@ -18,6 +18,7 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { ListCard } from "@/components/lists/ListCard";
 import { CreateListModal } from "@/components/lists/CreateListModal";
 import type { ListSummary } from "@/lib/lists/service";
+import { useAudioPlayer } from "@/lib/audio/AudioPlayerContext";
 
 const PALETTE_NAMES: Record<string, string> = {
   lima: "Lima",
@@ -92,6 +93,7 @@ export function ProfileView({
   initialLists = [],
 }: ProfileViewProps) {
   const router = useRouter();
+  const { currentTrack, isPlaying, isLoading, playTrack, pause, resume } = useAudioPlayer();
   const [currentThemeKey, setCurrentThemeKey] = useState(user.themeKey || "lima");
   const [lists, setLists] = useState<ListSummary[]>(initialLists);
   const [isCreateListModalOpen, setIsCreateListModalOpen] = useState(false);
@@ -1357,12 +1359,33 @@ export function ProfileView({
                       const isLast = idx === 4;
 
                       if (song) {
+                        const isThisSongActive =
+                          currentTrack !== null &&
+                          currentTrack.title.toLowerCase() === song.title.toLowerCase() &&
+                          currentTrack.artistName.toLowerCase() === song.artistName.toLowerCase();
+                        const isThisSongPlaying = isThisSongActive && isPlaying;
+                        const isThisSongLoading = isThisSongActive && isLoading;
+
+                        const handleSongPlayback = () => {
+                          if (isThisSongPlaying) {
+                            pause();
+                          } else if (isThisSongActive) {
+                            resume();
+                          } else {
+                            playTrack({
+                              title: song.title,
+                              artistName: song.artistName,
+                              coverUrl: song.coverUrl,
+                            });
+                          }
+                        };
+
                         return (
                           <div
                             key={pos}
                             className={`col-span-full grid grid-cols-6 sm:grid-cols-12 gap-[var(--gutter)] items-center py-[3.8vw] sm:py-[1.8vw] border-t border-secondary/15 group hover:bg-secondary/[0.03] transition-colors rounded-[0.25vw] px-[1vw] ${
                               isLast ? "border-b" : ""
-                            }`}
+                            } ${isThisSongActive ? "bg-secondary/[0.04]" : ""}`}
                           >
                             {/* Index Number */}
                             <div className="col-span-1 flex items-center">
@@ -1379,30 +1402,95 @@ export function ProfileView({
 
                             {/* Track Cover & Title/Artist */}
                             <div className="col-span-3 sm:col-span-7 flex items-center gap-[2.5vw] sm:gap-[1.5vw] min-w-0 group-hover:translate-x-[0.4vw] transition-transform duration-300">
-                              {song.coverUrl ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={song.coverUrl}
-                                  alt={song.title}
-                                  onError={(e) => {
-                                    const target = e.currentTarget;
-                                    if (!target.src.includes("vinyl_player.webp")) {
-                                      target.src = "/images/musi5t/vinyl_player.webp";
-                                    }
-                                  }}
-                                  className="w-[11vw] h-[11vw] sm:w-[3.8vw] sm:h-[3.8vw] rounded-[0.3vw] object-cover drop-shadow-soft shrink-0"
-                                />
-                              ) : (
+                              <div
+                                onClick={handleSongPlayback}
+                                className="relative w-[11vw] h-[11vw] sm:w-[3.8vw] sm:h-[3.8vw] rounded-[0.3vw] overflow-hidden shrink-0 group/cover cursor-pointer drop-shadow-soft"
+                              >
+                                {song.coverUrl ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={song.coverUrl}
+                                    alt={song.title}
+                                    onError={(e) => {
+                                      const target = e.currentTarget;
+                                      if (!target.src.includes("vinyl_player.webp")) {
+                                        target.src = "/images/musi5t/vinyl_player.webp";
+                                      }
+                                    }}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div
+                                    className="w-full h-full flex items-center justify-center bg-secondary text-primary detailText"
+                                  >
+                                    0{pos}
+                                  </div>
+                                )}
+
+                                {/* Play/Pause Overlay Button */}
                                 <div
-                                  className="w-[11vw] h-[11vw] sm:w-[3.8vw] sm:h-[3.8vw] rounded-[0.3vw] shrink-0 flex items-center justify-center bg-secondary text-primary detailText"
+                                  className={`absolute inset-0 flex items-center justify-center transition-all duration-200 ${
+                                    isThisSongActive
+                                      ? "bg-black/50 opacity-100"
+                                      : "bg-black/40 opacity-0 group-hover/cover:opacity-100"
+                                  }`}
                                 >
-                                  0{pos}
+                                  <div
+                                    className="w-7 h-7 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-white drop-shadow transition-transform hover:scale-110"
+                                    style={{
+                                      backgroundColor: activePalette.accent,
+                                      color: activePalette.textOnAccent || "#0E0E0E",
+                                    }}
+                                  >
+                                    {isThisSongLoading ? (
+                                      <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                      </svg>
+                                    ) : isThisSongPlaying ? (
+                                      <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                                        <rect x="6" y="4" width="4" height="16" rx="1" />
+                                        <rect x="14" y="4" width="4" height="16" rx="1" />
+                                      </svg>
+                                    ) : (
+                                      <svg className="w-3 h-3 fill-current ml-0.5" viewBox="0 0 24 24">
+                                        <polygon points="5 3 19 12 5 21 5 3" />
+                                      </svg>
+                                    )}
+                                  </div>
                                 </div>
-                              )}
-                              <div className="min-w-0">
-                                <h3 className="mediumText font-medium truncate">
-                                  {song.title}
-                                </h3>
+                              </div>
+
+                              <div
+                                className="min-w-0 cursor-pointer"
+                                onClick={handleSongPlayback}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <h3
+                                    className={`mediumText font-medium truncate transition-colors ${
+                                      isThisSongActive ? "font-semibold" : ""
+                                    }`}
+                                    style={isThisSongActive ? { color: activePalette.accent } : undefined}
+                                  >
+                                    {song.title}
+                                  </h3>
+                                  {isThisSongPlaying && (
+                                    <span className="flex items-end gap-[1.5px] h-3 shrink-0">
+                                      <span
+                                        className="w-[2px] h-3 rounded-full animate-bounce [animation-duration:800ms]"
+                                        style={{ backgroundColor: activePalette.accent }}
+                                      />
+                                      <span
+                                        className="w-[2px] h-2 rounded-full animate-bounce [animation-delay:200ms] [animation-duration:600ms]"
+                                        style={{ backgroundColor: activePalette.accent }}
+                                      />
+                                      <span
+                                        className="w-[2px] h-3 rounded-full animate-bounce [animation-delay:400ms] [animation-duration:900ms]"
+                                        style={{ backgroundColor: activePalette.accent }}
+                                      />
+                                    </span>
+                                  )}
+                                </div>
                                 <p className="extraSmallText text-secondary/60 truncate mt-[0.2vw]">
                                   {song.artistName}
                                 </p>
