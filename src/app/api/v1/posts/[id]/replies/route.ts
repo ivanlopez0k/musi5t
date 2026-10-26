@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
-import { blocks, postReplies, posts } from "@/db/schema";
+import { blocks, notifications, postReplies, posts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
 
@@ -156,6 +156,16 @@ export async function POST(
         body: bodyText,
       })
       .returning();
+
+    if (parentPost.authorId !== user.id) {
+      await db.insert(notifications).values({
+        recipientId: parentPost.authorId,
+        actorId: user.id,
+        type: "reply",
+        postId: parentPost.id,
+        replyId: created.id,
+      });
+    }
 
     return NextResponse.json(
       {

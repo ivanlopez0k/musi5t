@@ -11,6 +11,7 @@ import type { CurrentUserSummary } from "@/components/feed/FeedView";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { LogoutButton } from "@/components/ui/LogoutButton";
 import { MobileMenuButton, MobileNavDrawer } from "@/components/ui/MobileNavDrawer";
+import { NotificationsPopover } from "@/components/notifications/NotificationsPopover";
 
 export interface RankedAlbumItem {
   id: string;
@@ -141,6 +142,7 @@ export function RankingsView({
                 <div className="col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
                   {currentUser ? (
                     <>
+                      <NotificationsPopover className="nav-blend" />
                       <Link
                         href="/settings"
                         className="hidden sm:inline-block nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"

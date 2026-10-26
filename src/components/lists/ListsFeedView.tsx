@@ -10,6 +10,7 @@ import { setupNavColorTriggers } from "@/lib/nav-theme";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { LogoutButton } from "@/components/ui/LogoutButton";
 import { MobileMenuButton, MobileNavDrawer } from "@/components/ui/MobileNavDrawer";
+import { NotificationsPopover } from "@/components/notifications/NotificationsPopover";
 import { ListCard } from "./ListCard";
 import { CreateListModal } from "./CreateListModal";
 import type { ListSummary } from "@/lib/lists/service";
@@ -154,6 +155,7 @@ export function ListsFeedView({ initialLists, currentUser }: ListsFeedViewProps)
                 <div className="col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
                   {currentUser ? (
                     <>
+                      <NotificationsPopover className="nav-blend" />
                       <Link
                         href="/settings"
                         className="hidden sm:inline-block nav-blend opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"

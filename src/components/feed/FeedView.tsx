@@ -12,6 +12,7 @@ import { AlbumSearchModal } from "@/components/profile/AlbumSearchModal";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { LogoutButton } from "@/components/ui/LogoutButton";
 import { MobileMenuButton, MobileNavDrawer } from "@/components/ui/MobileNavDrawer";
+import { NotificationsPopover } from "@/components/notifications/NotificationsPopover";
 
 export interface PostReplyItem {
   id: string;
@@ -220,6 +221,7 @@ export function InteractivePostList({
         return (
           <article
             key={post.id}
+            id={`post-${post.id}`}
             className="bg-primary text-secondary border border-secondary/15 rounded-[0.5vw] drop-shadow-soft p-[3.5vw] sm:p-[2vw] mb-[2.5vw] sm:mb-[1.5vw] transition-colors hover:border-secondary/25"
           >
             {/* Author Header */}
@@ -763,6 +765,7 @@ export function FeedView({
                 <div className="col-span-3 sm:col-span-4 flex justify-end items-center gap-[2vw] sm:gap-[1vw]">
                   {currentUser ? (
                     <>
+                      <NotificationsPopover />
                       <Link
                         href="/settings"
                         className="hidden sm:inline-block opacity-70 hover:opacity-100 text-[3.2vw] sm:text-[0.85vw] font-medium transition-opacity"

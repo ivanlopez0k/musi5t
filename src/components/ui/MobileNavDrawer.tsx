@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { UserAvatar } from "./UserAvatar";
 import { LogoutButton } from "./LogoutButton";
+import { NotificationsPopover } from "../notifications/NotificationsPopover";
 
 export interface MobileNavDrawerUser {
   id?: string;
@@ -130,14 +131,17 @@ export function MobileNavDrawer({
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-secondary/60 hover:text-secondary hover:bg-secondary/10 transition-colors cursor-pointer"
-            aria-label="Close menu"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {currentUser && <NotificationsPopover />}
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-secondary/60 hover:text-secondary hover:bg-secondary/10 transition-colors cursor-pointer"
+              aria-label="Close menu"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Drawer Content */}
@@ -188,6 +192,27 @@ export function MobileNavDrawer({
 
             {currentUser ? (
               <div className="flex flex-col gap-1">
+                <NotificationsPopover
+                  align="right"
+                  renderTrigger={(unreadCount, toggleOpen) => (
+                    <button
+                      type="button"
+                      onClick={toggleOpen}
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-secondary/80 hover:text-secondary hover:bg-secondary/[0.05] transition-colors text-left cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>Notifications</span>
+                        {unreadCount > 0 && (
+                          <span className="px-1.5 py-0.5 rounded-full bg-[#ffd83d] text-[#0E0E0E] text-[10px] font-bold leading-none">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-secondary/40">🔔</span>
+                    </button>
+                  )}
+                />
+
                 <Link
                   href={`/@${currentUser.username}`}
                   onClick={onClose}

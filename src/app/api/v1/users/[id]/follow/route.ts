@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
-import { follows, blocks, users } from "@/db/schema";
+import { follows, blocks, notifications, users } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/session";
 import { and, eq, or } from "drizzle-orm";
 
@@ -53,13 +53,22 @@ export async function POST(
       );
     }
 
-    await db
+    const inserted = await db
       .insert(follows)
       .values({
         followerId: user.id,
         followeeId: targetId,
       })
-      .onConflictDoNothing();
+      .onConflictDoNothing()
+      .returning({ followerId: follows.followerId });
+
+    if (inserted.length > 0 && targetId !== user.id) {
+      await db.insert(notifications).values({
+        recipientId: targetId,
+        actorId: user.id,
+        type: "follow",
+      });
+    }
 
     return NextResponse.json({ success: true, following: true });
   } catch (error: unknown) {
@@ -86,14 +95,27 @@ export async function DELETE(
 
     const { id: targetId } = await params;
 
-    await db
+    const deleted = await db
       .delete(follows)
       .where(
         and(
           eq(follows.followerId, user.id),
           eq(follows.followeeId, targetId)
         )
-      );
+      )
+      .returning({ followerId: follows.followerId });
+
+    if (deleted.length > 0) {
+      await db
+        .delete(notifications)
+        .where(
+          and(
+            eq(notifications.recipientId, targetId),
+            eq(notifications.actorId, user.id),
+            eq(notifications.type, "follow")
+          )
+        );
+    }
 
     return NextResponse.json({ success: true, following: false });
   } catch (error: unknown) {
