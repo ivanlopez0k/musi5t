@@ -227,11 +227,11 @@ export function AlbumSearchModal({
   return (
     <div
       data-lenis-prevent
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 pt-[5vh] sm:pt-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
     >
-      <div className="relative w-full max-w-2xl bg-primary text-secondary border border-secondary/15 rounded-[1.5vw] sm:rounded-[0.6vw] drop-shadow-soft overflow-hidden flex flex-col max-h-[85dvh] sm:max-h-[85vh]">
+      <div className="relative w-full max-w-2xl bg-primary text-secondary border border-secondary/15 rounded-[1.5vw] sm:rounded-[0.6vw] drop-shadow-soft overflow-hidden flex flex-col max-h-[85dvh] sm:max-h-[85vh] my-auto">
         {/* Modal Top Bar */}
-        <div className="px-[4vw] py-[3vw] sm:px-[1.8vw] sm:py-[1.3vw] border-b border-secondary/15 flex items-center justify-between bg-primary">
+        <div className="px-[4vw] py-[3vw] sm:px-[1.8vw] sm:py-[1.3vw] border-b border-secondary/15 flex items-center justify-between bg-primary shrink-0">
           <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
             <div className="drop-shadow rounded-[0.25vw]">
               <div
@@ -256,11 +256,6 @@ export function AlbumSearchModal({
           data-lenis-prevent
           style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
           className="flex-1 min-h-0 overflow-y-auto p-[4vw] sm:p-[1.8vw] space-y-[3vw] sm:space-y-[1.4vw] overscroll-contain touch-pan-y"
-          onScroll={() => {
-            if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement && document.activeElement.tagName === "INPUT") {
-              document.activeElement.blur();
-            }
-          }}
         >
           {selectedAlbum ? (
             // Edition / Pressing Selection Step
@@ -301,19 +296,19 @@ export function AlbumSearchModal({
                           type="button"
                           onClick={() => setSelectedEdition(ed)}
                           style={{ touchAction: "pan-y" }}
-                          className={`relative flex flex-col p-[1.5vw] sm:p-[0.75vw] rounded-[0.4vw] border cursor-pointer transition-all text-left touch-pan-y select-none ${
+                          className={`relative flex flex-col p-[1.5vw] sm:p-[0.75vw] rounded-[0.4vw] border cursor-pointer transition-all text-left touch-pan-y ${
                             isSelected
                               ? "border-secondary bg-secondary/[0.06] drop-shadow-soft"
                               : "border-secondary/15 hover:border-secondary/40 bg-secondary/[0.02]"
                           }`}
                         >
-                          <div className="relative aspect-square w-full rounded-[0.3vw] overflow-hidden mb-[1.5vw] sm:mb-[0.6vw] bg-secondary/10 drop-shadow pointer-events-none select-none">
+                          <div className="relative aspect-square w-full rounded-[0.3vw] overflow-hidden mb-[1.5vw] sm:mb-[0.6vw] bg-secondary/10 drop-shadow pointer-events-none">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={ed.coverUrl}
                               alt={ed.title}
                               draggable={false}
-                              className="w-full h-full object-cover pointer-events-none select-none"
+                              className="w-full h-full object-cover pointer-events-none"
                             />
                             {isSelected && (
                               <span
@@ -327,7 +322,7 @@ export function AlbumSearchModal({
                           <span className="extraSmallTextBold text-secondary truncate">
                             {ed.title}
                           </span>
-                          <div className="flex items-center gap-[1vw] sm:gap-[0.35vw] overflow-hidden mt-[0.5vw] sm:mt-[0.2vw]">
+                          <div className="flex items-center gap-[1vw] sm:gap-[0.35vw] min-w-0 mt-[0.5vw] sm:mt-[0.2vw]">
                             {ed.country && (
                               <span className="detailText font-mono uppercase px-[1.2vw] sm:px-[0.35vw] py-[0.1vw] bg-secondary/10 rounded-[0.2vw] text-secondary font-semibold shrink-0">
                                 {ed.country}
@@ -521,16 +516,16 @@ export function AlbumSearchModal({
                       type="button"
                       onClick={() => handlePickAlbum(alb)}
                       style={{ touchAction: "pan-y" }}
-                      className="bg-primary hover:bg-secondary/[0.03] border border-secondary/15 hover:border-secondary/40 rounded-[0.4vw] p-[2vw] sm:p-[0.9vw] flex items-center gap-[1.5vw] sm:gap-[0.8vw] drop-shadow-soft cursor-pointer transition-all group text-left touch-pan-y select-none"
+                      className="bg-primary hover:bg-secondary/[0.03] border border-secondary/15 hover:border-secondary/40 rounded-[0.4vw] p-[2vw] sm:p-[0.9vw] flex items-center gap-[1.5vw] sm:gap-[0.8vw] drop-shadow-soft cursor-pointer transition-all group text-left touch-pan-y"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={alb.defaultCoverUrl}
                         alt={alb.title}
                         draggable={false}
-                        className="aspect-square w-[14vw] sm:w-[4.2vw] rounded-[0.3vw] object-cover flex-shrink-0 drop-shadow group-hover:scale-105 transition-transform pointer-events-none select-none"
+                        className="aspect-square w-[14vw] sm:w-[4.2vw] rounded-[0.3vw] object-cover flex-shrink-0 drop-shadow group-hover:scale-105 transition-transform pointer-events-none"
                       />
-                      <div className="overflow-hidden flex-1">
+                      <div className="flex-1 min-w-0">
                         <h4 className="smallText font-medium text-secondary truncate">
                           {alb.title}
                         </h4>

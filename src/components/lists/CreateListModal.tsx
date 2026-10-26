@@ -203,7 +203,7 @@ function CreateListFormContent({
         role="dialog"
         aria-modal="true"
         aria-labelledby="create-list-title"
-        className="fixed inset-0 z-50 bg-secondary/80 backdrop-blur-md flex items-center justify-center p-[4vw] sm:p-[2vw] select-none"
+        className="fixed inset-0 z-50 bg-secondary/80 backdrop-blur-md flex items-center justify-center p-[4vw] sm:p-[2vw]"
       >
         <div
             data-lenis-prevent

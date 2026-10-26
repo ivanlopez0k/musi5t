@@ -72,11 +72,11 @@ export function SongSearchModal({
   return (
     <div
       data-lenis-prevent
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 pt-[5vh] sm:pt-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
     >
-      <div className="relative w-full max-w-2xl bg-primary text-secondary border border-secondary/15 rounded-[1.5vw] sm:rounded-[0.6vw] drop-shadow-soft overflow-hidden flex flex-col max-h-[85dvh] sm:max-h-[85vh]">
+      <div className="relative w-full max-w-2xl bg-primary text-secondary border border-secondary/15 rounded-[1.5vw] sm:rounded-[0.6vw] drop-shadow-soft overflow-hidden flex flex-col max-h-[85dvh] sm:max-h-[85vh] my-auto">
         {/* Modal Top Bar */}
-        <div className="px-[4vw] py-[3vw] sm:px-[1.8vw] sm:py-[1.3vw] border-b border-secondary/15 flex items-center justify-between bg-primary">
+        <div className="px-[4vw] py-[3vw] sm:px-[1.8vw] sm:py-[1.3vw] border-b border-secondary/15 flex items-center justify-between bg-primary shrink-0">
           <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
             <div className="drop-shadow rounded-[0.25vw]">
               <div
@@ -101,11 +101,6 @@ export function SongSearchModal({
           data-lenis-prevent
           style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
           className="p-[4vw] sm:p-[1.8vw] space-y-[3vw] sm:space-y-[1.4vw] flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y"
-          onScroll={() => {
-            if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement && document.activeElement.tagName === "INPUT") {
-              document.activeElement.blur();
-            }
-          }}
         >
           <div>
             <input
@@ -137,41 +132,34 @@ export function SongSearchModal({
           )}
 
           {results.length > 0 && (
-            <div className="divide-y divide-secondary/10 border border-secondary/15 rounded-[0.4vw] overflow-hidden bg-primary drop-shadow-soft touch-pan-y">
+            <div className="divide-y divide-secondary/10 border border-secondary/15 rounded-[0.4vw] bg-primary drop-shadow-soft">
               {results.map((song) => {
                 const isSaving = submittingId === song.id;
                 const btnLabel = isSaving ? "Saving..." : "Select";
                 return (
                   <div
                     key={song.id}
-                    style={{ touchAction: "pan-y" }}
-                    className="flex items-center justify-between p-[2.5vw] sm:p-[0.9vw] hover:bg-secondary/[0.03] transition-colors gap-[2vw] sm:gap-[1vw] touch-pan-y select-none cursor-pointer"
-                    onClick={(e) => {
-                      // Allow tapping anywhere on the row to pick the song, but not if clicking the button directly
-                      if (!(e.target as HTMLElement).closest("button")) {
-                        handlePick(song);
-                      }
-                    }}
+                    className="flex items-center justify-between p-[2.5vw] sm:p-[0.9vw] hover:bg-secondary/[0.03] transition-colors gap-[2vw] sm:gap-[1vw]"
                   >
-                    <div className="flex items-center gap-[2vw] sm:gap-[0.8vw] overflow-hidden touch-pan-y flex-1 min-w-0 pointer-events-none select-none">
+                    <div className="flex items-center gap-[2vw] sm:gap-[0.8vw] flex-1 min-w-0">
                       {song.coverUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={song.coverUrl}
                           alt={song.title}
                           draggable={false}
-                          className="aspect-square w-[11vw] sm:w-[3.2vw] object-cover rounded-[0.25vw] flex-shrink-0 drop-shadow pointer-events-none select-none"
+                          className="aspect-square w-[11vw] sm:w-[3.2vw] object-cover rounded-[0.25vw] flex-shrink-0 drop-shadow pointer-events-none"
                         />
                       ) : (
-                        <div className="aspect-square w-[11vw] sm:w-[3.2vw] rounded-[0.25vw] bg-secondary/10 flex items-center justify-center extraSmallText text-secondary/60 flex-shrink-0 pointer-events-none select-none">
+                        <div className="aspect-square w-[11vw] sm:w-[3.2vw] rounded-[0.25vw] bg-secondary/10 flex items-center justify-center extraSmallText text-secondary/60 flex-shrink-0 pointer-events-none">
                           ♪
                         </div>
                       )}
-                      <div className="overflow-hidden pointer-events-none select-none">
-                        <h4 className="smallText font-medium text-secondary truncate pointer-events-none select-none">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="smallText font-medium text-secondary truncate">
                           {song.title}
                         </h4>
-                        <p className="extraSmallText text-secondary/60 truncate pointer-events-none select-none">
+                        <p className="extraSmallText text-secondary/60 truncate">
                           {song.artistName}
                         </p>
                       </div>
