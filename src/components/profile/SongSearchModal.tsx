@@ -97,7 +97,11 @@ export function SongSearchModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-[4vw] sm:p-[1.8vw] space-y-[3vw] sm:space-y-[1.4vw] flex-1 overflow-y-auto">
+        <div
+          data-lenis-prevent
+          style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+          className="p-[4vw] sm:p-[1.8vw] space-y-[3vw] sm:space-y-[1.4vw] flex-1 overflow-y-auto overscroll-contain touch-pan-y"
+        >
           <div>
             <input
               type="text"
@@ -128,22 +132,24 @@ export function SongSearchModal({
           )}
 
           {results.length > 0 && (
-            <div className="divide-y divide-secondary/10 border border-secondary/15 rounded-[0.4vw] overflow-hidden bg-primary drop-shadow-soft">
+            <div className="divide-y divide-secondary/10 border border-secondary/15 rounded-[0.4vw] overflow-hidden bg-primary drop-shadow-soft touch-pan-y">
               {results.map((song) => {
                 const isSaving = submittingId === song.id;
                 const btnLabel = isSaving ? "Saving..." : "Select";
                 return (
                   <div
                     key={song.id}
-                    className="flex items-center justify-between p-[2.5vw] sm:p-[0.9vw] hover:bg-secondary/[0.03] transition-colors gap-[2vw] sm:gap-[1vw]"
+                    style={{ touchAction: "pan-y" }}
+                    className="flex items-center justify-between p-[2.5vw] sm:p-[0.9vw] hover:bg-secondary/[0.03] transition-colors gap-[2vw] sm:gap-[1vw] touch-pan-y"
                   >
-                    <div className="flex items-center gap-[2vw] sm:gap-[0.8vw] overflow-hidden">
+                    <div className="flex items-center gap-[2vw] sm:gap-[0.8vw] overflow-hidden touch-pan-y">
                       {song.coverUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={song.coverUrl}
                           alt={song.title}
-                          className="aspect-square w-[11vw] sm:w-[3.2vw] object-cover rounded-[0.25vw] flex-shrink-0 drop-shadow"
+                          draggable={false}
+                          className="aspect-square w-[11vw] sm:w-[3.2vw] object-cover rounded-[0.25vw] flex-shrink-0 drop-shadow pointer-events-none select-none"
                         />
                       ) : (
                         <div className="aspect-square w-[11vw] sm:w-[3.2vw] rounded-[0.25vw] bg-secondary/10 flex items-center justify-center extraSmallText text-secondary/60 flex-shrink-0">

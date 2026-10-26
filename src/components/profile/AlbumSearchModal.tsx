@@ -252,7 +252,11 @@ export function AlbumSearchModal({
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-[4vw] sm:p-[1.8vw] space-y-[3vw] sm:space-y-[1.4vw]">
+        <div
+          data-lenis-prevent
+          style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+          className="flex-1 overflow-y-auto p-[4vw] sm:p-[1.8vw] space-y-[3vw] sm:space-y-[1.4vw] overscroll-contain touch-pan-y"
+        >
           {selectedAlbum ? (
             // Edition / Pressing Selection Step
             <div className="space-y-[3vw] sm:space-y-[1.4vw]">
@@ -283,7 +287,7 @@ export function AlbumSearchModal({
                   <p className="detailText text-secondary/50 lowercase mb-[2vw] sm:mb-[0.8vw]">
                     available pressings & sleeves
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-[2vw] sm:gap-[1vw]">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-[2vw] sm:gap-[1vw] touch-pan-y">
                     {editions.map((ed, idx) => {
                       const isSelected = selectedEdition?.coverUrl === ed.coverUrl;
                       return (
@@ -291,18 +295,20 @@ export function AlbumSearchModal({
                           key={`${ed.releaseMbid}-${idx}`}
                           type="button"
                           onClick={() => setSelectedEdition(ed)}
-                          className={`relative flex flex-col p-[1.5vw] sm:p-[0.75vw] rounded-[0.4vw] border cursor-pointer transition-all text-left ${
+                          style={{ touchAction: "pan-y" }}
+                          className={`relative flex flex-col p-[1.5vw] sm:p-[0.75vw] rounded-[0.4vw] border cursor-pointer transition-all text-left touch-pan-y select-none ${
                             isSelected
                               ? "border-secondary bg-secondary/[0.06] drop-shadow-soft"
                               : "border-secondary/15 hover:border-secondary/40 bg-secondary/[0.02]"
                           }`}
                         >
-                          <div className="relative aspect-square w-full rounded-[0.3vw] overflow-hidden mb-[1.5vw] sm:mb-[0.6vw] bg-secondary/10 drop-shadow">
+                          <div className="relative aspect-square w-full rounded-[0.3vw] overflow-hidden mb-[1.5vw] sm:mb-[0.6vw] bg-secondary/10 drop-shadow pointer-events-none select-none">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={ed.coverUrl}
                               alt={ed.title}
-                              className="w-full h-full object-cover"
+                              draggable={false}
+                              className="w-full h-full object-cover pointer-events-none select-none"
                             />
                             {isSelected && (
                               <span
@@ -392,7 +398,7 @@ export function AlbumSearchModal({
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-[2vw] sm:gap-[1vw]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-[2vw] sm:gap-[1vw] touch-pan-y">
                   <div>
                     <label className="block extraSmallText text-secondary/70 mb-[1vw] sm:mb-[0.3vw]">
                       Release Year <span className="text-secondary/40">(optional)</span>
@@ -503,19 +509,21 @@ export function AlbumSearchModal({
               )}
 
               {results.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-[2vw] sm:gap-[1vw]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-[2vw] sm:gap-[1vw] touch-pan-y">
                   {results.map((alb) => (
                     <button
                       key={alb.id}
                       type="button"
                       onClick={() => handlePickAlbum(alb)}
-                      className="bg-primary hover:bg-secondary/[0.03] border border-secondary/15 hover:border-secondary/40 rounded-[0.4vw] p-[2vw] sm:p-[0.9vw] flex items-center gap-[1.5vw] sm:gap-[0.8vw] drop-shadow-soft cursor-pointer transition-all group text-left"
+                      style={{ touchAction: "pan-y" }}
+                      className="bg-primary hover:bg-secondary/[0.03] border border-secondary/15 hover:border-secondary/40 rounded-[0.4vw] p-[2vw] sm:p-[0.9vw] flex items-center gap-[1.5vw] sm:gap-[0.8vw] drop-shadow-soft cursor-pointer transition-all group text-left touch-pan-y select-none"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={alb.defaultCoverUrl}
                         alt={alb.title}
-                        className="aspect-square w-[14vw] sm:w-[4.2vw] rounded-[0.3vw] object-cover flex-shrink-0 drop-shadow group-hover:scale-105 transition-transform"
+                        draggable={false}
+                        className="aspect-square w-[14vw] sm:w-[4.2vw] rounded-[0.3vw] object-cover flex-shrink-0 drop-shadow group-hover:scale-105 transition-transform pointer-events-none select-none"
                       />
                       <div className="overflow-hidden flex-1">
                         <h4 className="smallText font-medium text-secondary truncate">

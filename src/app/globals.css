@@ -73,6 +73,11 @@
   line-height: 1;
 }
 
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
 ::selection {
   background-color: #ffd83d80;
 }
@@ -212,12 +217,15 @@ body {
 .lenis:not(.lenis-autoToggle).lenis-stopped {
   overflow: clip;
 }
+[data-lenis-prevent],
 .lenis [data-lenis-prevent],
 .lenis [data-lenis-prevent-horizontal],
 .lenis [data-lenis-prevent-touch],
 .lenis [data-lenis-prevent-vertical],
 .lenis [data-lenis-prevent-wheel] {
   overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 .lenis.lenis-smooth iframe {
   pointer-events: none;
