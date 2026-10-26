@@ -229,7 +229,7 @@ export function AlbumSearchModal({
       data-lenis-prevent
       className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-2xl bg-primary text-secondary border border-secondary/15 rounded-[0.6vw] drop-shadow-soft overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="relative w-full max-w-2xl bg-primary text-secondary border border-secondary/15 rounded-[1.5vw] sm:rounded-[0.6vw] drop-shadow-soft overflow-hidden flex flex-col max-h-[85dvh] sm:max-h-[85vh]">
         {/* Modal Top Bar */}
         <div className="px-[4vw] py-[3vw] sm:px-[1.8vw] sm:py-[1.3vw] border-b border-secondary/15 flex items-center justify-between bg-primary">
           <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
@@ -255,7 +255,12 @@ export function AlbumSearchModal({
         <div
           data-lenis-prevent
           style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
-          className="flex-1 overflow-y-auto p-[4vw] sm:p-[1.8vw] space-y-[3vw] sm:space-y-[1.4vw] overscroll-contain touch-pan-y"
+          className="flex-1 min-h-0 overflow-y-auto p-[4vw] sm:p-[1.8vw] space-y-[3vw] sm:space-y-[1.4vw] overscroll-contain touch-pan-y"
+          onScroll={() => {
+            if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement && document.activeElement.tagName === "INPUT") {
+              document.activeElement.blur();
+            }
+          }}
         >
           {selectedAlbum ? (
             // Edition / Pressing Selection Step

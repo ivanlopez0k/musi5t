@@ -208,7 +208,7 @@ function CreateListFormContent({
         <div
             data-lenis-prevent
             style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
-            className="w-full max-w-[680px] max-h-[92vh] overflow-y-auto hide-scrollbar bg-primary text-secondary border border-secondary/15 rounded-[1.5vw] sm:rounded-[0.5vw] drop-shadow-soft p-[5vw] sm:p-[2.5vw] flex flex-col gap-[4vw] sm:gap-[1.5vw] relative overscroll-contain touch-pan-y"
+            className="w-full max-w-[680px] max-h-[90dvh] sm:max-h-[92vh] overflow-y-auto hide-scrollbar bg-primary text-secondary border border-secondary/15 rounded-[1.5vw] sm:rounded-[0.5vw] drop-shadow-soft p-[5vw] sm:p-[2.5vw] flex flex-col gap-[4vw] sm:gap-[1.5vw] relative overscroll-contain touch-pan-y"
           >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-secondary/10 pb-[3vw] sm:pb-[1vw]">
