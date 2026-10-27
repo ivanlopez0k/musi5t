@@ -261,7 +261,7 @@ export function AlbumSearchModal({
             // Edition / Pressing Selection Step
             <div className="space-y-[3vw] sm:space-y-[1.4vw]">
               <div className="flex items-center justify-between pb-[2.5vw] sm:pb-[1vw] border-b border-secondary/15">
-                <div className="overflow-hidden pr-[2vw]">
+                <div className="min-w-0 pr-[2vw]">
                   <h3 className="mediumText text-secondary truncate">
                     {selectedAlbum.title}
                   </h3>
@@ -291,9 +291,8 @@ export function AlbumSearchModal({
                     {editions.map((ed, idx) => {
                       const isSelected = selectedEdition?.coverUrl === ed.coverUrl;
                       return (
-                        <button
+                        <div
                           key={`${ed.releaseMbid}-${idx}`}
-                          type="button"
                           onClick={() => setSelectedEdition(ed)}
                           style={{ touchAction: "pan-y" }}
                           className={`relative flex flex-col p-[1.5vw] sm:p-[0.75vw] rounded-[0.4vw] border cursor-pointer transition-all text-left touch-pan-y ${
@@ -302,13 +301,13 @@ export function AlbumSearchModal({
                               : "border-secondary/15 hover:border-secondary/40 bg-secondary/[0.02]"
                           }`}
                         >
-                          <div className="relative aspect-square w-full rounded-[0.3vw] overflow-hidden mb-[1.5vw] sm:mb-[0.6vw] bg-secondary/10 drop-shadow pointer-events-none">
+                          <div className="relative aspect-square w-full rounded-[0.3vw] mb-[1.5vw] sm:mb-[0.6vw] bg-secondary/10 drop-shadow pointer-events-none">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={ed.coverUrl}
                               alt={ed.title}
                               draggable={false}
-                              className="w-full h-full object-cover pointer-events-none"
+                              className="w-full h-full object-cover rounded-[0.3vw] pointer-events-none"
                             />
                             {isSelected && (
                               <span
@@ -319,10 +318,10 @@ export function AlbumSearchModal({
                               </span>
                             )}
                           </div>
-                          <span className="extraSmallTextBold text-secondary truncate">
+                          <span className="extraSmallTextBold text-secondary truncate pointer-events-none">
                             {ed.title}
                           </span>
-                          <div className="flex items-center gap-[1vw] sm:gap-[0.35vw] min-w-0 mt-[0.5vw] sm:mt-[0.2vw]">
+                          <div className="flex items-center gap-[1vw] sm:gap-[0.35vw] min-w-0 mt-[0.5vw] sm:mt-[0.2vw] pointer-events-none">
                             {ed.country && (
                               <span className="detailText font-mono uppercase px-[1.2vw] sm:px-[0.35vw] py-[0.1vw] bg-secondary/10 rounded-[0.2vw] text-secondary font-semibold shrink-0">
                                 {ed.country}
@@ -332,7 +331,7 @@ export function AlbumSearchModal({
                               {ed.disambiguation || (ed.country ? `${ed.country} Pressing` : "Official Release")}
                             </span>
                           </div>
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -509,33 +508,55 @@ export function AlbumSearchModal({
               )}
 
               {results.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-[2vw] sm:gap-[1vw] touch-pan-y">
-                  {results.map((alb) => (
-                    <button
-                      key={alb.id}
-                      type="button"
-                      onClick={() => handlePickAlbum(alb)}
-                      style={{ touchAction: "pan-y" }}
-                      className="bg-primary hover:bg-secondary/[0.03] border border-secondary/15 hover:border-secondary/40 rounded-[0.4vw] p-[2vw] sm:p-[0.9vw] flex items-center gap-[1.5vw] sm:gap-[0.8vw] drop-shadow-soft cursor-pointer transition-all group text-left touch-pan-y"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={alb.defaultCoverUrl}
-                        alt={alb.title}
-                        draggable={false}
-                        className="aspect-square w-[14vw] sm:w-[4.2vw] rounded-[0.3vw] object-cover flex-shrink-0 drop-shadow group-hover:scale-105 transition-transform pointer-events-none"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="smallText font-medium text-secondary truncate">
-                          {alb.title}
-                        </h4>
-                        <p className="extraSmallText text-secondary/60 truncate">
-                          {alb.artistName}{" "}
-                          {alb.releaseYear ? `• ${alb.releaseYear}` : ""}
-                        </p>
+                <div className="divide-y divide-secondary/10 border border-secondary/15 rounded-[0.4vw] bg-primary drop-shadow-soft">
+                  {results.map((alb) => {
+                    const btnLabel = submitting ? "Saving..." : "Select";
+                    return (
+                      <div
+                        key={alb.id}
+                        className="flex items-center justify-between p-[2.5vw] sm:p-[0.9vw] hover:bg-secondary/[0.03] transition-colors gap-[2vw] sm:gap-[1vw]"
+                      >
+                        <div className="flex items-center gap-[2vw] sm:gap-[0.8vw] flex-1 min-w-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={alb.defaultCoverUrl}
+                            alt={alb.title}
+                            draggable={false}
+                            className="aspect-square w-[11vw] sm:w-[3.2vw] object-cover rounded-[0.25vw] flex-shrink-0 drop-shadow pointer-events-none"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="smallText font-medium text-secondary truncate">
+                              {alb.title}
+                            </h4>
+                            <p className="extraSmallText text-secondary/60 truncate">
+                              {alb.artistName}{" "}
+                              {alb.releaseYear ? `• ${alb.releaseYear}` : ""}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="drop-shadow rounded-[1vw] sm:rounded-[0.25vw] flex-shrink-0">
+                          <button
+                            type="button"
+                            disabled={submitting}
+                            onClick={() => handlePickAlbum(alb)}
+                            className="main-btn smallText text-secondary disabled:opacity-50 cursor-pointer"
+                            style={{ backgroundColor: accentColor }}
+                          >
+                            <span className="main-btn__icon" aria-hidden="true" />
+                            <span className="main-btn__label">
+                              <span className="main-btn__clip">
+                                <span className="main-btn__from">{btnLabel}</span>
+                                <span className="main-btn__to" aria-hidden="true">
+                                  {btnLabel}
+                                </span>
+                              </span>
+                            </span>
+                          </button>
+                        </div>
                       </div>
-                    </button>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 

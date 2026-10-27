@@ -951,13 +951,14 @@ export function ProfileView({
 
                     {/* Right 4 Columns: Refined Compact Avatar Card */}
                     <div className="col-span-full sm:col-span-4 flex flex-col sm:items-end justify-between gap-[2vw] sm:gap-[1vw] mt-[6vw] sm:mt-0 profile-hero-reveal">
-                      <div className="w-[28vw] sm:w-[9.5vw] aspect-square rounded-[0.4vw] overflow-hidden drop-shadow-soft bg-secondary relative flex items-center justify-center group">
+                      <div className="w-[28vw] sm:w-[9.5vw] aspect-square rounded-[0.4vw] drop-shadow-soft bg-secondary relative flex items-center justify-center group">
                         {avatarUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={avatarUrl}
                             alt={displayName}
-                            className="w-full h-full object-cover select-none transition-transform duration-700 group-hover:scale-105"
+                            draggable={false}
+                            className="w-full h-full object-cover rounded-[0.4vw] transition-transform duration-700 group-hover:scale-105 pointer-events-none"
                           />
                         ) : (
                           <div
@@ -1107,7 +1108,7 @@ export function ProfileView({
                   ref={recordsContainerRef}
                   id="records"
                   data-nav-color="secondary"
-                  className="w-full relative select-none pt-[2vw] pb-[8vw] sm:pb-[6vw] bg-transparent text-secondary z-10"
+                  className="w-full relative pt-[2vw] pb-[8vw] sm:pb-[6vw] bg-transparent text-secondary z-10"
                 >
                   <div className="layout-grid mb-[2vw]">
                     <div className="col-span-full flex justify-between items-center">
@@ -1242,7 +1243,8 @@ export function ProfileView({
                                         target.src = "/images/musi5t/vinyl_player.webp";
                                       }
                                     }}
-                                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 select-none"
+                                    draggable={false}
+                                    className="w-full h-full object-cover rounded-[0.5vw] transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
                                   />
                                 </Link>
                               </div>
@@ -1286,7 +1288,7 @@ export function ProfileView({
                                 : "col-span-1 w-full"
                             } ${isOwner ? "cursor-pointer" : "opacity-80"}`}
                           >
-                            <div className="w-full aspect-square rounded-[0.5vw] overflow-hidden drop-shadow-soft bg-secondary text-primary relative flex flex-col justify-between p-[3.5vw] sm:p-[1.2vw]">
+                            <div className="w-full aspect-square rounded-[0.5vw] drop-shadow-soft bg-secondary text-primary relative flex flex-col justify-between p-[3.5vw] sm:p-[1.2vw]">
                               {/* Top Rank Badge */}
                               <div className="flex items-center justify-between z-10">
                                 <span
@@ -1336,7 +1338,7 @@ export function ProfileView({
                 <section
                   id="tracks"
                   data-nav-color="secondary"
-                  className="w-full bg-transparent text-secondary py-[6vw] sm:py-[4vw] relative z-10 select-none"
+                  className="w-full bg-transparent text-secondary py-[6vw] sm:py-[4vw] relative z-10"
                 >
                   <div className="layout-grid mb-[4vw] sm:mb-[2.5vw]">
                     <div className="col-span-full flex justify-between items-center">
@@ -1404,7 +1406,7 @@ export function ProfileView({
                             <div className="col-span-3 sm:col-span-7 flex items-center gap-[2.5vw] sm:gap-[1.5vw] min-w-0 group-hover:translate-x-[0.4vw] transition-transform duration-300">
                               <div
                                 onClick={handleSongPlayback}
-                                className="relative w-[11vw] h-[11vw] sm:w-[3.8vw] sm:h-[3.8vw] rounded-[0.3vw] overflow-hidden shrink-0 group/cover cursor-pointer drop-shadow-soft"
+                                className="relative w-[11vw] h-[11vw] sm:w-[3.8vw] sm:h-[3.8vw] rounded-[0.3vw] shrink-0 group/cover cursor-pointer drop-shadow-soft"
                               >
                                 {song.coverUrl ? (
                                   // eslint-disable-next-line @next/next/no-img-element
@@ -1417,7 +1419,8 @@ export function ProfileView({
                                         target.src = "/images/musi5t/vinyl_player.webp";
                                       }
                                     }}
-                                    className="w-full h-full object-cover"
+                                    draggable={false}
+                                    className="w-full h-full object-cover rounded-[0.3vw] pointer-events-none"
                                   />
                                 ) : (
                                   <div
@@ -1461,10 +1464,7 @@ export function ProfileView({
                                 </div>
                               </div>
 
-                              <div
-                                className="min-w-0 cursor-pointer"
-                                onClick={handleSongPlayback}
-                              >
+                              <div className="min-w-0">
                                 <div className="flex items-center gap-2">
                                   <h3
                                     className={`mediumText font-medium truncate transition-colors ${
@@ -1583,7 +1583,7 @@ export function ProfileView({
                 <section
                   id="lists"
                   data-nav-color="secondary"
-                  className="w-full bg-transparent text-secondary py-[6vw] sm:py-[4vw] relative z-10 select-none"
+                  className="w-full bg-transparent text-secondary py-[6vw] sm:py-[4vw] relative z-10"
                 >
                   <div className="layout-grid mb-[4vw] sm:mb-[2.5vw]">
                     <div className="col-span-full flex justify-between items-center">
@@ -1756,7 +1756,7 @@ export function ProfileView({
                 {/* 5. DARK EDITORIAL FOOTER (matching src/app/page.tsx) */}
                 <footer
                   data-nav-color="primary"
-                  className="w-full bg-secondary text-primary layout-grid pt-[6vw] pb-[4vw] border-t border-primary/10 select-none relative z-10"
+                  className="w-full bg-secondary text-primary layout-grid pt-[6vw] pb-[4vw] border-t border-primary/10 relative z-10"
                 >
                   {/* Profile & Platform Links */}
                   <div className="col-span-full sm:col-span-4 flex flex-col gap-[1.5vw] mb-[8vw] sm:mb-0">
